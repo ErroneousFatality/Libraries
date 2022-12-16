@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HDF.PInvoke.1.10" Version="1.10.612" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common\AndrejKrizan.Common.csproj" />
+  </ItemGroup>
+
+</Project>
