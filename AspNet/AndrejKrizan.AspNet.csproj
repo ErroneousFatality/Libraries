@@ -1,13 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<Authors>ErroneousFatality</Authors>
+		<RepositoryUrl>https://github.com/ErroneousFatality/Libraries</RepositoryUrl>
+		<PackageOutputPath>..\Nugets</PackageOutputPath>
 	</PropertyGroup>
+
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
+
 	<ItemGroup>
-	  <ProjectReference Include="..\Common\AndrejKrizan.Common.csproj" />
+		<ProjectReference Include="..\Common\AndrejKrizan.Common.csproj" />
 	</ItemGroup>
+
 </Project>
