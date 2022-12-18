@@ -12,7 +12,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AndrejKrizan.Common" Version="1.0.2" />
 		<PackageReference Include="HDF.PInvoke.1.10" Version="1.10.612" />
 	</ItemGroup>
 

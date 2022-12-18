@@ -16,10 +16,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AndrejKrizan.Common" Version="1.0.2" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\Common\AndrejKrizan.Common.csproj" />
 	</ItemGroup>
 
