@@ -7,10 +7,16 @@
 		<Authors>ErroneousFatality</Authors>
 		<RepositoryUrl>https://github.com/ErroneousFatality/Libraries</RepositoryUrl>
 		<PackageOutputPath>..\Nugets</PackageOutputPath>
+		<Version>1.0.1</Version>
+		<SignAssembly>True</SignAssembly>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AndrejKrizan.Common" Version="1.*" />
 	</ItemGroup>
 
 	<ItemGroup>

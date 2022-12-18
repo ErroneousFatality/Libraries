@@ -7,10 +7,13 @@
 		<Authors>ErroneousFatality</Authors>
 		<RepositoryUrl>https://github.com/ErroneousFatality/Libraries</RepositoryUrl>
 		<PackageOutputPath>..\..\Nugets</PackageOutputPath>
+		<Version>1.0.1</Version>
+		<SignAssembly>True</SignAssembly>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.1" />
+		<PackageReference Include="AndrejKrizan.Common" Version="1.*" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.*" />
 	</ItemGroup>
 
 	<ItemGroup>
