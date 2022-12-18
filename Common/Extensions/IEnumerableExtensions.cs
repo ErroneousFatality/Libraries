@@ -364,7 +364,7 @@ namespace AndrejKrizan.Common.Extensions
             {
                 throw new ArgumentException("All the columns must be the same size.", nameof(columns));
             }
-            var rowBuilders = new ImmutableArray<T>.Builder[height].Fill(ImmutableArray.CreateBuilder<T>(width));
+            ImmutableArray<T>.Builder[] rowBuilders = new ImmutableArray<T>.Builder[height].Fill(_ => ImmutableArray.CreateBuilder<T>(width));
             foreach (IEnumerable<T> column in columns)
             {
                 int rowIndex = 0;

@@ -7,7 +7,7 @@
 		<Authors>ErroneousFatality</Authors>
 		<RepositoryUrl>https://github.com/ErroneousFatality/Libraries</RepositoryUrl>
 		<PackageOutputPath>..\Nugets</PackageOutputPath>
-		<Version>1.0.1</Version>
+		<Version>1.0.2</Version>
 		<SignAssembly>True</SignAssembly>
 	</PropertyGroup>
 
@@ -16,7 +16,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AndrejKrizan.Common" Version="1.*" />
+		<PackageReference Include="AndrejKrizan.Common" Version="1.0.2" />
 	</ItemGroup>
 
 	<ItemGroup>
