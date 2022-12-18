@@ -11,7 +11,7 @@ namespace AndrejKrizan.Common.Extensions
             where T : notnull
         {
             IEnumerable<string?> strings = quote
-                ? source.Select(x => $"\"{x}\"")
+                ? source.Select(x => '\"' + x.ToString() + '\"')
                 : source.Select(x => x.ToString());
             return string.Join(separator, strings);
         }
@@ -20,7 +20,7 @@ namespace AndrejKrizan.Common.Extensions
             where T : notnull
         {
             IEnumerable<string?> strings = quote
-                ? source.Select(x => $"\"{x}\"")
+                ? source.Select(x => '\"' + x.ToString() + '\"')
                 : source.Select(x => x.ToString());
             return string.Join(separator, strings);
         }
