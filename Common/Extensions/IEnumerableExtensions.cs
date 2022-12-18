@@ -344,40 +344,6 @@ namespace AndrejKrizan.Common.Extensions
             => source.MaxByOrDefault(valueSelector, out maxValue, Comparer<TValue>.Default);
         #endregion
 
-        #region Transpose
-        public static ImmutableArray<ImmutableArray<T>> Transpose<T>(this IEnumerable<ImmutableArray<T>> columns)
-            => columns.Transpose<T, ImmutableArray<T>>();
-        public static ImmutableArray<ImmutableArray<T>> Transpose<T>(this IEnumerable<IReadOnlyCollection<T>> columns)
-            => columns.Transpose<T, IReadOnlyCollection<T>>();
-        public static ImmutableArray<ImmutableArray<T>> Transpose<T>(this IEnumerable<IEnumerable<T>> columns)
-            => columns.Transpose<T, IEnumerable<T>>();
-        private static ImmutableArray<ImmutableArray<T>> Transpose<T, TRow>(this IEnumerable<TRow> columns)
-            where TRow : IEnumerable<T>
-        {
-            int width = columns.Count();
-            int height = columns.FirstOrDefault()?.Count() ?? 0;
-            if (height == 0 || width == 0)
-            {
-                return ImmutableArray<ImmutableArray<T>>.Empty;
-            }
-            if (columns.Skip(1).Any(column => column.Count() != height))
-            {
-                throw new ArgumentException("All the columns must be the same size.", nameof(columns));
-            }
-            ImmutableArray<T>.Builder[] rowBuilders = new ImmutableArray<T>.Builder[height].Fill(_ => ImmutableArray.CreateBuilder<T>(width));
-            foreach (IEnumerable<T> column in columns)
-            {
-                int rowIndex = 0;
-                foreach (T item in column)
-                {
-                    rowBuilders[rowIndex++].Add(item);
-                }
-            }
-            ImmutableArray<ImmutableArray<T>> matrix = rowBuilders.ToImmutableArray(rowBuilder => rowBuilder.MoveToImmutable());
-            return matrix;
-        }
-        #endregion
-
         #region IndexOf
         public static int IndexOf<T>(this IEnumerable<T> source, T item, IComparer<T> comparer)
         {
@@ -420,5 +386,32 @@ namespace AndrejKrizan.Common.Extensions
             where T : struct
             => source.GetRange(Comparer<T>.Default);
         #endregion
+
+        public static ImmutableArray<ImmutableArray<T>> Transpose<T, TRow>(this IEnumerable<TRow> columns)
+            where TRow : IEnumerable<T>
+        {
+            int width = columns.Count();
+            int height = columns.FirstOrDefault()?.Count() ?? 0;
+            if (height == 0 || width == 0)
+            {
+                return ImmutableArray<ImmutableArray<T>>.Empty;
+            }
+            if (columns.Skip(1).Any(column => column.Count() != height))
+            {
+                throw new ArgumentException("All the columns must be the same size.", nameof(columns));
+            }
+            ImmutableArray<T>.Builder[] rowBuilders = new ImmutableArray<T>.Builder[height].Fill(_ => ImmutableArray.CreateBuilder<T>(width));
+            foreach (IEnumerable<T> column in columns)
+            {
+                int rowIndex = 0;
+                foreach (T item in column)
+                {
+                    rowBuilders[rowIndex++].Add(item);
+                }
+            }
+            ImmutableArray<ImmutableArray<T>> matrix = rowBuilders.ToImmutableArray(rowBuilder => rowBuilder.MoveToImmutable());
+            return matrix;
+        }
+
     }
 }
