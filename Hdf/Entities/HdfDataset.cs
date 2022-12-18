@@ -27,9 +27,9 @@ namespace AndrejKrizan.Hdf.Entities
             : this(parent, name, type, Array.Empty<ulong>(), attributes) { }
 
         public HdfDataset(HdfObject parent, string name, ulong[] dimensions, params HdfAttributeDto[] attributes)
-            : this(parent, name, new HDFType<T>(), dimensions, attributes) { }
+            : this(parent, name, new HdfType<T>(), dimensions, attributes) { }
         public HdfDataset(HdfObject parent, string name, params HdfAttributeDto[] attributes)
-            : this(parent, name, new HDFType<T>(), Array.Empty<ulong>(), attributes) { }
+            : this(parent, name, new HdfType<T>(), Array.Empty<ulong>(), attributes) { }
 
         // Methods
         public override string Describe()
@@ -90,7 +90,7 @@ namespace AndrejKrizan.Hdf.Entities
                     file_space_id: H5S.ALL,
                     plist_id: H5P.DEFAULT,
                     buf: pointable.Pointer
-                ).ValidateHDFResponse(() => $"write to {DescriptionWithPathName}");
+                ).ValidateHdfResponse(() => $"write to {DescriptionWithPathName}");
             }
         }
     }

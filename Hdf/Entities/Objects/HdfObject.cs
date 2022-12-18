@@ -46,7 +46,7 @@ namespace AndrejKrizan.Hdf.Entities.Objects
                 throw new InvalidOperationException($"The {DescriptionWithPathName} was already created.");
             }
             Parent?.OpenOrCreate();
-            SetId(CreateInternal().ValidateHDFId(() => $"create {DescriptionWithPathName}"));
+            SetId(CreateInternal().ValidateHdfId(() => $"create {DescriptionWithPathName}"));
             IsCreated = true;
             return this;
         }
@@ -63,7 +63,7 @@ namespace AndrejKrizan.Hdf.Entities.Objects
             else
             {
                 Parent?.OpenOrCreate();
-                SetId(OpenInternal().ValidateHDFId(() => $"open {DescriptionWithPathName}"));
+                SetId(OpenInternal().ValidateHdfId(() => $"open {DescriptionWithPathName}"));
                 GC.ReRegisterForFinalize(this);
             }
             return this;
@@ -105,7 +105,7 @@ namespace AndrejKrizan.Hdf.Entities.Objects
             {
                 throw new InvalidOperationException($"{DescriptionWithPathName} is already open.");
             }
-            _id = id.ValidateHDFId(() => $"set id of {DescriptionWithPathName}");
+            _id = id.ValidateHdfId(() => $"set id of {DescriptionWithPathName}");
             _openedScopeCount = 1;
         }
 
@@ -115,7 +115,7 @@ namespace AndrejKrizan.Hdf.Entities.Objects
             {
                 throw new InvalidOperationException($"The {DescriptionWithPathName} is not open.");
             }
-            CloseInternal().ValidateHDFResponse(() => $"close {DescriptionWithPathName}");
+            CloseInternal().ValidateHdfResponse(() => $"close {DescriptionWithPathName}");
             _id = null;
             _openedScopeCount = 0;
             Parent?.Dispose();

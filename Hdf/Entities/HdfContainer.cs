@@ -119,6 +119,7 @@ namespace AndrejKrizan.Hdf.Entities
             where T : notnull
             => CreateDataset(pathName, value, dispose: true, attributes);
 
+
         public HdfDataset<T> CreateDataset<T>(string pathName, IReadOnlyCollection<T> collection, bool dispose = true, params HdfAttributeDto[] attributes)
             where T : notnull
             => CreateDataset(
@@ -152,6 +153,7 @@ namespace AndrejKrizan.Hdf.Entities
             where T : notnull
             => CreateDataset(pathName, array, dispose: true, attributes);
 
+
         public HdfDataset<T> CreateDataset<T>(string pathName, IReadOnlyCollection<IReadOnlyCollection<T>> matrix, bool dispose = true, params HdfAttributeDto[] attributes)
             where T : notnull
             => CreateDataset(
@@ -161,6 +163,12 @@ namespace AndrejKrizan.Hdf.Entities
                 dispose
             );
         public HdfDataset<T> CreateDataset<T>(string pathName, IReadOnlyCollection<IReadOnlyCollection<T>> matrix, params HdfAttributeDto[] attributes)
+            where T : notnull
+            => CreateDataset(pathName, matrix, dispose: true, attributes);
+        public HdfDataset<T> CreateDataset<T>(string pathName, IReadOnlyCollection<ImmutableArray<T>> matrix, bool dispose = true, params HdfAttributeDto[] attributes)
+            where T : notnull
+            => CreateDataset(pathName, (IReadOnlyCollection<IReadOnlyCollection<T>>)matrix, dispose, attributes);
+        public HdfDataset<T> CreateDataset<T>(string pathName, IReadOnlyCollection<ImmutableArray<T>> matrix, params HdfAttributeDto[] attributes)
             where T : notnull
             => CreateDataset(pathName, matrix, dispose: true, attributes);
 

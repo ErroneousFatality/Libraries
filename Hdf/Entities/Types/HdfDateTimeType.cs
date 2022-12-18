@@ -1,6 +1,6 @@
-﻿using System.Globalization;
+﻿using System.Collections.Immutable;
+using System.Globalization;
 
-using AndrejKrizan.Common.Extensions;
 using AndrejKrizan.Common.ValueObjects.Pointables;
 
 namespace AndrejKrizan.Hdf.Entities.Types
@@ -18,13 +18,15 @@ namespace AndrejKrizan.Hdf.Entities.Types
             => CreatePointable(Stringify(value));
 
         public Pointable CreatePointable(IReadOnlyCollection<DateTime> collection)
-            => CreatePointable(collection.Convert(Stringify));
+            => CreatePointable(collection.Select(Stringify).ToImmutableArray());
 
         public Pointable CreatePointable(IReadOnlyCollection<IReadOnlyCollection<DateTime>> matrix)
-            => CreatePointable(matrix.Convert(row =>
-                    (IReadOnlyCollection<string>)row.Convert(Stringify)
+            => CreatePointable(matrix
+                .Select(row => (IReadOnlyCollection<string>)row
+                    .Select(Stringify)
+                    .ToImmutableArray()
                 )
-            );
+                .ToImmutableArray());
 
         // Static methods
         public static string Stringify(DateTime value)

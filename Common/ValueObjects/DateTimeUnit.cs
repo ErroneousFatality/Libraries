@@ -2,40 +2,36 @@
 {
     public enum DateTimeUnit : byte
     {
-        Ticks = 1,
-        Microseconds = 2,
-        Milliseconds = 3,
-        Seconds = 4,
-        Minutes = 5,
-        Hours = 6,
-        Days = 7,
-        Weeks = 8,
-        Months = 9,
-        Years = 10
+        Milliseconds = 1,
+        Seconds = 2,
+        Minutes = 3,
+        Hours = 4,
+        Days = 5,
+        Weeks = 6,
+        Months = 7,
+        Years = 8
     }
 
     public static class DateTimeUnitExtension
     {
         public static double To(this DateTimeUnit unit, DateTimeUnit targetUnit)
-            => unit.ToTicks() / targetUnit.ToTicks();
+            => unit.ToMilliseconds() / targetUnit.ToMilliseconds();
 
-        public static double ToTicks(this DateTimeUnit unit)
+        public static double ToMilliseconds(this DateTimeUnit unit)
             => unit switch
             {
-                DateTimeUnit.Ticks => 1D,
-                DateTimeUnit.Microseconds => 1e+1,
-                DateTimeUnit.Milliseconds => 1e+4,
-                DateTimeUnit.Seconds => 1e+7,
-                DateTimeUnit.Minutes => 6e+8,
-                DateTimeUnit.Hours => 3.6e+10,
-                DateTimeUnit.Days => 8.64e+11,
-                DateTimeUnit.Weeks => 6.048e+12,
-                DateTimeUnit.Months => 2.628e+13,
-                DateTimeUnit.Years => 3.154e+14,
+                DateTimeUnit.Milliseconds => 1D,
+                DateTimeUnit.Seconds => 1000D,
+                DateTimeUnit.Minutes => 60000D,
+                DateTimeUnit.Hours => 3.6e+6,
+                DateTimeUnit.Days => 8.64e+7,
+                DateTimeUnit.Weeks => 6.048e+8,
+                DateTimeUnit.Months => 2.628e+9,
+                DateTimeUnit.Years => 3.154e+10,
                 _ => throw new ArgumentOutOfRangeException(nameof(unit))
             };
 
         public static TimeSpan ToTimeSpan(this DateTimeUnit unit)
-            => TimeSpan.FromMicroseconds(unit.To(DateTimeUnit.Microseconds));
+            => TimeSpan.FromMilliseconds(unit.ToMilliseconds());
     }
 }

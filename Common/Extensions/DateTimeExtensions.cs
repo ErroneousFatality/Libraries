@@ -5,7 +5,7 @@ namespace AndrejKrizan.Common.Extensions
     public static class DateTimeExtensions
     {
 
-        /// <exception cref="ArgumentException">The datetime is not in UFC format.</exception>
+        /// <exception cref="ArgumentException">The datetime is not in UTC format.</exception>
         public static DateTime AssertKindIsUTC(this DateTime dateTime)
         {
             if (dateTime.Kind != DateTimeKind.Utc)

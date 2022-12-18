@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Text;
 
-using AndrejKrizan.Common.Extensions;
 using AndrejKrizan.Common.ValueObjects.Pointables;
 using AndrejKrizan.Hdf.Entities.Objects;
 using AndrejKrizan.Hdf.Extensions;
@@ -29,14 +28,14 @@ namespace AndrejKrizan.Hdf.Entities.Types
 
         public Pointable CreatePointable(IReadOnlyCollection<string> collection)
         {
-            ImmutableArray<Pointable> pointables = collection.Convert(CreatePointableInternal);
+            ImmutableArray<Pointable> pointables = collection.Select(CreatePointableInternal).ToImmutableArray();
             PointableArray pointableArray = new(pointables);
             return pointableArray;
         }
 
         public Pointable CreatePointable(IReadOnlyCollection<IReadOnlyCollection<string>> matrix)
         {
-            ImmutableArray<Pointable> pointableArrays = matrix.Convert(CreatePointable);
+            ImmutableArray<Pointable> pointableArrays = matrix.Select(CreatePointable).ToImmutableArray();
             PointableArray pointableMatrix = new(pointableArrays);
             return pointableMatrix;
         }
@@ -45,11 +44,11 @@ namespace AndrejKrizan.Hdf.Entities.Types
         protected override long CreateInternal()
         {
             long id = H5T.create(H5T.class_t.STRING, H5T.VARIABLE)
-                .ValidateHDFId(() => $"create a variable-length string type for {Describe()}");
+                .ValidateHdfId(() => $"create a variable-length string type for {Describe()}");
             H5T.set_cset(id, H5T.cset_t.UTF8)
-                .ValidateHDFResponse(() => $"set the character set to UTF8 for {Describe()}");
+                .ValidateHdfResponse(() => $"set the character set to UTF8 for {Describe()}");
             H5T.set_strpad(id, H5T.str_t.NULLTERM)
-                .ValidateHDFResponse(() => $"set the padding to null term for {Describe()}");
+                .ValidateHdfResponse(() => $"set the padding to null term for {Describe()}");
             return id;
         }
 

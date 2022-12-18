@@ -3,18 +3,25 @@
     public static class StringExtensions
     {
         public static string ToCamelCase(this string str)
-            => string.IsNullOrWhiteSpace(str) || str.Length < 2
-                ? str.ToLowerInvariant()
-                : char.ToLowerInvariant(str[0]) + str[1..];
+            => string.IsNullOrWhiteSpace(str)
+                ? str
+                : str.ReplaceAt(0, char.ToLowerInvariant(str[0]));
 
         public static string EnsureStartsWith(this string str, char prefix)
             => str.StartsWith(prefix)
                 ? str
-                : $"{prefix}{str}";
+                : prefix + str;
         public static string EnsureStartsWith(this string str, string prefix)
             => str.StartsWith(prefix)
                 ? str
-                : $"{prefix}{str}";
+                : prefix + str;
+
+        public static string ReplaceAt(this string str, int index, char ch)
+            => string.Create(str.Length, str, (span, _str) =>
+            {
+                _str.AsSpan().CopyTo(span);
+                span[index] = ch;
+            });
 
         public static IEnumerable<string> SplitToEnumerable(this string strings, char separator)
         {

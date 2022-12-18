@@ -1,7 +1,5 @@
 ﻿using System.Collections.Immutable;
 
-using AndrejKrizan.Common.Extensions;
-
 namespace AndrejKrizan.Common.ValueObjects.Pointables
 {
     public sealed class PointableArray : Pointable
@@ -13,12 +11,12 @@ namespace AndrejKrizan.Common.ValueObjects.Pointables
         public PointableArray(ImmutableArray<Pointable> pointables)
         {
             Pointables = pointables;
-            IntPtr[] pointers = Pointables.Select(pointer => pointer.Pointer).ToArray(Pointables.Length);
+            IntPtr[] pointers = Pointables.Select(pointable => pointable.Pointer).ToArray();
             SetHandle(pointers);
         }
 
-        public PointableArray(IReadOnlyCollection<object> objects)
-            : this(pointables: objects.Convert(data => new Pointable(data)))
+        public PointableArray(IEnumerable<object> objects)
+            : this(pointables: objects.Select(data => new Pointable(data)).ToImmutableArray())
         { }
 
         // Finalizers

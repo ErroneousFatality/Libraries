@@ -5,11 +5,11 @@ using HDF.PInvoke;
 
 namespace AndrejKrizan.Hdf.Entities.Types
 {
-    public class HDFType<T> : HdfObject, IHdfType<T>
+    public class HdfType<T> : HdfObject, IHdfType<T>
         where T : notnull
     {
         // Constructors
-        public HDFType() { }
+        public HdfType() { }
 
         // Methods
         public override string Describe()

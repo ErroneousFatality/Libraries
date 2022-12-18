@@ -31,7 +31,7 @@ namespace AndrejKrizan.Hdf.Entities.AttributableObjects
             return disposable;
         }
 
-        public void CreateAttribute<T>(HDFAttributeDTO<T> dto)
+        public void CreateAttribute<T>(HdfAttributeDto<T> dto)
             where T : notnull
         {
             HdfAttribute attribute = dto.CreateAndWriteToAttribute(this);
@@ -39,6 +39,6 @@ namespace AndrejKrizan.Hdf.Entities.AttributableObjects
         }
         public void CreateAttribute<T>(string name, T value)
             where T : notnull
-            => CreateAttribute(new HDFAttributeDTO<T>(name, value));
+            => CreateAttribute(new HdfAttributeDto<T>(name, value));
     }
 }

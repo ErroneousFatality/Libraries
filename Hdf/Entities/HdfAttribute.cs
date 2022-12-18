@@ -22,7 +22,7 @@ namespace AndrejKrizan.Hdf.Entities
             => H5A.close(Id);
     }
 
-    public class HDFAttribute<T> : HdfAttribute
+    public class HdfAttribute<T> : HdfAttribute
         where T : notnull
     {
         // Properties
@@ -30,14 +30,14 @@ namespace AndrejKrizan.Hdf.Entities
         public HdfDataSpace DataSpace { get; }
 
         // Constructors
-        public HDFAttribute(HdfAttributableObject parent, string name, IHdfType<T> type, params ulong[] dimensions)
+        public HdfAttribute(HdfAttributableObject parent, string name, IHdfType<T> type, params ulong[] dimensions)
             : base(parent, name)
         {
             Type = type;
             DataSpace = new(dimensions);
         }
-        public HDFAttribute(HdfAttributableObject parent, string name, params ulong[] dimensions)
-            : this(parent, name, new HDFType<T>(), dimensions) { }
+        public HdfAttribute(HdfAttributableObject parent, string name, params ulong[] dimensions)
+            : this(parent, name, new HdfType<T>(), dimensions) { }
 
         // Methods
         public override string Describe()
@@ -97,7 +97,7 @@ namespace AndrejKrizan.Hdf.Entities
                     attr_id: Id,
                     mem_type_id: Type.Id,
                     buf: pointable.Pointer
-                ).ValidateHDFResponse(() => $"write to {DescriptionWithPathName}");
+                ).ValidateHdfResponse(() => $"write to {DescriptionWithPathName}");
             }
         }
     }
