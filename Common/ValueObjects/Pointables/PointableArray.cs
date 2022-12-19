@@ -8,16 +8,15 @@ namespace AndrejKrizan.Common.ValueObjects.Pointables
         private ImmutableArray<Pointable> Pointables { get; }
 
         // Constructors
-        public PointableArray(ImmutableArray<Pointable> pointables)
+        public PointableArray(IEnumerable<Pointable> pointables)
         {
-            Pointables = pointables;
+            Pointables = pointables.ToImmutableArray();
             IntPtr[] pointers = Pointables.Select(pointable => pointable.Pointer).ToArray();
             SetHandle(pointers);
         }
 
-        public PointableArray(IEnumerable<object> objects)
-            : this(pointables: objects.Select(data => new Pointable(data)).ToImmutableArray())
-        { }
+        public PointableArray(params Pointable[] pointables)
+            : this(pointables.AsEnumerable()) { }
 
         // Finalizers
         ~PointableArray()

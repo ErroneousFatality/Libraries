@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Globalization;
+﻿using System.Globalization;
 
 using AndrejKrizan.Common.ValueObjects.Pointables;
 
@@ -15,18 +14,14 @@ namespace AndrejKrizan.Hdf.Entities.Types
             => "datetime string";
 
         public Pointable CreatePointable(DateTime value)
-            => CreatePointable(Stringify(value));
+            => base.CreatePointable(value: Stringify(value));
 
-        public Pointable CreatePointable(IReadOnlyCollection<DateTime> collection)
-            => CreatePointable(collection.Select(Stringify).ToImmutableArray());
+        public Pointable CreatePointable(IEnumerable<DateTime> collection)
+            => base.CreatePointable(collection: collection.Select(Stringify));
 
-        public Pointable CreatePointable(IReadOnlyCollection<IReadOnlyCollection<DateTime>> matrix)
-            => CreatePointable(matrix
-                .Select(row => (IReadOnlyCollection<string>)row
-                    .Select(Stringify)
-                    .ToImmutableArray()
-                )
-                .ToImmutableArray());
+        public new Pointable CreatePointable<TRow>(IEnumerable<TRow> matrix)
+            where TRow : IEnumerable<DateTime>
+            => base.CreatePointable(matrix: matrix.Select(row => row.Select(Stringify)));
 
         // Static methods
         public static string Stringify(DateTime value)

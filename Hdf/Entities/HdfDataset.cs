@@ -37,25 +37,26 @@ namespace AndrejKrizan.Hdf.Entities
 
         public void Write(T value)
         {
-            DataSpace.Validate(value);
+            DataSpace.Validate(value: value);
             using (Pointable pointable = Type.CreatePointable(value))
             {
                 Write(pointable);
             }
         }
 
-        public void Write(IReadOnlyCollection<T> collection)
+        public void Write(IEnumerable<T> collection)
         {
-            DataSpace.Validate(collection);
+            DataSpace.Validate(collection: collection);
             using (Pointable pointableArray = Type.CreatePointable(collection))
             {
                 Write(pointableArray);
             }
         }
 
-        public void Write(IReadOnlyCollection<IReadOnlyCollection<T>> matrix)
+        public void Write<TRow>(IEnumerable<TRow> matrix)
+            where TRow: IEnumerable<T>
         {
-            DataSpace.Validate(matrix);
+            DataSpace.Validate<T, TRow>(matrix: matrix);
             using (Pointable pointableMatrix = Type.CreatePointable(matrix))
             {
                 Write(pointableMatrix);

@@ -22,14 +22,15 @@ namespace AndrejKrizan.Hdf.Entities.Types
             return pointable;
         }
 
-        public Pointable CreatePointable(IReadOnlyCollection<T> collection)
+        public Pointable CreatePointable(IEnumerable<T> collection)
         {
             byte[] bytes = collection.SelectMany(ConvertToBytes).ToArray();
             Pointable pointable = new(bytes);
             return pointable;
         }
 
-        public Pointable CreatePointable(IReadOnlyCollection<IReadOnlyCollection<T>> matrix)
+        public Pointable CreatePointable<TRow>(IEnumerable<TRow> matrix) 
+            where TRow: IEnumerable<T>
         {
             byte[] bytes = matrix.SelectMany(row => row.SelectMany(ConvertToBytes)).ToArray();
             Pointable pointable = new(bytes);

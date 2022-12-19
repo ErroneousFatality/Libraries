@@ -8,7 +8,7 @@ namespace AndrejKrizan.Hdf.Entities.Types
     {
         // Methods
         Pointable CreatePointable(T value);
-        Pointable CreatePointable(IReadOnlyCollection<T> collection);
-        Pointable CreatePointable(IReadOnlyCollection<IReadOnlyCollection<T>> matrix);
+        Pointable CreatePointable(IEnumerable<T> collection);
+        Pointable CreatePointable<TRow>(IEnumerable<TRow> matrix) where TRow : IEnumerable<T>;
     }
 }

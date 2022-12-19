@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Text;
+﻿using System.Text;
 
 using AndrejKrizan.Common.ValueObjects.Pointables;
 using AndrejKrizan.Hdf.Entities.Objects;
@@ -21,21 +20,21 @@ namespace AndrejKrizan.Hdf.Entities.Types
         public Pointable CreatePointable(string value)
         {
             Pointable pointable = CreatePointableInternal(value);
-            ImmutableArray<Pointable> pointables = ImmutableArray.Create(pointable);
+            PointableArray pointableArray = new(pointable);
+            return pointableArray;
+        }
+
+        public Pointable CreatePointable(IEnumerable<string> collection)
+        {
+            IEnumerable<Pointable> pointables = collection.Select(CreatePointableInternal);
             PointableArray pointableArray = new(pointables);
             return pointableArray;
         }
 
-        public Pointable CreatePointable(IReadOnlyCollection<string> collection)
+        public Pointable CreatePointable<TRow>(IEnumerable<TRow> matrix)
+            where TRow: IEnumerable<string>
         {
-            ImmutableArray<Pointable> pointables = collection.Select(CreatePointableInternal).ToImmutableArray();
-            PointableArray pointableArray = new(pointables);
-            return pointableArray;
-        }
-
-        public Pointable CreatePointable(IReadOnlyCollection<IReadOnlyCollection<string>> matrix)
-        {
-            ImmutableArray<Pointable> pointableArrays = matrix.Select(CreatePointable).ToImmutableArray();
+            IEnumerable<Pointable> pointableArrays = matrix.Select(row => CreatePointable(row));
             PointableArray pointableMatrix = new(pointableArrays);
             return pointableMatrix;
         }

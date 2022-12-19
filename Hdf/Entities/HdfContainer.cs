@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-using AndrejKrizan.Hdf.Entities.AttributableObjects;
+﻿using AndrejKrizan.Hdf.Entities.AttributableObjects;
 using AndrejKrizan.Hdf.Entities.AttributableObjects.Dtos;
 using AndrejKrizan.Hdf.Entities.Objects;
 using AndrejKrizan.Hdf.Entities.Types;
@@ -35,25 +33,27 @@ namespace AndrejKrizan.Hdf.Entities
         public HdfDataset<DateTime> CreateDataset(string pathName, DateTime value, params HdfAttributeDto[] attributes)
             => CreateDataset(pathName, value, dispose: true, attributes);
 
-        public HdfDataset<DateTime> CreateDataset(string pathName, IReadOnlyCollection<DateTime> collection, bool dispose = true, params HdfAttributeDto[] attributes)
+        public HdfDataset<DateTime> CreateDataset(string pathName, IEnumerable<DateTime> collection, bool dispose = true, params HdfAttributeDto[] attributes)
             => CreateDataset(
                 pathName,
                 CreateDateTimeConstructor(attributes),
                 collection,
                 dispose
             );
-        public HdfDataset<DateTime> CreateDataset(string pathName, IReadOnlyCollection<DateTime> collection, params HdfAttributeDto[] attributes)
+        public HdfDataset<DateTime> CreateDataset(string pathName, IEnumerable<DateTime> collection, params HdfAttributeDto[] attributes)
             => CreateDataset(pathName, collection, dispose: true, attributes);
 
-        public HdfDataset<DateTime> CreateDataset(string pathName, IReadOnlyCollection<IReadOnlyCollection<DateTime>> matrix, bool dispose = true, params HdfAttributeDto[] attributes)
+        public HdfDataset<DateTime> CreateDateTimeDataset<TRow>(string pathName, IEnumerable<TRow> matrix, bool dispose = true, params HdfAttributeDto[] attributes)
+            where TRow: IEnumerable<DateTime>
             => CreateDataset(
                 pathName,
                 CreateDateTimeConstructor(attributes),
                 matrix,
                 dispose
             );
-        public HdfDataset<DateTime> CreateDataset(string pathName, IReadOnlyCollection<IReadOnlyCollection<DateTime>> matrix, params HdfAttributeDto[] attributes)
-            => CreateDataset(pathName, matrix, dispose: true, attributes);
+        public HdfDataset<DateTime> CreateDateTimeDataset<TRow>(string pathName, IEnumerable<TRow> matrix, params HdfAttributeDto[] attributes)
+            where TRow : IEnumerable<DateTime>
+            => CreateDateTimeDataset(pathName, matrix, dispose: true, attributes);
 
         private static Func<ulong[], Func<HdfContainer, string, HdfDataset<DateTime>>> CreateDateTimeConstructor(HdfAttributeDto[] attributes)
             => (dimensions)
@@ -74,29 +74,27 @@ namespace AndrejKrizan.Hdf.Entities
         public HdfDataset<string> CreateDataset(string pathName, string value, params HdfAttributeDto[] attributes)
             => CreateDataset(pathName, value, dispose: true, attributes);
 
-        public HdfDataset<string> CreateDataset(string pathName, IReadOnlyCollection<string> collection, bool dispose = true, params HdfAttributeDto[] attributes)
+        public HdfDataset<string> CreateDataset(string pathName, IEnumerable<string> collection, bool dispose = true, params HdfAttributeDto[] attributes)
             => CreateDataset(
                 pathName,
                 CreateStringConstructor(attributes),
                 collection,
                 dispose
             );
-        public HdfDataset<string> CreateDataset(string pathName, IReadOnlyCollection<string> collection, params HdfAttributeDto[] attributes)
-            => CreateDataset(pathName, collection, dispose: true, attributes);
-        public HdfDataset<string> CreateDataset(string pathName, ImmutableArray<string> collection, bool dispose = true, params HdfAttributeDto[] attributes)
-            => CreateDataset(pathName, (IReadOnlyCollection<string>)collection, dispose, attributes);
-        public HdfDataset<string> CreateDataset(string pathName, ImmutableArray<string> collection, params HdfAttributeDto[] attributes)
+        public HdfDataset<string> CreateDataset(string pathName, IEnumerable<string> collection, params HdfAttributeDto[] attributes)
             => CreateDataset(pathName, collection, dispose: true, attributes);
 
-        public HdfDataset<string> CreateDataset(string pathName, IReadOnlyCollection<IReadOnlyCollection<string>> matrix, bool dispose = true, params HdfAttributeDto[] attributes)
+        public HdfDataset<string> CreateStringDataset<TRow>(string pathName, IEnumerable<TRow> matrix, bool dispose = true, params HdfAttributeDto[] attributes)
+            where TRow: IEnumerable<string>
             => CreateDataset(
                 pathName,
                 CreateStringConstructor(attributes),
                 matrix,
                 dispose
             );
-        public HdfDataset<string> CreateDataset(string pathName, IReadOnlyCollection<IReadOnlyCollection<string>> matrix, params HdfAttributeDto[] attributes)
-            => CreateDataset(pathName, matrix, dispose: true, attributes);
+        public HdfDataset<string> CreateStringDataset<TRow>(string pathName, IEnumerable<TRow> matrix, params HdfAttributeDto[] attributes)
+            where TRow : IEnumerable<string>
+            => CreateStringDataset(pathName, matrix, dispose: true, attributes);
 
         private static Func<ulong[], Func<HdfContainer, string, HdfDataset<string>>> CreateStringConstructor(HdfAttributeDto[] attributes)
             => (dimensions)
@@ -120,7 +118,7 @@ namespace AndrejKrizan.Hdf.Entities
             => CreateDataset(pathName, value, dispose: true, attributes);
 
 
-        public HdfDataset<T> CreateDataset<T>(string pathName, IReadOnlyCollection<T> collection, bool dispose = true, params HdfAttributeDto[] attributes)
+        public HdfDataset<T> CreateDataset<T>(string pathName, IEnumerable<T> collection, bool dispose = true, params HdfAttributeDto[] attributes)
             where T : notnull
             => CreateDataset(
                 pathName,
@@ -128,49 +126,24 @@ namespace AndrejKrizan.Hdf.Entities
                 collection,
                 dispose
             );
-        public HdfDataset<T> CreateDataset<T>(string pathName, IReadOnlyCollection<T> collection, params HdfAttributeDto[] attributes)
+        public HdfDataset<T> CreateDataset<T>(string pathName, IEnumerable<T> collection, params HdfAttributeDto[] attributes)
             where T : notnull
             => CreateDataset(pathName, collection, dispose: true, attributes);
 
-        public HdfDataset<T> CreateDataset<T>(string pathName, IReadOnlyList<T> list, bool dispose = true, params HdfAttributeDto[] attributes)
-            where T : notnull
-            => CreateDataset(pathName, (IReadOnlyCollection<T>)list, dispose, attributes);
-        public HdfDataset<T> CreateDataset<T>(string pathName, IReadOnlyList<T> list, params HdfAttributeDto[] attributes)
-            where T : notnull
-            => CreateDataset(pathName, list, dispose: true, attributes);
 
-        public HdfDataset<T> CreateDataset<T>(string pathName, ImmutableArray<T> array, bool dispose = true, params HdfAttributeDto[] attributes)
+        public HdfDataset<T> CreateDataset<T, TRow>(string pathName, IEnumerable<TRow> matrix, bool dispose = true, params HdfAttributeDto[] attributes)
             where T : notnull
-            => CreateDataset(pathName, (IReadOnlyCollection<T>)array, dispose, attributes);
-        public HdfDataset<T> CreateDataset<T>(string pathName, ImmutableArray<T> array, params HdfAttributeDto[] attributes)
-            where T : notnull
-            => CreateDataset(pathName, array, dispose: true, attributes);
-
-        public HdfDataset<T> CreateDataset<T>(string pathName, T[] array, bool dispose = true, params HdfAttributeDto[] attributes)
-            where T : notnull
-            => CreateDataset(pathName, (IReadOnlyCollection<T>)array, dispose, attributes);
-        public HdfDataset<T> CreateDataset<T>(string pathName, T[] array, params HdfAttributeDto[] attributes)
-            where T : notnull
-            => CreateDataset(pathName, array, dispose: true, attributes);
-
-
-        public HdfDataset<T> CreateDataset<T>(string pathName, IReadOnlyCollection<IReadOnlyCollection<T>> matrix, bool dispose = true, params HdfAttributeDto[] attributes)
-            where T : notnull
+            where TRow: IEnumerable<T>
             => CreateDataset(
                 pathName,
                 CreateGenericConstructor<T>(attributes),
                 matrix,
                 dispose
             );
-        public HdfDataset<T> CreateDataset<T>(string pathName, IReadOnlyCollection<IReadOnlyCollection<T>> matrix, params HdfAttributeDto[] attributes)
+        public HdfDataset<T> CreateDataset<T, TRow>(string pathName, IEnumerable<TRow> matrix, params HdfAttributeDto[] attributes)
             where T : notnull
-            => CreateDataset(pathName, matrix, dispose: true, attributes);
-        public HdfDataset<T> CreateDataset<T>(string pathName, IReadOnlyCollection<ImmutableArray<T>> matrix, bool dispose = true, params HdfAttributeDto[] attributes)
-            where T : notnull
-            => CreateDataset(pathName, (IReadOnlyCollection<IReadOnlyCollection<T>>)matrix, dispose, attributes);
-        public HdfDataset<T> CreateDataset<T>(string pathName, IReadOnlyCollection<ImmutableArray<T>> matrix, params HdfAttributeDto[] attributes)
-            where T : notnull
-            => CreateDataset(pathName, matrix, dispose: true, attributes);
+            where TRow : IEnumerable<T>
+            => CreateDataset<T, TRow>(pathName, matrix, dispose: true, attributes);
 
         private static Func<ulong[], Func<HdfContainer, string, HdfDataset<T>>> CreateGenericConstructor<T>(HdfAttributeDto[] attributes)
             where T : notnull
@@ -218,12 +191,12 @@ namespace AndrejKrizan.Hdf.Entities
         private HdfDataset<T> CreateDataset<T>(
             string pathName,
             Func<ulong[], Func<HdfContainer, string, HdfDataset<T>>> constructorConstructor,
-            IReadOnlyCollection<T> collection,
+            IEnumerable<T> collection,
             bool dispose = true
         )
             where T : notnull
         {
-            ulong[] dimensions = new ulong[] { (ulong)collection.Count };
+            ulong[] dimensions = new ulong[] { (ulong)collection.Count() };
             HdfDataset<T> dataset = CreateChild(pathName, constructorConstructor(dimensions));
             dataset.Write(collection);
             if (dispose)
@@ -233,15 +206,16 @@ namespace AndrejKrizan.Hdf.Entities
             return dataset;
         }
 
-        private HdfDataset<T> CreateDataset<T>(
+        private HdfDataset<T> CreateDataset<T, TRow>(
             string pathName,
             Func<ulong[], Func<HdfContainer, string, HdfDataset<T>>> constructorConstructor,
-            IReadOnlyCollection<IReadOnlyCollection<T>> matrix,
+            IEnumerable<TRow> matrix,
             bool dispose = true
         )
             where T : notnull
+            where TRow : IEnumerable<T>
         {
-            ulong[] dimensions = new ulong[] { (ulong)matrix.Count, (ulong)(matrix.FirstOrDefault()?.Count ?? 0) };
+            ulong[] dimensions = new ulong[] { (ulong)matrix.Count(), (ulong)(matrix.FirstOrDefault()?.Count() ?? 0) };
             HdfDataset<T> dataset = CreateChild(pathName, constructorConstructor(dimensions));
             dataset.Write(matrix);
             if (dispose)
