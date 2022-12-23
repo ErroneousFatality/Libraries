@@ -38,5 +38,10 @@
                 startIndex = finishIndex + 1;
             }
         }
+
+        public static bool ContainsAny(this string haystack, params string[] needles)
+            => needles.Any(needle => haystack.Contains(needle));
+        public static bool ContainsAny(this string haystack, StringComparison comparison, params string[] needles)
+            => needles.Any(needle => haystack.Contains(needle, comparison));
     }
 }
