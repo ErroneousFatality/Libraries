@@ -72,11 +72,14 @@ namespace AndrejKrizan.AspNet.Middleware.Exceptions.Development
         }
 
         private static bool IsContentHumanReadable(string? contentType)
-            => contentType == MediaTypeNames.Text.Plain
-            || contentType == MediaTypeNames.Text.RichText
-            || contentType == MediaTypeNames.Text.Xml
-            || contentType == MediaTypeNames.Application.Json
-            || contentType == MediaTypeNames.Application.Xml
-            || contentType == MediaTypeNames.Application.Soap;
+            => !string.IsNullOrWhiteSpace(contentType) 
+            && contentType.ContainsAny(StringComparison.InvariantCultureIgnoreCase,
+                MediaTypeNames.Text.Plain,
+                MediaTypeNames.Text.RichText,
+                MediaTypeNames.Text.Xml,
+                MediaTypeNames.Application.Json,
+                MediaTypeNames.Application.Xml,
+                MediaTypeNames.Application.Soap
+            );
     }
 }
