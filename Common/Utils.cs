@@ -109,5 +109,15 @@ namespace AndrejKrizan.Common
                 list.Add(item);
             }
         }
+
+        public static T Min<T>(T first, T second, Comparer<T> comparer)
+            => comparer.Compare(first, second) <= 0 ? first : second;
+        public static T Min<T>(T first, T second)
+            => Min(first, second, Comparer<T>.Default);
+
+        public static T Max<T>(T first, T second, Comparer<T> comparer)
+            => comparer.Compare(first, second) >= 0 ? first : second;
+        public static T Max<T>(T first, T second)
+            => Max(first, second, Comparer<T>.Default);
     }
 }
