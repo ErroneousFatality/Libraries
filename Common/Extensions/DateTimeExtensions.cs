@@ -29,10 +29,22 @@ namespace AndrejKrizan.Common.Extensions
             DateTimeUnit.Minutes => new DateTime(year: dateTime.Year, month: dateTime.Month, day: dateTime.Day, hour: dateTime.Hour, minute: dateTime.Minute, second: 0, kind: dateTime.Kind),
             DateTimeUnit.Hours => new DateTime(year: dateTime.Year, month: dateTime.Month, day: dateTime.Day, hour: dateTime.Hour, minute: 0, second: 0, kind: dateTime.Kind),
             DateTimeUnit.Days => new DateTime(year: dateTime.Year, month: dateTime.Month, day: dateTime.Day),
-            DateTimeUnit.Weeks => new DateTime(year: dateTime.Year, month: dateTime.Month, day: dateTime.Day / 7 * 7),
+            DateTimeUnit.Weeks => new DateTime(year: dateTime.Year, month: dateTime.Month, day: dateTime.Day - dateTime.GetDaysSinceStartOfWeek()),
             DateTimeUnit.Months => new DateTime(year: dateTime.Year, month: dateTime.Month, day: 1),
             DateTimeUnit.Years => new DateTime(year: dateTime.Year, month: 1, day: 1),
             _ => throw new ArgumentOutOfRangeException(nameof(precision)),
         };
+
+        public static int GetDaysSinceStartOfWeek(this DateTime dateTime, DayOfWeek weekStartDay)
+        {
+            int weekDayNumber = dateTime.DayOfWeek - weekStartDay;
+            if (weekDayNumber < 0)
+            {
+                weekDayNumber += 7;
+            }
+            return weekDayNumber;
+        }
+        public static int GetDaysSinceStartOfWeek(this DateTime dateTime)
+            => dateTime.GetDaysSinceStartOfWeek(Thread.CurrentThread.CurrentCulture.DateTimeFormat.FirstDayOfWeek);
     }
 }
