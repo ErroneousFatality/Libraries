@@ -29,11 +29,25 @@ namespace AndrejKrizan.Common.Extensions
             DateTimeUnit.Minutes => new DateTime(year: dateTime.Year, month: dateTime.Month, day: dateTime.Day, hour: dateTime.Hour, minute: dateTime.Minute, second: 0, kind: dateTime.Kind),
             DateTimeUnit.Hours => new DateTime(year: dateTime.Year, month: dateTime.Month, day: dateTime.Day, hour: dateTime.Hour, minute: 0, second: 0, kind: dateTime.Kind),
             DateTimeUnit.Days => new DateTime(year: dateTime.Year, month: dateTime.Month, day: dateTime.Day),
-            DateTimeUnit.Weeks => new DateTime(year: dateTime.Year, month: dateTime.Month, day: dateTime.Day - dateTime.GetDaysSinceStartOfWeek()),
+            DateTimeUnit.Weeks => dateTime.TrimToStartOfWeek(),
             DateTimeUnit.Months => new DateTime(year: dateTime.Year, month: dateTime.Month, day: 1),
             DateTimeUnit.Years => new DateTime(year: dateTime.Year, month: 1, day: 1),
             _ => throw new ArgumentOutOfRangeException(nameof(precision)),
         };
+        private static DateTime TrimToStartOfWeek(this DateTime dateTime, DayOfWeek weekStartDay)
+        {
+            int daysSinceStartOfWeek = dateTime.GetDaysSinceStartOfWeek(weekStartDay);
+            int day = dateTime.Day - daysSinceStartOfWeek;
+            if (day >= 1)
+            {
+                return new DateTime(year: dateTime.Year, month: dateTime.Month, day: day);
+            }
+            DateTime startOfWeek = dateTime.AddDays(-daysSinceStartOfWeek);
+            DateTime trimmedStartOfWeek = new(year: startOfWeek.Year, month: startOfWeek.Month, day: startOfWeek.Day);
+            return trimmedStartOfWeek;
+        }
+        private static DateTime TrimToStartOfWeek(this DateTime dateTime)
+            => dateTime.TrimToStartOfWeek(Thread.CurrentThread.CurrentCulture.DateTimeFormat.FirstDayOfWeek);
 
         public static int GetDaysSinceStartOfWeek(this DateTime dateTime, DayOfWeek weekStartDay)
         {
