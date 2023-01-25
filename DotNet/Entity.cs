@@ -1,4 +1,4 @@
-﻿namespace AndrejKrizan.Common
+﻿namespace AndrejKrizan.DotNet
 {
     /// <summary>
     ///     An entity with a <see cref="TKey"/> Id property.

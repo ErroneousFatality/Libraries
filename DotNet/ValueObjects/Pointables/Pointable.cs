@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace AndrejKrizan.Common.ValueObjects.Pointables
+namespace AndrejKrizan.DotNet.ValueObjects.Pointables
 {
     public class Pointable : IDisposable
     {

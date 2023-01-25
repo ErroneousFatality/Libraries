@@ -1,8 +1,9 @@
 ﻿using System.Collections.Immutable;
 
-using AndrejKrizan.Common.ValueObjects.Ranges;
+using AndrejKrizan.DotNet.Extensions;
+using AndrejKrizan.DotNet.ValueObjects.Ranges;
 
-namespace AndrejKrizan.Common.Extensions
+namespace AndrejKrizan.DotNet.Extensions
 {
     public static class IEnumerableExtensions
     {

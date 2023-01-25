@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
-namespace AndrejKrizan.Common.ValueObjects.Ranges
+namespace AndrejKrizan.DotNet.ValueObjects.Ranges
 {
     public sealed class Range<T> : IComparable<Range<T>>
         where T : struct

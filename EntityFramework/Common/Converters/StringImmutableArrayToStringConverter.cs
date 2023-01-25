@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-using AndrejKrizan.Common.Extensions;
+using AndrejKrizan.DotNet.Extensions;
 
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 

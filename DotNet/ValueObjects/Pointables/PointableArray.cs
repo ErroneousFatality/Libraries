@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace AndrejKrizan.Common.ValueObjects.Pointables
+namespace AndrejKrizan.DotNet.ValueObjects.Pointables
 {
     public sealed class PointableArray : Pointable
     {

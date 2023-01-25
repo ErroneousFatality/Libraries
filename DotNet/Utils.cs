@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace AndrejKrizan.Common
+namespace AndrejKrizan.DotNet
 {
     public static class Utils
     {

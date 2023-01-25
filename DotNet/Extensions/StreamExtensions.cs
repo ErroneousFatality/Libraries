@@ -1,4 +1,4 @@
-﻿namespace AndrejKrizan.Common.Extensions
+﻿namespace AndrejKrizan.DotNet.Extensions
 {
     public static class StreamExtensions
     {

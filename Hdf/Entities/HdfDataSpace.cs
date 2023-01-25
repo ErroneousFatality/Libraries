@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-using AndrejKrizan.Common.Extensions;
+using AndrejKrizan.DotNet.Extensions;
 using AndrejKrizan.Hdf.Entities.Objects;
 
 using HDF.PInvoke;

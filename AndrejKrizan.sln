@@ -7,8 +7,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EntityFramework", "EntityFr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AndrejKrizan.EntityFramework.Common", "EntityFramework\Common\AndrejKrizan.EntityFramework.Common.csproj", "{A1C7A753-7A7D-43F7-B707-B1265A53AF43}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AndrejKrizan.Common", "Common\AndrejKrizan.Common.csproj", "{2FA22DEA-5824-4383-961B-403EE23A3EB7}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AndrejKrizan.EntityFramework.SqlServer", "EntityFramework\SqlServer\AndrejKrizan.EntityFramework.SqlServer.csproj", "{03586551-7F0C-485D-8BB2-E562C4CDFAA1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AndrejKrizan.EntityFramework.PostgreSql", "EntityFramework\PostgreSql\AndrejKrizan.EntityFramework.PostgreSql.csproj", "{54072F51-8A79-4885-A491-46664D527BFE}"
@@ -16,6 +14,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AndrejKrizan.AspNet", "AspNet\AndrejKrizan.AspNet.csproj", "{D9728FA0-2F1D-4C81-9871-96E559388A03}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AndrejKrizan.Hdf", "Hdf\AndrejKrizan.Hdf.csproj", "{7FCA23A6-B32B-4EAA-8D04-B1E2169DB977}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AndrejKrizan.DotNet", "DotNet\AndrejKrizan.DotNet.csproj", "{D735D0BC-7571-4722-8F9E-6E6EB57CCCB9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,10 +27,6 @@ Global
 		{A1C7A753-7A7D-43F7-B707-B1265A53AF43}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1C7A753-7A7D-43F7-B707-B1265A53AF43}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1C7A753-7A7D-43F7-B707-B1265A53AF43}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2FA22DEA-5824-4383-961B-403EE23A3EB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2FA22DEA-5824-4383-961B-403EE23A3EB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2FA22DEA-5824-4383-961B-403EE23A3EB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2FA22DEA-5824-4383-961B-403EE23A3EB7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{03586551-7F0C-485D-8BB2-E562C4CDFAA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{03586551-7F0C-485D-8BB2-E562C4CDFAA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{03586551-7F0C-485D-8BB2-E562C4CDFAA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -47,6 +43,10 @@ Global
 		{7FCA23A6-B32B-4EAA-8D04-B1E2169DB977}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7FCA23A6-B32B-4EAA-8D04-B1E2169DB977}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7FCA23A6-B32B-4EAA-8D04-B1E2169DB977}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D735D0BC-7571-4722-8F9E-6E6EB57CCCB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D735D0BC-7571-4722-8F9E-6E6EB57CCCB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D735D0BC-7571-4722-8F9E-6E6EB57CCCB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D735D0BC-7571-4722-8F9E-6E6EB57CCCB9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

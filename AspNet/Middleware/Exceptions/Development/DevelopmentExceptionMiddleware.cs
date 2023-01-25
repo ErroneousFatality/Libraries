@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Mime;
 
-using AndrejKrizan.Common.Extensions;
+using AndrejKrizan.DotNet.Extensions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;

@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-using AndrejKrizan.Common.Extensions;
+using AndrejKrizan.DotNet.Extensions;
 using AndrejKrizan.EntityFramework.Common.Internal.Extensions.Expressions;
 
 using Microsoft.EntityFrameworkCore;

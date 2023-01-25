@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-using AndrejKrizan.Common.ValueObjects.Pointables;
+using AndrejKrizan.DotNet.ValueObjects.Pointables;
 using AndrejKrizan.Hdf.Entities.Objects;
 using AndrejKrizan.Hdf.Extensions;
 

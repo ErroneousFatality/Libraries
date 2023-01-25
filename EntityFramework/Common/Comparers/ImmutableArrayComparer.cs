@@ -1,4 +1,4 @@
-﻿using AndrejKrizan.Common.Extensions;
+﻿using AndrejKrizan.DotNet.Extensions;
 
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 

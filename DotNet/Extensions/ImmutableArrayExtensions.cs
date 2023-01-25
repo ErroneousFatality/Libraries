@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace AndrejKrizan.Common.Extensions
+namespace AndrejKrizan.DotNet.Extensions
 {
     public static class ImmutableArrayExtensions
     {

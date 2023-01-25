@@ -1,6 +1,6 @@
-﻿using AndrejKrizan.Common.ValueObjects;
+﻿using AndrejKrizan.DotNet.ValueObjects;
 
-namespace AndrejKrizan.Common.Extensions
+namespace AndrejKrizan.DotNet.Extensions
 {
     public static class DateTimeExtensions
     {

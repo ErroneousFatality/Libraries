@@ -3,8 +3,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-using AndrejKrizan.Common.Extensions;
-using AndrejKrizan.Common.ValueObjects;
+using AndrejKrizan.DotNet.Extensions;
+using AndrejKrizan.DotNet.ValueObjects;
 using AndrejKrizan.EntityFramework.Common.Internal.ValueObjects;
 
 using Microsoft.EntityFrameworkCore;

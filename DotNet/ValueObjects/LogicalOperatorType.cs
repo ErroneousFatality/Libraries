@@ -1,4 +1,4 @@
-﻿namespace AndrejKrizan.Common.ValueObjects
+﻿namespace AndrejKrizan.DotNet.ValueObjects
 {
     public enum LogicalOperatorType : byte
     {

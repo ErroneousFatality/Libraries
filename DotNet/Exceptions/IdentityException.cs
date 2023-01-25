@@ -1,4 +1,4 @@
-﻿namespace AndrejKrizan.Common.Exceptions
+﻿namespace AndrejKrizan.DotNet.Exceptions
 {
     public class IdentityException : Exception
     {

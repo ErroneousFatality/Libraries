@@ -1,8 +1,8 @@
 ﻿using System.Collections.Immutable;
 
-using AndrejKrizan.Common.Extensions;
+using AndrejKrizan.DotNet.Extensions;
 
-namespace AndrejKrizan.Common.ValueObjects
+namespace AndrejKrizan.DotNet.ValueObjects
 {
     public class Page<T>
     {

@@ -1,4 +1,4 @@
-﻿namespace AndrejKrizan.Common.TypeConverters
+﻿namespace AndrejKrizan.DotNet.TypeConverters
 {
     public class DateOnlyStringConverter : TypeConverter<DateOnly, string>
     {

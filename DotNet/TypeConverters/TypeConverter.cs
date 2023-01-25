@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
 
-namespace AndrejKrizan.Common.TypeConverters
+namespace AndrejKrizan.DotNet.TypeConverters
 {
     public class TypeConverter<Source, Target> : TypeConverter
     {
