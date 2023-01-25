@@ -203,10 +203,17 @@ namespace AndrejKrizan.Common.Extensions
 
         #region Duplicates
         public static HashSet<T> GetDuplicateSet<T>(this IEnumerable<T> source)
+            => source.GetDuplicateSet(EqualityComparer<T>.Default);
+
+        public static HashSet<T> GetDuplicateSet<T>(this IEnumerable<T> source, IEqualityComparer<T> equalityComparer)
         {
             bool hasCount = source.TryGetNonEnumeratedCount(out int count);
-            HashSet<T> set = hasCount ? new(count) : new();
-            HashSet<T> duplicateSet = hasCount ? new(count / 2) : new();
+            HashSet<T> set = hasCount
+                ? new(count, equalityComparer)
+                : new(equalityComparer);
+            HashSet<T> duplicateSet = hasCount
+                ? new(count / 2, equalityComparer)
+                : new(equalityComparer);
             foreach (T item in source)
             {
                 if (!set.Add(item))
@@ -216,35 +223,56 @@ namespace AndrejKrizan.Common.Extensions
             }
             return duplicateSet;
         }
-        public static HashSet<V> GetDuplicateSet<T, V>(this IReadOnlyCollection<T> collection, Func<T, V> selector)
-            => collection
-                .Select(selector)
-                .GetDuplicateSet();
+
 
         public static bool HasDuplicates<T>(this IEnumerable<T> source)
-            => source.GetDuplicateSet().Count > 0;
-        public static bool HasDuplicates<T, V>(this IReadOnlyCollection<T> collection, Func<T, V> selector)
-            => collection.GetDuplicateSet(selector).Count > 0;
+            => source.HasDuplicates(EqualityComparer<T>.Default);
 
-        public static IEnumerable<T> AssertIsDistinct<T>(this IEnumerable<T> source, Func<IReadOnlySet<T>, string> exceptionMessageFunc, string parameterName)
-        {
-            IReadOnlySet<T> duplicates = source.GetDuplicateSet();
-            if (duplicates.Count > 0)
-            {
-                string exceptionMessage = exceptionMessageFunc(duplicates);
-                throw new ArgumentException(exceptionMessage, parameterName);
-            }
-            return source;
-        }
-        public static IReadOnlyCollection<T> AssertIsDistinct<T, TProperty>(this IReadOnlyCollection<T> collection,
-            Func<T, TProperty> selector,
-            Func<IReadOnlySet<TProperty>, string> exceptionMessageFunc,
-            string parameterName
+        public static bool HasDuplicates<T>(this IEnumerable<T> source, IEqualityComparer<T> equalityComparer)
+            => source.GetDuplicateSet(equalityComparer).Count > 0;
+
+
+        /// <exception cref="ArgumentException"></exception>
+        public static void RequireIsDistinct<T>(this IEnumerable<T> source,
+            Func<IReadOnlySet<T>, string> errorMessageFunc, string parameterName
+        )
+            => source.RequireIsDistinct(errorMessageFunc, parameterName, EqualityComparer<T>.Default);
+
+        /// <exception cref="ArgumentException"></exception>
+        public static void RequireIsDistinct<T>(this IEnumerable<T> source,
+            Func<IReadOnlySet<T>, string> errorMessageFunc, string parameterName,
+            IEqualityComparer<T> equalityComparer
+        )
+            => source.AssertIsDistinct(duplicates => new ArgumentException(errorMessageFunc(duplicates), parameterName), equalityComparer);
+
+
+        /// <exception cref="InvalidOperationException"></exception>
+        public static void EnsureIsDistinct<T>(this IEnumerable<T> source, Func<IReadOnlySet<T>, string> errorMessageFunc)
+            => source.EnsureIsDistinct(errorMessageFunc, EqualityComparer<T>.Default);
+
+        /// <exception cref="InvalidOperationException"></exception>
+        public static void EnsureIsDistinct<T>(this IEnumerable<T> source,
+            Func<IReadOnlySet<T>, string> errorMessageFunc, IEqualityComparer<T> equalityComparer
+        )
+            => source.AssertIsDistinct(duplicates => new InvalidOperationException(errorMessageFunc(duplicates)), equalityComparer);
+
+        /// <exception cref="Exception"></exception>
+        public static void AssertIsDistinct<T>(this IEnumerable<T> source, Func<IReadOnlySet<T>, Exception> errorFunc)
+            => source.AssertIsDistinct(errorFunc, EqualityComparer<T>.Default);
+
+        /// <exception cref="Exception"></exception>
+        public static void AssertIsDistinct<T>(this IEnumerable<T> source,
+            Func<IReadOnlySet<T>, Exception> errorFunc, IEqualityComparer<T> equalityComparer
         )
         {
-            collection.Select(selector).AssertIsDistinct(exceptionMessageFunc, parameterName);
-            return collection;
+            IReadOnlySet<T> duplicates = source.GetDuplicateSet(equalityComparer);
+            if (duplicates.Count > 0)
+            {
+                Exception error = errorFunc(duplicates);
+                throw error;
+            }
         }
+
         #endregion
 
         #region Equals
