@@ -1,9 +1,9 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 
-namespace AndrejKrizan.EntityFramework.Common.Internal.Extensions.Expressions
+namespace AndrejKrizan.EntityFramework.Common.Extensions.Lambda
 {
-    internal static class ExpressionExtensions
+    internal static class LambdaExtensions
     {
         /// <exception cref="InvalidOperationException">
         ///     Lambda expression does not directly express the entity's key property.

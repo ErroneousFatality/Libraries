@@ -4,7 +4,7 @@ using System.Reflection;
 
 using AndrejKrizan.DotNet;
 using AndrejKrizan.EntityFramework.Common.Extensions.IQueryables;
-using AndrejKrizan.EntityFramework.Common.Internal.Extensions.Expressions;
+using AndrejKrizan.EntityFramework.Common.Extensions.Lambda;
 
 using Microsoft.EntityFrameworkCore;
 

@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 
-namespace AndrejKrizan.EntityFramework.Common.Internal.ValueObjects
+namespace AndrejKrizan.EntityFramework.Common.Extensions.Lambda
 {
     internal class PropertyNavigationExpression<TEntity, TProperty>
         where TEntity : class

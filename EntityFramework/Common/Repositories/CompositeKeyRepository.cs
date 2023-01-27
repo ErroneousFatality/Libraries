@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 
 using AndrejKrizan.DotNet.Extensions;
-using AndrejKrizan.EntityFramework.Common.Internal.Extensions.Expressions;
+using AndrejKrizan.EntityFramework.Common.Extensions.Lambda;
 
 using Microsoft.EntityFrameworkCore;
 

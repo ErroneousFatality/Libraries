@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 using AndrejKrizan.DotNet.Extensions;
 using AndrejKrizan.DotNet.ValueObjects;
-using AndrejKrizan.EntityFramework.Common.Internal.ValueObjects;
+using AndrejKrizan.EntityFramework.Common.Extensions.Lambda;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -20,50 +20,8 @@ namespace AndrejKrizan.EntityFramework.Common.Extensions.IQueryables
         private static readonly MethodInfo[] SupportedStringMethodInfos = new MethodInfo[] { StringStartsWithMethodInfo, StringContainsMethodInfo, StringEndsWithMethodInfo };
 
         // Methods
-        #region Filtering
-        public static IQueryable<TEntity> WhereAny<TEntity, TData>(this IQueryable<TEntity> query,
-            IEnumerable<TData> dataEnumerable,
-            Func<TData, Expression<Func<TEntity, bool>>> predicateBuilder
-        )
-        {
-            if (!dataEnumerable.Any())
-            {
-                return query;
-            }
-            string parameterName = typeof(TEntity).Name.ToCamelCase();
-            ParameterExpression parameterExpression = Expression.Parameter(typeof(TEntity), parameterName);
 
-            IEnumerable<Expression> predicateExpressions = dataEnumerable.Select(data
-                => predicateBuilder(data)
-                    .ReplaceParameters(parameterExpression)
-                    .Body
-            );
-            Expression predicateExpression = predicateExpressions.Aggregate(Expression.OrElse)!;
-            Expression<Func<TEntity, bool>> predicateLambda = Expression.Lambda<Func<TEntity, bool>>(predicateExpression, parameterExpression);
-            query = query.Where(predicateLambda);
-            return query;
-        }
-
-        public static async Task<IReadOnlyList<TEntity>> WhereAnyAsync<TEntity, TData>(this IQueryable<TEntity> query,
-            IReadOnlyCollection<TData> resources,
-            int chunkSize,
-            Func<TData, Expression<Func<TEntity, bool>>> predicateBuilder,
-            CancellationToken cancellationToken = default
-        )
-        {
-            IEnumerable<TData[]> resourceChunks = resources.Chunk(chunkSize);
-            List<TEntity> entities = new(resources.Count);
-            foreach (TData[] resourceChunk in resourceChunks)
-            {
-                List<TEntity> entityChunk = await query
-                    .WhereAny(resourceChunk, predicateBuilder)
-                    .ToListAsync(cancellationToken);
-                entities.AddRange(entityChunk);
-            }
-            return entities.AsReadOnly();
-        }
-
-
+        #region ConditionalWhere
         public static IQueryable<TEntity> ConditionalWhere<TEntity>(this IQueryable<TEntity> query,
             bool condition,
             Expression<Func<TEntity, bool>> predicate
@@ -75,6 +33,7 @@ namespace AndrejKrizan.EntityFramework.Common.Extensions.IQueryables
             }
             return query.Where(predicate);
         }
+
         public static IQueryable<TEntity> ConditionalWhere<TEntity, T>(this IQueryable<TEntity> query,
             T? nullable,
             Func<T, Expression<Func<TEntity, bool>>> predicateBuilder
@@ -114,6 +73,20 @@ namespace AndrejKrizan.EntityFramework.Common.Extensions.IQueryables
             }
             Expression<Func<TEntity, bool>> predicate = predicateBuilder(enumerable);
             return query.Where(predicate);
+        }
+        #endregion
+
+        public static IQueryable<TEntity> WhereAny<TEntity, TData>(this IQueryable<TEntity> query,
+            IEnumerable<TData> dataSource,
+            Func<TData, Expression<Func<TEntity, bool>>> predicateBuilder
+        )
+        {
+            if (dataSource.Any())
+            {
+                Expression<Func<TEntity, bool>> predicate = dataSource.ToPredicateLambda(predicateBuilder);
+                query = query.Where(predicate);
+            }
+            return query;
         }
 
         #region String filtering
@@ -268,19 +241,19 @@ namespace AndrejKrizan.EntityFramework.Common.Extensions.IQueryables
             }
 
             Expression everyWordIsMatchedInAnyStringProperty = phrases.Select((word) =>
-                {
-                    ConstantExpression wordExpression = Expression.Constant(word);
-                    Expression anyStringMemberMatchesFilter = stringPropertyNavigationExpressionAndMethodInfoEnumerable
-                        .Select((propertyNavigationExpressionAndMethodInfo) =>
-                            Expression.Call(
-                                propertyNavigationExpressionAndMethodInfo.PropertyNavigationExpression.Expression,
-                                propertyNavigationExpressionAndMethodInfo.MethodInfo,
-                                wordExpression
-                            )
+            {
+                ConstantExpression wordExpression = Expression.Constant(word);
+                Expression anyStringMemberMatchesFilter = stringPropertyNavigationExpressionAndMethodInfoEnumerable
+                    .Select((propertyNavigationExpressionAndMethodInfo) =>
+                        Expression.Call(
+                            propertyNavigationExpressionAndMethodInfo.PropertyNavigationExpression.Expression,
+                            propertyNavigationExpressionAndMethodInfo.MethodInfo,
+                            wordExpression
                         )
-                        .Aggregate<Expression>(Expression.OrElse);
-                    return anyStringMemberMatchesFilter;
-                })
+                    )
+                    .Aggregate<Expression>(Expression.OrElse);
+                return anyStringMemberMatchesFilter;
+            })
                 .Aggregate(Expression.AndAlso);
             Expression<Func<TEntity, bool>> stringFilterLambda = Expression.Lambda<Func<TEntity, bool>>(
                 everyWordIsMatchedInAnyStringProperty,
@@ -289,7 +262,6 @@ namespace AndrejKrizan.EntityFramework.Common.Extensions.IQueryables
             return query.Where(stringFilterLambda);
         }
         #endregion String filtering
-        #endregion Filtering
 
         #region Ordering
         /// <exception cref="ArgumentOutOfRangeException">orderDirection</exception>
@@ -333,6 +305,37 @@ namespace AndrejKrizan.EntityFramework.Common.Extensions.IQueryables
             => query.SetOrder(orderDirection, propertySelectors.PropertySelector, propertySelectors.AdditionalPropertySelectors);
         #endregion Ordering
 
+        #region ToImmutableArrayAsync
+        public static async Task<ImmutableArray<T>> ToImmutableArrayAsync<T>(this IQueryable<T> query,
+            CancellationToken cancellationToken = default
+        )
+        {
+            ImmutableArray<T>.Builder builder = ImmutableArray.CreateBuilder<T>();
+            ConfiguredCancelableAsyncEnumerable<T> asyncEnumerable = query.AsAsyncEnumerable().WithCancellation(cancellationToken);
+            await foreach (T item in asyncEnumerable)
+            {
+                builder.Add(item);
+            }
+            ImmutableArray<T> immutableArray = builder.ToImmutable();
+            return immutableArray;
+        }
+
+        public static async Task<ImmutableArray<T>> ToImmutableArrayAsync<T>(this IQueryable<T> query,
+            int initialCapacity,
+            CancellationToken cancellationToken = default
+        )
+        {
+            ImmutableArray<T>.Builder builder = ImmutableArray.CreateBuilder<T>(initialCapacity);
+            ConfiguredCancelableAsyncEnumerable<T> asyncEnumerable = query.AsAsyncEnumerable().WithCancellation(cancellationToken);
+            await foreach (T item in asyncEnumerable)
+            {
+                builder.Add(item);
+            }
+            ImmutableArray<T> immutableArray = builder.ToImmutable();
+            return immutableArray;
+        }
+        #endregion
+
         /// <param name="pageSize">Positive integer not larger than <see cref="int.MaxValue."/></param>
         /// <param name="pageNumber">Positive integer not larger than <see cref="int.MaxValue."/></param>
         /// <exception cref="ArgumentOutOfRangeException">
@@ -367,33 +370,45 @@ namespace AndrejKrizan.EntityFramework.Common.Extensions.IQueryables
             return page;
         }
 
-        public static async Task<ImmutableArray<T>> ToImmutableArrayAsync<T>(this IQueryable<T> query,
+        #region WhereAnyAsync
+        public static async Task<ImmutableArray<TEntity>> WhereAnyAsync<TEntity, TData>(this IQueryable<TEntity> query,
+            IEnumerable<TData> dataSource,
+            int chunkSize,
+            Func<TData, Expression<Func<TEntity, bool>>> predicateBuilder,
+            CancellationToken cancellationToken = default
+        )
+        {
+            ImmutableArray<TEntity>.Builder entitiesBuilder = ImmutableArray.CreateBuilder<TEntity>();
+            foreach (TData[] dataChunk in dataSource.Chunk(chunkSize))
+            {
+                List<TEntity> entityChunk = await query
+                    .WhereAny(dataChunk, predicateBuilder)
+                    .ToListAsync(cancellationToken);
+                entitiesBuilder.AddRange(entityChunk);
+            }
+            ImmutableArray<TEntity> entities = entitiesBuilder.ToImmutableArray();
+            return entities;
+        }
+
+        public static async Task<ImmutableArray<TEntity>> WhereAnyAsync<TEntity, TData>(this IQueryable<TEntity> query,
+            IEnumerable<TData> dataSource,
+            int chunkSize,
+            Func<TData, Expression<Func<TEntity, bool>>> predicateBuilder,
             int initialCapacity,
             CancellationToken cancellationToken = default
         )
         {
-            ImmutableArray<T>.Builder builder = ImmutableArray.CreateBuilder<T>(initialCapacity);
-            ConfiguredCancelableAsyncEnumerable<T> asyncEnumerable = query.AsAsyncEnumerable().WithCancellation(cancellationToken);
-            await foreach (T item in asyncEnumerable)
+            ImmutableArray<TEntity>.Builder entitiesBuilder = ImmutableArray.CreateBuilder<TEntity>(initialCapacity);
+            foreach (TData[] dataChunk in dataSource.Chunk(chunkSize))
             {
-                builder.Add(item);
+                List<TEntity> entityChunk = await query
+                    .WhereAny(dataChunk, predicateBuilder)
+                    .ToListAsync(cancellationToken);
+                entitiesBuilder.AddRange(entityChunk);
             }
-            ImmutableArray<T> immutableArray = builder.ToImmutable();
-            return immutableArray;
+            ImmutableArray<TEntity> entities = entitiesBuilder.ToImmutableArray();
+            return entities;
         }
-
-        public static async Task<ImmutableArray<T>> ToImmutableArrayAsync<T>(this IQueryable<T> query,
-            CancellationToken cancellationToken = default
-        )
-        {
-            ImmutableArray<T>.Builder builder = ImmutableArray.CreateBuilder<T>();
-            ConfiguredCancelableAsyncEnumerable<T> asyncEnumerable = query.AsAsyncEnumerable().WithCancellation(cancellationToken);
-            await foreach (T item in asyncEnumerable)
-            {
-                builder.Add(item);
-            }
-            ImmutableArray<T> immutableArray = builder.ToImmutable();
-            return immutableArray;
-        }
+        #endregion
     }
 }
