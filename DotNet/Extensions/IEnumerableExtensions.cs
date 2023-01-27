@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Linq.Expressions;
 
 using AndrejKrizan.DotNet.Extensions;
 using AndrejKrizan.DotNet.ValueObjects.Ranges;
@@ -27,81 +28,6 @@ namespace AndrejKrizan.DotNet.Extensions
         }
         #endregion
 
-        #region ToArray
-        /// <summary>Optimized version. Only use when the IEnumerable doesn't know its count without needing to enumerate.</summary>
-        public static T[] ToArray<T>(this IEnumerable<T> source, int count)
-        {
-            T[] array = new T[count];
-            int i = 0;
-            foreach (T item in source)
-            {
-                array[i++] = item;
-            }
-            return array;
-        }
-
-
-        public static TResult[] ToArray<T, TResult>(this IEnumerable<T> items, Func<T, TResult> converter)
-            => items.Select(converter).ToArray();
-
-        /// <summary>Optimized version. Only use when the IEnumerable doesn't know its count without needing to enumerate.</summary>
-        public static TResult[] ToArray<T, TResult>(this IEnumerable<T> items, Func<T, TResult> converter, int count)
-            => items.Select(converter).ToArray(count);
-
-
-        public static async Task<TResult[]> ToArrayAsync<T, TResult>(this IEnumerable<T> items,
-            Func<T, CancellationToken, Task<TResult>> asyncConverter, bool concurrently = false,
-            CancellationToken cancellationToken = default
-        )
-        {
-            TResult[] results;
-            if (concurrently)
-            {
-                IEnumerable<Task<TResult>> conversionTasks = items.Select(item => asyncConverter(item, cancellationToken));
-                results = await Task.WhenAll(conversionTasks);
-            }
-            else
-            {
-                int size = items.Count();
-                results = new TResult[size];
-                int i = 0;
-                foreach (T item in items)
-                {
-                    TResult result = await asyncConverter(item, cancellationToken);
-                    results[i] = result;
-                }
-            }
-            return results;
-        }
-
-        /// <summary>Optimized version. Only use when the IEnumerable doesn't know its count without needing to enumerate.</summary>
-        public static async Task<TResult[]> ToArrayAsync<T, TResult>(this IEnumerable<T> items,
-            Func<T, CancellationToken, Task<TResult>> asyncConverter, int size, bool concurrently = false,
-            CancellationToken cancellationToken = default
-        )
-        {
-            TResult[] results;
-            if (concurrently)
-            {
-                IEnumerable<Task<TResult>> conversionTasks = items.Select(item => asyncConverter(item, cancellationToken));
-                results = await Task.WhenAll(conversionTasks);
-            }
-            else
-            {
-                results = new TResult[size];
-                int i = 0;
-                foreach (T item in items)
-                {
-                    TResult result = await asyncConverter(item, cancellationToken);
-                    results[i] = result;
-                }
-            }
-            return results;
-        }
-        #endregion
-
-        #region ToImmutableArray
-        /// <summary>Optimized version. Only use when the IEnumerable doesn't know its count without needing to enumerate.</summary>
         public static ImmutableArray<T> ToImmutableArray<T>(this IEnumerable<T> source, int count)
         {
             ImmutableArray<T>.Builder arrayBuilder = ImmutableArray.CreateBuilder<T>(count);
@@ -113,76 +39,51 @@ namespace AndrejKrizan.DotNet.Extensions
             return array;
         }
 
+        public static ImmutableArray<TResult> Convert<T, TResult>(this IEnumerable<T> items, Func<T, TResult> selector)
+            => items.Select(selector).ToImmutableArray();
 
-        public static ImmutableArray<TResult> ToImmutableArray<T, TResult>(this IEnumerable<T> items, Func<T, TResult> converter)
-            => items.Select(converter).ToImmutableArray();
-
-        /// <summary>Optimized version. Only use when the IEnumerable doesn't know its count without needing to enumerate.</summary>
-        public static ImmutableArray<TResult> ToImmutableArray<T, TResult>(this IEnumerable<T> items, Func<T, TResult> converter, int count)
-            => items.Select(converter).ToImmutableArray(count);
-
-
-        public static async Task<ImmutableArray<TResult>> ToImmutableArrayAsync<T, TResult>(this IEnumerable<T> items,
-            Func<T, CancellationToken, Task<TResult>> asyncConverter, bool concurrently = false,
+        public static async Task<ImmutableArray<TResult>> ConvertConcurrentlyAsync<T, TResult>(this IEnumerable<T> items,
+            Func<T, CancellationToken, Task<TResult>> asyncSelector,
             CancellationToken cancellationToken = default
         )
         {
-            ImmutableArray<TResult> results;
-            if (concurrently)
-            {
-                IEnumerable<Task<TResult>> conversionTasks = items.Select(item => asyncConverter(item, cancellationToken));
-                TResult[] resultsArray = await Task.WhenAll(conversionTasks);
-                results = resultsArray.AsImmutableArray();
-            }
-            else
-            {
-                int size = items.Count();
-                ImmutableArray<TResult>.Builder resultsBuilder = ImmutableArray.CreateBuilder<TResult>(size);
-                foreach (T item in items)
-                {
-                    TResult result = await asyncConverter(item, cancellationToken);
-                    resultsBuilder.Add(result);
-                }
-                results = resultsBuilder.MoveToImmutable();
-            }
+            IEnumerable<Task<TResult>> conversionTasks = items.Select(item => asyncSelector(item, cancellationToken));
+            TResult[] _results = await Task.WhenAll(conversionTasks);
+            ImmutableArray<TResult> results = _results.AsImmutableArray();
             return results;
         }
 
-        /// <summary>Optimized version. Only use when the IEnumerable doesn't know its count without needing to enumerate.</summary>
-        public static async Task<ImmutableArray<TResult>> ToImmutableArrayAsync<T, TResult>(this IEnumerable<T> items,
-            Func<T, CancellationToken, Task<TResult>> asyncConverter, int size, bool concurrently = false,
+        #region ConvertSequentiallyAsync
+        public static Task<ImmutableArray<TResult>> ConvertSequentiallyAsync<T, TResult>(this IEnumerable<T> source,
+            Func<T, CancellationToken, Task<TResult>> asyncSelector,
+            CancellationToken cancellationToken = default
+        )
+            => source.ConvertSequentiallyAsync(asyncSelector, source.Count(), cancellationToken);
+
+        public static async Task<ImmutableArray<TResult>> ConvertSequentiallyAsync<T, TResult>(this IEnumerable<T> source,
+            Func<T, CancellationToken, Task<TResult>> asyncSelector, int size,
             CancellationToken cancellationToken = default
         )
         {
-            ImmutableArray<TResult> results;
-            if (concurrently)
+            ImmutableArray<TResult>.Builder resultsBuilder = ImmutableArray.CreateBuilder<TResult>(size);
+            foreach (T item in source)
             {
-                IEnumerable<Task<TResult>> conversionTasks = items.Select(item => asyncConverter(item, cancellationToken));
-                TResult[] resultsArray = await Task.WhenAll(conversionTasks);
-                results = resultsArray.AsImmutableArray();
+                TResult result = await asyncSelector(item, cancellationToken);
+                resultsBuilder.Add(result);
             }
-            else
-            {
-                ImmutableArray<TResult>.Builder resultsBuilder = ImmutableArray.CreateBuilder<TResult>(size);
-                foreach (T item in items)
-                {
-                    TResult result = await asyncConverter(item, cancellationToken);
-                    resultsBuilder.Add(result);
-                }
-                results = resultsBuilder.MoveToImmutable();
-            }
+            ImmutableArray<TResult> results = resultsBuilder.MoveToImmutable();
             return results;
         }
         #endregion
 
         #region Average
         public static ulong Average(this IEnumerable<ulong> source)
-            => decimal.ToUInt64(source.Select(Convert.ToDecimal).Average());
+            => decimal.ToUInt64(source.Select(System.Convert.ToDecimal).Average());
         public static ulong Average<T>(this IEnumerable<T> source, Func<T, ulong> selector)
             => source.Select(selector).Average();
 
         public static long AverageLong(this IEnumerable<long> source)
-            => decimal.ToInt64(source.Select(Convert.ToDecimal).Average());
+            => decimal.ToInt64(source.Select(System.Convert.ToDecimal).Average());
         public static long AverageLong<T>(this IEnumerable<T> source, Func<T, long> selector)
             => source.Select(selector).AverageLong();
         #endregion Average
@@ -438,9 +339,46 @@ namespace AndrejKrizan.DotNet.Extensions
                     rowBuilders[rowIndex++].Add(item);
                 }
             }
-            ImmutableArray<ImmutableArray<T>> matrix = rowBuilders.ToImmutableArray(rowBuilder => rowBuilder.MoveToImmutable());
+            ImmutableArray<ImmutableArray<T>> matrix = rowBuilders.Convert(rowBuilder => rowBuilder.MoveToImmutable());
             return matrix;
         }
 
+        public static IEnumerable<T> WhereAny<T, TData>(this IEnumerable<T> source, IEnumerable<TData> dataSource, Func<TData, Expression<Func<T, bool>>> predicateBuilder)
+        {
+            if (dataSource.Any())
+            {
+                Func<T, bool> predicate = dataSource.ToPredicateFunc(predicateBuilder);
+                source = source.Where(predicate);
+            }
+            return source;
+        }
+
+        #region ToPredicate
+        public static Expression<Func<T, bool>> ToPredicateLambda<TData, T>(this IEnumerable<TData> dataSource, Func<TData, Expression<Func<T, bool>>> predicateBuilder)
+        {
+            if (!dataSource.Any())
+            {
+                return (T item) => true;
+            }
+            string parameterName = typeof(T).Name.ToCamelCase();
+            ParameterExpression parameterExpression = Expression.Parameter(typeof(T), parameterName);
+
+            IEnumerable<Expression> predicateExpressions = dataSource.Select(data
+                => predicateBuilder(data)
+                    .ReplaceParameters(parameterExpression)
+                    .Body
+            );
+            Expression predicateExpression = predicateExpressions.Aggregate(Expression.OrElse)!;
+            Expression<Func<T, bool>> predicateLambda = Expression.Lambda<Func<T, bool>>(predicateExpression, parameterExpression);
+            return predicateLambda;
+        }
+
+        public static Func<T, bool> ToPredicateFunc<TData, T>(this IEnumerable<TData> dataSource, Func<TData, Expression<Func<T, bool>>> predicateBuilder)
+        {
+            Expression<Func<T, bool>> predicateLambda = dataSource.ToPredicateLambda(predicateBuilder);
+            Func<T, bool> predicateFunc = predicateLambda.Compile();
+            return predicateFunc;
+        }
+        #endregion
     }
 }
