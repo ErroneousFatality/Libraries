@@ -2,20 +2,6 @@
 {
     public static class StringExtensions
     {
-        public static string ToCamelCase(this string str)
-            => string.IsNullOrWhiteSpace(str)
-                ? str
-                : str.ReplaceAt(0, char.ToLowerInvariant(str[0]));
-
-        public static string EnsureStartsWith(this string str, char prefix)
-            => str.StartsWith(prefix)
-                ? str
-                : prefix + str;
-        public static string EnsureStartsWith(this string str, string prefix)
-            => str.StartsWith(prefix)
-                ? str
-                : prefix + str;
-
         public static string ReplaceAt(this string str, int index, char ch)
             => string.Create(str.Length, str, (span, _str) =>
             {
@@ -23,25 +9,69 @@
                 span[index] = ch;
             });
 
-        public static IEnumerable<string> SplitToEnumerable(this string strings, char separator)
+
+        public static IEnumerable<string> SplitToEnumerable(this string str, char separator)
         {
             int startIndex = 0;
-            while (startIndex < strings.Length)
+            while (startIndex < str.Length)
             {
-                int finishIndex = strings.IndexOf(separator, startIndex);
+                int finishIndex = str.IndexOf(separator, startIndex);
                 if (finishIndex == -1)
                 {
-                    finishIndex = strings.Length;
+                    finishIndex = str.Length;
                 }
-                string @string = strings[startIndex..finishIndex];
-                yield return @string;
+
+                string substring = str[startIndex..finishIndex];
+                yield return substring;
                 startIndex = finishIndex + 1;
             }
         }
 
+        public static string? Quote(this string? str)
+            => str == null ? str : '\"' + str + '\"';
+
+        #region ToLowercasedFirstCharacter
+        public static string ToLowercasedFirstCharacter(this string str)
+            => str.Length < 1
+                ? str
+                : str.ReplaceAt(0, char.ToLower(str[0]));
+
+        public static string ToLowercasedFirstCharacterInvariant(this string str)
+            => str.Length < 1
+                ? str
+                : str.ReplaceAt(0, char.ToLowerInvariant(str[0]));
+        #endregion LowercaseFirstCharacter
+
+        #region ToUppercasedFirstCharacter
+        public static string ToUppercasedFirstCharacter(this string str)
+            => str.Length < 1
+                ? str
+                : str.ReplaceAt(0, char.ToUpper(str[0]));
+
+        public static string ToUppercasedFirstCharacterInvariant(this string str)
+            => str.Length < 1
+                ? str
+                : str.ReplaceAt(0, char.ToUpperInvariant(str[0]));
+
+        #endregion
+
+        #region AddPrefixIdempotent
+        public static string AddPrefixIdempotent(this string str, char prefix)
+            => str.StartsWith(prefix)
+                ? str
+                : prefix + str;
+        public static string AddPrefixIdempotent(this string str, string prefix)
+            => str.StartsWith(prefix)
+                ? str
+                : prefix + str;
+        #endregion
+
+        #region ContainsAny
         public static bool ContainsAny(this string haystack, params string[] needles)
             => needles.Any(needle => haystack.Contains(needle));
+
         public static bool ContainsAny(this string haystack, StringComparison comparison, params string[] needles)
             => needles.Any(needle => haystack.Contains(needle, comparison));
+        #endregion
     }
 }

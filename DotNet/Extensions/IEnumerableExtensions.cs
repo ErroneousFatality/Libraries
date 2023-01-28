@@ -9,23 +9,31 @@ namespace AndrejKrizan.DotNet.Extensions
     public static class IEnumerableExtensions
     {
         #region StringJoin
-        public static string StringJoin<T>(this IEnumerable<T> source, string? separator = ", ", bool quote = false)
-            where T : notnull
+
+        public static string StringJoin(this IEnumerable<string?> source, string? separator = ", ", bool quote = false)
         {
-            IEnumerable<string?> strings = quote
-                ? source.Select(x => '\"' + x.ToString() + '\"')
-                : source.Select(x => x.ToString());
-            return string.Join(separator, strings);
+            if (quote)
+            {
+                source = source.Select(str => str.Quote());
+            }
+            return string.Join(separator, source);
         }
 
-        public static string StringJoin<T>(this IEnumerable<T> source, char separator, bool quote = false)
-            where T : notnull
+        public static string StringJoin(this IEnumerable<string?> source, char separator, bool quote = false)
         {
-            IEnumerable<string?> strings = quote
-                ? source.Select(x => '\"' + x.ToString() + '\"')
-                : source.Select(x => x.ToString());
-            return string.Join(separator, strings);
+            if (quote)
+            {
+                source = source.Select(str => str.Quote());
+            }
+            return string.Join(separator, source);
         }
+
+
+        public static string StringJoin<T>(this IEnumerable<T?> source, string? separator = ", ", bool quote = false)
+            => source.Select(str => str?.ToString()).StringJoin(separator, quote);
+
+        public static string StringJoin<T>(this IEnumerable<T?> source, char separator, bool quote = false)
+            => source.Select(str => str?.ToString()).StringJoin(separator, quote);
         #endregion
 
         public static ImmutableArray<T> ToImmutableArray<T>(this IEnumerable<T> source, int count)
@@ -360,7 +368,7 @@ namespace AndrejKrizan.DotNet.Extensions
             {
                 return (T item) => true;
             }
-            string parameterName = typeof(T).Name.ToCamelCase();
+            string parameterName = typeof(T).Name.ToLowercasedFirstCharacterInvariant();
             ParameterExpression parameterExpression = Expression.Parameter(typeof(T), parameterName);
 
             IEnumerable<Expression> predicateExpressions = dataSource.Select(data
