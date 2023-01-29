@@ -39,6 +39,12 @@ namespace AndrejKrizan.DotNet.ValueObjects.Ranges
         private Range() { }
 
         // Methods
+        public void Deconstruct(out T from, out T to)
+        {
+            from = From;
+            to = To;
+        }
+
         public override string ToString()
             => $"[{From}, {To}]";
 
