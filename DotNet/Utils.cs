@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Net.Mail;
 
 namespace AndrejKrizan.DotNet
 {

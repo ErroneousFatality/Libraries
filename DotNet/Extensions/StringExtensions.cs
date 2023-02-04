@@ -1,4 +1,6 @@
-﻿namespace AndrejKrizan.DotNet.Extensions
+﻿using System.Net.Mail;
+
+namespace AndrejKrizan.DotNet.Extensions
 {
     public static class StringExtensions
     {
@@ -73,5 +75,35 @@
         public static bool ContainsAny(this string haystack, StringComparison comparison, params string[] needles)
             => needles.Any(needle => haystack.Contains(needle, comparison));
         #endregion
+
+        /// <exception cref="ArgumentException"></exception>
+        public static string ToEmailAddress(this string emailAddress, int maxLength = CommonConstraints.EmailAddressMaxLength)
+        {
+
+            if (string.IsNullOrWhiteSpace(emailAddress))
+            {
+                throw new ArgumentException($"The email address must not be empty.", nameof(emailAddress));
+            }
+            if (emailAddress.Trim().EndsWith("."))
+            {
+                throw new ArgumentException($"The email address must not end with a \'.\'.", nameof(emailAddress));
+            }
+            string validEmailAddress;
+            try
+            {
+                MailAddress mailAddress = new(emailAddress);
+                validEmailAddress = mailAddress.Address;
+            }
+            catch (Exception exception)
+            {
+                throw new ArgumentException($"The email address \"{emailAddress}\" is not valid: {exception.Message}.", nameof(emailAddress), exception);
+            }
+
+            if (validEmailAddress.Length > maxLength)
+            {
+                throw new ArgumentException($"The email address \"{validEmailAddress}\" is too long. Maximum length: {maxLength}.", nameof(emailAddress));
+            }
+            return validEmailAddress;
+        }
     }
 }
