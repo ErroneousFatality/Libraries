@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AndrejKrizan.Hdf", "Hdf\And
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AndrejKrizan.DotNet", "DotNet\AndrejKrizan.DotNet.csproj", "{D735D0BC-7571-4722-8F9E-6E6EB57CCCB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AndrejKrizan.PhoneValidation", "PhoneValidation\PhoneValidation\AndrejKrizan.PhoneValidation.csproj", "{37B94C92-A940-45FA-984A-FA32D829EE20}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AndrejKrizan.PhoneValidation", "PhoneValidation\AndrejKrizan.PhoneValidation.csproj", "{68E092FD-404E-4F07-A83A-988813A1B0E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,10 +49,10 @@ Global
 		{D735D0BC-7571-4722-8F9E-6E6EB57CCCB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D735D0BC-7571-4722-8F9E-6E6EB57CCCB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D735D0BC-7571-4722-8F9E-6E6EB57CCCB9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{37B94C92-A940-45FA-984A-FA32D829EE20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{37B94C92-A940-45FA-984A-FA32D829EE20}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{37B94C92-A940-45FA-984A-FA32D829EE20}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{37B94C92-A940-45FA-984A-FA32D829EE20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68E092FD-404E-4F07-A83A-988813A1B0E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68E092FD-404E-4F07-A83A-988813A1B0E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68E092FD-404E-4F07-A83A-988813A1B0E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68E092FD-404E-4F07-A83A-988813A1B0E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
