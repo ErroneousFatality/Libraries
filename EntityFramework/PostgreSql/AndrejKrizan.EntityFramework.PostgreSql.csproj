@@ -7,12 +7,12 @@
 		<Authors>ErroneousFatality</Authors>
 		<RepositoryUrl>https://github.com/ErroneousFatality/Libraries</RepositoryUrl>
 		<PackageOutputPath>..\..\Nugets</PackageOutputPath>
-		<Version>1.0.8</Version>
+		<Version>1.0.9</Version>
 		<SignAssembly>True</SignAssembly>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.1" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.3" />
 	</ItemGroup>
 
 	<ItemGroup>

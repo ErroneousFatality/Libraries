@@ -16,11 +16,6 @@ namespace AndrejKrizan.PhoneValidation.Extensions
                 throw new ArgumentException($"The phone number \"{phoneNumber}\" is too long. Maximum length: {maxLength}.", nameof(phoneNumber));
             }
 
-            string errorMessage = $"The phone number \"{phoneNumber}\" is not valid";
-            if (regionCode != null) {
-                errorMessage += $" for region \"{regionCode}\"";
-            }
-
             PhoneNumberUtil utils = PhoneNumberUtil.GetInstance();
             PhoneNumber _phoneNumber;
             try
@@ -29,14 +24,24 @@ namespace AndrejKrizan.PhoneValidation.Extensions
             }
             catch (Exception exception)
             {
-                throw new ArgumentException($"{errorMessage}: {exception.Message}.", nameof(phoneNumber), exception);
+                throw new ArgumentException($"{CreatePhoneNumberValidationErrorMessage(phoneNumber, regionCode)}: {exception.Message}.", nameof(phoneNumber), exception);
             }
             if (regionCode != null && !utils.IsValidNumberForRegion(_phoneNumber, regionCode))
             {
-                throw new ArgumentException($"{errorMessage}.", nameof(phoneNumber));
+                throw new ArgumentException(CreatePhoneNumberValidationErrorMessage(phoneNumber, regionCode) + '.', nameof(phoneNumber));
             }
             string validPhoneNumber = utils.Format(_phoneNumber, format);
             return validPhoneNumber;
+        }
+
+        private static string CreatePhoneNumberValidationErrorMessage(string phoneNumber, string? regionCode)
+        {
+            string errorMessage = $"The phone number \"{phoneNumber}\" is not valid";
+            if (regionCode != null)
+            {
+                errorMessage += $" for region \"{regionCode}\"";
+            }
+            return errorMessage;
         }
     }
 }

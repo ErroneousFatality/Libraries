@@ -240,11 +240,11 @@ namespace AndrejKrizan.EntityFramework.Common.Extensions.IQueryables
                 }
             }
 
-            Expression everyWordIsMatchedInAnyStringProperty = phrases.Select((word) =>
+            Expression everyWordIsMatchedInAnyStringProperty = phrases.Select((string word) =>
             {
                 ConstantExpression wordExpression = Expression.Constant(word);
                 Expression anyStringMemberMatchesFilter = stringPropertyNavigationExpressionAndMethodInfoEnumerable
-                    .Select((propertyNavigationExpressionAndMethodInfo) =>
+                    .Select(propertyNavigationExpressionAndMethodInfo =>
                         Expression.Call(
                             propertyNavigationExpressionAndMethodInfo.PropertyNavigationExpression.Expression,
                             propertyNavigationExpressionAndMethodInfo.MethodInfo,
@@ -253,8 +253,7 @@ namespace AndrejKrizan.EntityFramework.Common.Extensions.IQueryables
                     )
                     .Aggregate<Expression>(Expression.OrElse);
                 return anyStringMemberMatchesFilter;
-            })
-                .Aggregate(Expression.AndAlso);
+            }).Aggregate(Expression.AndAlso);
             Expression<Func<TEntity, bool>> stringFilterLambda = Expression.Lambda<Func<TEntity, bool>>(
                 everyWordIsMatchedInAnyStringProperty,
                 parameterExpression
