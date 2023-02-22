@@ -41,3 +41,5 @@ msbuild.wrn
 **/[Ss]ecrets.*.json
 
 **/*.env
+
+/push all.bat
