@@ -14,6 +14,7 @@ namespace AndrejKrizan.DotNet.Extensions
             => configurationSection[key]
                 ?? throw new ArgumentException($"The \"{key}\" value was not found inside the configuration section at path \"{configurationSection.Path}\".", nameof(configurationSection));
 
+
         /// <exception cref="ArgumentException">The settings were not found or are invalid inside the configuration.</exception>
         public static TSettings GetRequiredSettings<TSettings>(this IConfiguration configuration, string key)
             => configuration.GetRequiredSection(key).Get<TSettings>()
