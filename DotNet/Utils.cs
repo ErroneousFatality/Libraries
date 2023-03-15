@@ -120,5 +120,34 @@ namespace AndrejKrizan.DotNet
             => comparer.Compare(first, second) >= 0 ? first : second;
         public static T Max<T>(T first, T second)
             => Max(first, second, Comparer<T>.Default);
+
+        #region OrAsync
+        public static async Task<bool> OrAsync(IEnumerable<Task<bool>> conditionTasks)
+        {
+            HashSet<Task<bool>> conditionTaskSet = new(conditionTasks);
+            while (conditionTaskSet.Count > 0)
+            {
+                Task<bool> completedConditionTask = await Task.WhenAny(conditionTaskSet);
+                if (completedConditionTask.Result)
+                {
+                    return true;
+                }
+                conditionTaskSet.Remove(completedConditionTask);
+            }
+            return false;
+        }
+        public static Task<bool> OrAsync(Task<bool> conditionTask, params Task<bool>[] additionalConditionTasks)
+            => OrAsync(additionalConditionTasks.Prepend(conditionTask));
+
+        public static Task<bool> OrAsync(IEnumerable<Func<Task<bool>>> conditionAsyncFunctions)
+            => OrAsync(conditionAsyncFunctions.Select(Task.Run));
+        public static Task<bool> OrAsync(Func<Task<bool>> conditionAsyncFunction, params Func<Task<bool>>[] additionalConditionAsyncFunctions)
+            => OrAsync(additionalConditionAsyncFunctions.Prepend(conditionAsyncFunction));
+
+        public static Task<bool> OrAsync(IEnumerable<Func<bool>> conditionFunctions)
+            => OrAsync(conditionFunctions.Select(Task.Run));
+        public static Task<bool> OrAsync(Func<bool> conditionFunction, params Func<bool>[] additionalConditionFunctions)
+            => OrAsync(additionalConditionFunctions.Prepend(conditionFunction));
+        #endregion
     }
 }
