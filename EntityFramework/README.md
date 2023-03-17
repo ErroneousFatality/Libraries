@@ -1,0 +1,4 @@
+# EntityFramework libraries
+* [Common](https://github.com/ErroneousFatality/Libraries/tree/main/EntityFramework/Common) [![latest version](https://img.shields.io/nuget/v/AndrejKrizan.EntityFramework.Common)](https://www.nuget.org/packages/AndrejKrizan.EntityFramework.Common)
+* [PostgreSql](https://github.com/ErroneousFatality/Libraries/tree/main/EntityFramework/PostgreSql) [![latest version](https://img.shields.io/nuget/v/AndrejKrizan.EntityFramework.PostgreSql)](https://www.nuget.org/packages/AndrejKrizan.EntityFramework.PostgreSql)
+* [SqlServer](https://github.com/ErroneousFatality/Libraries/tree/main/EntityFramework/SqlServer) [![latest version](https://img.shields.io/nuget/v/AndrejKrizan.EntityFramework.SqlServer)](https://www.nuget.org/packages/AndrejKrizan.EntityFramework.SqlServer)

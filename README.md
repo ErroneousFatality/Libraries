@@ -1,0 +1,9 @@
+# Libraries
+* [DotNet](https://github.com/ErroneousFatality/Libraries/tree/main/DotNet) [![latest version](https://img.shields.io/nuget/v/AndrejKrizan.DotNet)](https://www.nuget.org/packages/AndrejKrizan.DotNet)
+* [EntityFramework](https://github.com/ErroneousFatality/Libraries/tree/main/EntityFramework):
+	- [Common](https://github.com/ErroneousFatality/Libraries/tree/main/EntityFramework/Common) [![latest version](https://img.shields.io/nuget/v/AndrejKrizan.EntityFramework.Common)](https://www.nuget.org/packages/AndrejKrizan.EntityFramework.Common)
+	- [PostgreSql](https://github.com/ErroneousFatality/Libraries/tree/main/EntityFramework/PostgreSql) [![latest version](https://img.shields.io/nuget/v/AndrejKrizan.EntityFramework.PostgreSql)](https://www.nuget.org/packages/AndrejKrizan.EntityFramework.PostgreSql)
+	- [SqlServer](https://github.com/ErroneousFatality/Libraries/tree/main/EntityFramework/SqlServer) [![latest version](https://img.shields.io/nuget/v/AndrejKrizan.EntityFramework.SqlServer)](https://www.nuget.org/packages/AndrejKrizan.EntityFramework.SqlServer)
+* [AspNet](https://github.com/ErroneousFatality/Libraries/tree/main/AspNet) [![latest version](https://img.shields.io/nuget/v/AndrejKrizan.AspNet)](https://www.nuget.org/packages/AndrejKrizan.AspNet)
+* [PhoneValidation](https://github.com/ErroneousFatality/Libraries/tree/main/PhoneValidation) [![latest version](https://img.shields.io/nuget/v/AndrejKrizan.PhoneValidation)](https://www.nuget.org/packages/AndrejKrizan.PhoneValidation)
+* [Hdf](https://github.com/ErroneousFatality/Libraries/tree/main/Hdf) [![latest version](https://img.shields.io/nuget/v/AndrejKrizan.Hdf)](https://www.nuget.org/packages/AndrejKrizan.Hdf)
