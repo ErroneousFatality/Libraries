@@ -1,147 +1,44 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using AndrejKrizan.DotNet.Utilities.OrAsync.Conditions;
 
-namespace AndrejKrizan.DotNet
+namespace AndrejKrizan.DotNet.Utilities
 {
-    public static class Utils
+    public static partial class Utils
     {
-        #region RetryWithDelays
-        public static async Task RetryWithDelaysAsync(
-            Func<int, CancellationToken, Task> asyncAction,
-            Action<int, Exception> exceptionHandler,
-            int[] millisecondDelays,
-            CancellationToken cancellationToken = default
-        )
-        {
-            int tryNumber;
-            for (int i = 0; i < millisecondDelays.Length; i++)
-            {
-                tryNumber = i + 1;
-                try
-                {
-                    await asyncAction(tryNumber, cancellationToken);
-                    return;
-                }
-                catch (TaskCanceledException)
-                {
-                    return;
-                }
-                catch (Exception exception)
-                {
-                    exceptionHandler(tryNumber, exception);
-                    await Task.Delay(millisecondDelays[i], cancellationToken);
-                }
-            }
-            tryNumber = millisecondDelays.Length + 1;
-            try
-            {
-                await asyncAction(tryNumber, cancellationToken);
-            }
-            catch (TaskCanceledException)
-            {
-                return;
-            }
-            catch (Exception exception)
-            {
-                exceptionHandler(tryNumber, exception);
-                throw;
-            }
-        }
-        public static async Task RetryWithDelaysAsync(
-            Func<int, CancellationToken, Task> asyncAction,
-            Action<int, Exception> exceptionHandler,
-            params int[] millisecondDelays
-        )
-            => await RetryWithDelaysAsync(asyncAction, exceptionHandler, millisecondDelays, cancellationToken: default);
+#pragma warning disable CA1068 // CancellationToken parameters must come last
+        public static Task<bool> OrAsync(CancellationToken cancellationToken, Condition condition1, Condition condition2, params Condition[] additionalConditions)
+            => OrAsync(additionalConditions.Prepend(condition2).Prepend(condition1), cancellationToken);
+#pragma warning restore CA1068 // CancellationToken parameters must come last
 
+        public static Task<bool> OrAsync(Condition condition1, Condition condition2, params Condition[] additionalConditions)
+            => OrAsync(additionalConditions.Prepend(condition2).Prepend(condition1));
 
-        public static async Task RetryWithDelaysAsync(
-            Func<int, Task> asyncAction,
-            Action<int, Exception> exceptionHandler,
-            int[] millisecondDelays,
-            CancellationToken cancellationToken = default
-        )
-            => await RetryWithDelaysAsync(
-                asyncAction: (tryNumber, cancellationToken) => asyncAction(tryNumber),
-                exceptionHandler,
-                millisecondDelays,
+        public static Task<bool> OrAsync(IEnumerable<Condition> conditions, CancellationToken cancellationToken = default)
+            => OrAsyncInternal(
+                (cancellationToken) => conditions.Select(condition => condition.ToTask(cancellationToken)),
                 cancellationToken
             );
-        public static async Task RetryWithDelaysAsync(
-            Func<int, Task> asyncAction,
-            Action<int, Exception> exceptionHandler,
-            params int[] millisecondDelays
-        )
-            => await RetryWithDelaysAsync(asyncAction, exceptionHandler, millisecondDelays, cancellationToken: default);
 
-
-        public static async Task RetryWithDelaysAsync(Func<int, Task> asyncAction, int[] millisecondDelays, CancellationToken cancellationToken = default)
-        {
-            List<Exception> exceptions = new(millisecondDelays.Length + 1);
-            try
-            {
-                await RetryWithDelaysAsync(
-                    asyncAction,
-                    (tryNumber, exception) => exceptions.Add(exception),
-                    millisecondDelays,
-                    cancellationToken
-                );
-            }
-            catch
-            {
-                throw new AggregateException(exceptions);
-            }
-        }
-        public static async Task RetryWithDelaysAsync(
-            Func<int, Task> asyncAction,
-            params int[] millisecondDelays
-        )
-            => await RetryWithDelaysAsync(asyncAction, millisecondDelays, cancellationToken: default);
-        #endregion RetryWithDelays
-
-        public static void ListInitializeOrAdd<T>([NotNull] ref List<T>? list, T item)
-        {
-            if (list == null)
-            {
-                list = new List<T> { item };
-            }
-            else
-            {
-                list.Add(item);
-            }
-        }
-
-        public static T Min<T>(T first, T second, IComparer<T> comparer)
-            => comparer.Compare(first, second) <= 0 ? first : second;
-        public static T Min<T>(T first, T second)
-            => Min(first, second, Comparer<T>.Default);
-
-        public static T Max<T>(T first, T second, IComparer<T> comparer)
-            => comparer.Compare(first, second) >= 0 ? first : second;
-        public static T Max<T>(T first, T second)
-            => Max(first, second, Comparer<T>.Default);
-
-        #region OrAsync
 
 #pragma warning disable CA1068 // CancellationToken parameters must come last
         public static Task<bool> OrAsync(
-            CancellationToken cancellationToken, 
-            Func<CancellationToken, Task<bool>> condition1, 
-            Func<CancellationToken, Task<bool>> condition2, 
+            CancellationToken cancellationToken,
+            Func<CancellationToken, Task<bool>> condition1,
+            Func<CancellationToken, Task<bool>> condition2,
             params Func<CancellationToken, Task<bool>>[] additionalConditions
         )
             => OrAsync(additionalConditions.Prepend(condition2).Prepend(condition1), cancellationToken);
 #pragma warning restore CA1068 // CancellationToken parameters must come last
 
         public static Task<bool> OrAsync(
-            Func<CancellationToken, Task<bool>> condition1, 
-            Func<CancellationToken, Task<bool>> condition2, 
+            Func<CancellationToken, Task<bool>> condition1,
+            Func<CancellationToken, Task<bool>> condition2,
             params Func<CancellationToken, Task<bool>>[] additionalConditions
         )
             => OrAsync(additionalConditions.Prepend(condition2).Prepend(condition1));
 
         public static Task<bool> OrAsync(IEnumerable<Func<CancellationToken, Task<bool>>> conditions, CancellationToken cancellationToken = default)
             => OrAsyncInternal(
-                (CancellationToken cancellationToken) => conditions.Select(
+                (cancellationToken) => conditions.Select(
                     conditionTaskFunc => Task.Run(() => conditionTaskFunc(cancellationToken), cancellationToken)
                 ),
                 cancellationToken
@@ -167,7 +64,7 @@ namespace AndrejKrizan.DotNet
 
         public static Task<bool> OrAsync(IEnumerable<Func<Task<bool>>> conditions, CancellationToken cancellationToken = default)
             => OrAsyncInternal(
-                (CancellationToken cancellationToken) => conditions.Select(
+                (cancellationToken) => conditions.Select(
                     conditionTaskFunc => Task.Run(conditionTaskFunc, cancellationToken)
                 ),
                 cancellationToken
@@ -193,7 +90,7 @@ namespace AndrejKrizan.DotNet
 
         public static Task<bool> OrAsync(IEnumerable<Func<bool>> conditions, CancellationToken cancellationToken = default)
             => OrAsyncInternal(
-                (CancellationToken cancellationToken) => conditions.Select(
+                (cancellationToken) => conditions.Select(
                     conditionTaskFunc => Task.Run(conditionTaskFunc, cancellationToken)
                 ),
                 cancellationToken
@@ -219,7 +116,7 @@ namespace AndrejKrizan.DotNet
 
         public static Task<bool> OrAsync(IEnumerable<Task<bool>> conditions, CancellationToken cancellationToken = default)
             => OrAsyncInternal(
-                (CancellationToken cancellationToken) => conditions,
+                (cancellationToken) => conditions,
                 cancellationToken
             );
 
@@ -242,6 +139,5 @@ namespace AndrejKrizan.DotNet
             }
             return false;
         }
-        #endregion
     }
 }
