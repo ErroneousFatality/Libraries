@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Authors>ErroneousFatality</Authors>
-		<RepositoryUrl>https://github.com/ErroneousFatality/Libraries</RepositoryUrl>
+		<RepositoryUrl>https://github.com/ErroneousFatality/Libraries/tree/main/PhoneValidation</RepositoryUrl>
 		<PackageOutputPath>..\Nugets</PackageOutputPath>
 		<Version>1.0.10</Version>
 		<SignAssembly>True</SignAssembly>
