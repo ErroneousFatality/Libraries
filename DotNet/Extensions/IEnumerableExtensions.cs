@@ -186,10 +186,14 @@ namespace AndrejKrizan.DotNet.Extensions
         #endregion
 
         #region Equals
-        public static bool SetEquals<T>(this IEnumerable<T> source, IEnumerable<T> other)
-            => new HashSet<T>(source).SetEquals(other);
+        public static bool SetEquals<T>(this IEnumerable<T> source, IEnumerable<T> other, IEqualityComparer<T> comparer)
+            => new HashSet<T>(source, comparer).SetEquals(other);
 
-        public static bool ContentEquals<T>(this IEnumerable<T> source, IEnumerable<T> target)
+        public static bool SetEquals<T>(this IEnumerable<T> source, IEnumerable<T> other)
+            => SetEquals(source, other, EqualityComparer<T>.Default);
+
+
+        public static bool ContentEquals<T>(this IEnumerable<T> source, IEnumerable<T> target, IEqualityComparer<T> comparer)
             where T : notnull
         {
             bool hasCount = source.TryGetNonEnumeratedCount(out int count);
@@ -197,7 +201,7 @@ namespace AndrejKrizan.DotNet.Extensions
             {
                 return false;
             }
-            Dictionary<T, int> countByItemDictionary = hasCount ? new(count) : new();
+            Dictionary<T, int> countByItemDictionary = hasCount ? new(count, comparer) : new(comparer);
             foreach (T item in source)
             {
                 countByItemDictionary[item] = countByItemDictionary.TryGetValue(item, out int itemCount)
@@ -214,6 +218,10 @@ namespace AndrejKrizan.DotNet.Extensions
             }
             return true;
         }
+
+        public static bool ContentEquals<T>(this IEnumerable<T> source, IEnumerable<T> target)
+            where T : notnull
+            => ContentEquals(source, target, EqualityComparer<T>.Default);
         #endregion
 
         #region MinBy
