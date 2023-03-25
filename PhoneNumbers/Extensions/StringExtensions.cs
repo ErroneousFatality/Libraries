@@ -1,11 +1,11 @@
 ﻿using PhoneNumbers;
 
-namespace AndrejKrizan.PhoneValidation.Extensions
+namespace AndrejKrizan.PhoneNumbers.Extensions
 {
     public static class StringExtensions
     {
         /// <exception cref="ArgumentException"></exception>
-        public static string ToPhoneNumber(this string phoneNumber, PhoneNumberFormat format = PhoneNumberFormat.INTERNATIONAL, string? regionCode = null, int maxLength = CommonConstraints.PhoneNumberMaxLength)
+        public static string ToPhoneNumber(this string phoneNumber, PhoneNumberFormat format = PhoneNumberFormat.INTERNATIONAL, string? regionCode = null, int maxLength = PhoneNumberConstraints.MaxLength)
         {
             if (string.IsNullOrWhiteSpace(phoneNumber))
             {
