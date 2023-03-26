@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace AndrejKrizan.EntityFramework.Common.Repositories
+namespace AndrejKrizan.EntityFramework.Common
 {
     public abstract class UnitOfWork
     {
