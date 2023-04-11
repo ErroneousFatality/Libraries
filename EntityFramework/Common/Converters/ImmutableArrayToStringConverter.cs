@@ -8,13 +8,10 @@ namespace AndrejKrizan.EntityFramework.Common.Converters
 {
     public class ImmutableArrayToStringConverter<T> : ValueConverter<ImmutableArray<T>, string>
     {
-        public ImmutableArrayToStringConverter(Func<string, T> parser, ConverterMappingHints? mappingHints = null)
+        public ImmutableArrayToStringConverter(Func<string, T> selector, ConverterMappingHints? mappingHints = null)
             : base(
                 (domainValue) => string.Join(Delimeter, domainValue),
-                (dataValue) => dataValue
-                    .SplitToEnumerable(Delimeter)
-                    .Select(parser)
-                    .ToImmutableArray(),
+                (dataValue) => dataValue.SplitToEnumerable(Delimeter).Select(selector).ToImmutableArray(),
                 mappingHints
             )
         { }

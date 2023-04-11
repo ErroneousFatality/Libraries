@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AndrejKrizan.EntityFramework.Common.Converters
 {
-    public class DoublesToBytesConverter : ValueConverter<ImmutableArray<double>, byte[]>
+    public class DoubleImmutableArrayToBytesConverter : ValueConverter<ImmutableArray<double>, byte[]>
     {
-        public DoublesToBytesConverter(ConverterMappingHints? mappingHints = null)
+        public DoubleImmutableArrayToBytesConverter(ConverterMappingHints? mappingHints = null)
             : base(
                 (doubles) => DoublesToBytes(doubles),
                 (bytes) => BytesToDoubles(bytes),

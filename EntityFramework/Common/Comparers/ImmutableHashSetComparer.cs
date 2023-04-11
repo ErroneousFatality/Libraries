@@ -16,5 +16,13 @@ namespace AndrejKrizan.EntityFramework.Common.Comparers
                 set => set
             )
         { }
+
+        public ImmutableHashSetComparer(IEqualityComparer<T> comparer)
+            : base(
+                (left, right) => left == right || left != null && right != null && left.SetEquals(right, comparer),
+                set => set.GetContentHashCode(),
+                set => set
+            )
+        { }
     }
 }

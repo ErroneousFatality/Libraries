@@ -6,12 +6,12 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AndrejKrizan.EntityFramework.Common.Converters
 {
-    public class StringImmutableArrayToStringConverter : ValueConverter<ImmutableArray<string>, string>
+    public class StringListToStringConverter : ValueConverter<List<string>, string>
     {
-        public StringImmutableArrayToStringConverter(ConverterMappingHints? mappingHints = null)
+        public StringListToStringConverter(ConverterMappingHints? mappingHints = null)
             : base(
                 (domainValue) => string.Join(Delimeter, domainValue),
-                (dataValue) => dataValue.SplitToEnumerable(Delimeter).ToImmutableArray(),
+                (dataValue) => dataValue.SplitToEnumerable(Delimeter).ToList(),
                 mappingHints
             )
         { }

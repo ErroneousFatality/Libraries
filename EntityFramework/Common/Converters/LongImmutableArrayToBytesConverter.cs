@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AndrejKrizan.EntityFramework.Common.Converters
 {
-    public class LongsToBytesConverter : ValueConverter<ImmutableArray<long>, byte[]>
+    public class LongImmutableArrayToBytesConverter : ValueConverter<ImmutableArray<long>, byte[]>
     {
-        public LongsToBytesConverter(ConverterMappingHints? mappingHints = null)
+        public LongImmutableArrayToBytesConverter(ConverterMappingHints? mappingHints = null)
             : base(
                 (longs) => LongsToBytes(longs),
                 (bytes) => BytesToLongs(bytes),
