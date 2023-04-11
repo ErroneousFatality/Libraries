@@ -47,8 +47,13 @@ namespace AndrejKrizan.DotNet.Extensions
             return array;
         }
 
+        #region Convert
         public static ImmutableArray<TResult> Convert<T, TResult>(this IEnumerable<T> items, Func<T, TResult> selector)
             => items.Select(selector).ToImmutableArray();
+
+        public static ImmutableArray<TResult> Convert<T, TResult>(this IEnumerable<T> items, Func<T, int, TResult> selector)
+            => items.Select(selector).ToImmutableArray();
+        #endregion
 
         public static async Task<ImmutableArray<TResult>> ConvertConcurrentlyAsync<T, TResult>(this IEnumerable<T> items,
             Func<T, CancellationToken, Task<TResult>> asyncSelector,
