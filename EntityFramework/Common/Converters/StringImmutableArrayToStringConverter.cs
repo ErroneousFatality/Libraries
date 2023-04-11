@@ -11,7 +11,7 @@ namespace AndrejKrizan.EntityFramework.Common.Converters
         public StringImmutableArrayToStringConverter(ConverterMappingHints? mappingHints = null)
             : base(
                 (domainValue) => string.Join(Delimeter, domainValue),
-                (dataValue) => dataValue.SplitToEnumerable(Delimeter).ToImmutableArray(),
+                (dataValue) => dataValue.Split(Delimeter, StringSplitOptions.None).AsImmutableArray(),
                 mappingHints
             )
         { }

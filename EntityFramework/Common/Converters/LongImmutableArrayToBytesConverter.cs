@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
-using System.Runtime.CompilerServices;
+
+using AndrejKrizan.DotNet.Extensions;
 
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -20,7 +21,7 @@ namespace AndrejKrizan.EntityFramework.Common.Converters
         {
             long[] buffer = new long[bytes.Length / 8];
             Buffer.BlockCopy(bytes, 0, buffer, 0, bytes.Length);
-            ImmutableArray<long> longs = Unsafe.As<long[], ImmutableArray<long>>(ref buffer);
+            ImmutableArray<long> longs = buffer.AsImmutableArray();
             return longs;
         }
 
