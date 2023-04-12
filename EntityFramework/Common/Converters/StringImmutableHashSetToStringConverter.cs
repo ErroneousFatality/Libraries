@@ -4,21 +4,20 @@ using AndrejKrizan.DotNet.Extensions;
 
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace AndrejKrizan.EntityFramework.Common.Converters
+namespace AndrejKrizan.EntityFramework.Common.Converters;
+
+public class StringImmutableHashSetToStringConverter : ValueConverter<ImmutableHashSet<string>, string>
 {
-    public class StringImmutableHashSetToStringConverter : ValueConverter<ImmutableHashSet<string>, string>
-    {
-        public StringImmutableHashSetToStringConverter(ConverterMappingHints? mappingHints = null)
-            : base(
-                (domainValue) => string.Join(Delimeter, domainValue),
-                (dataValue) => dataValue.SplitToEnumerable(Delimeter, StringSplitOptions.None).ToImmutableHashSet(),
-                mappingHints
-            )
-        { }
+    public StringImmutableHashSetToStringConverter(ConverterMappingHints? mappingHints = null)
+        : base(
+            (domainValue) => string.Join(Delimeter, domainValue),
+            (dataValue) => dataValue.SplitToEnumerable(Delimeter, StringSplitOptions.None).ToImmutableHashSet(),
+            mappingHints
+        )
+    { }
 
-        public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(ImmutableHashSet<string>), typeof(string), info => new StringImmutableHashSetToStringConverter(info.MappingHints));
+    public static ValueConverterInfo DefaultInfo { get; }
+        = new ValueConverterInfo(typeof(ImmutableHashSet<string>), typeof(string), info => new StringImmutableHashSetToStringConverter(info.MappingHints));
 
-        private const char Delimeter = (char)31;
-    }
+    private const char Delimeter = (char)31;
 }

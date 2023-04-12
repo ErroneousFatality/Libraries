@@ -1,9 +1,8 @@
-﻿namespace AndrejKrizan.DotNet
+﻿namespace AndrejKrizan.DotNet;
+
+public static class CommonConstraints
 {
-    public static class CommonConstraints
-    {
-        // Constants
-        public const int EmailAddressMaxLength = 320;
-        public const int FileNameMaxLength = 260;
-    }
+    // Constants
+    public const int EmailAddressMaxLength = 320;
+    public const int FileNameMaxLength = 260;
 }

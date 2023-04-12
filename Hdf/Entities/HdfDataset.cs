@@ -7,92 +7,91 @@ using AndrejKrizan.Hdf.Extensions;
 
 using HDF.PInvoke;
 
-namespace AndrejKrizan.Hdf.Entities
+namespace AndrejKrizan.Hdf.Entities;
+
+public class HdfDataset<T> : HdfAttributableObject
+    where T : notnull
 {
-    public class HdfDataset<T> : HdfAttributableObject
-        where T : notnull
+    // Properties
+    public IHdfType<T> Type { get; }
+    public HdfDataSpace DataSpace { get; }
+
+    // Constructors
+    public HdfDataset(HdfObject parent, string name, IHdfType<T> type, ulong[] dimensions, params HdfAttributeDto[] attributes)
+        : base(parent, name, attributes)
     {
-        // Properties
-        public IHdfType<T> Type { get; }
-        public HdfDataSpace DataSpace { get; }
+        Type = type;
+        DataSpace = new(dimensions);
+    }
+    public HdfDataset(HdfObject parent, string name, IHdfType<T> type, params HdfAttributeDto[] attributes)
+        : this(parent, name, type, Array.Empty<ulong>(), attributes) { }
 
-        // Constructors
-        public HdfDataset(HdfObject parent, string name, IHdfType<T> type, ulong[] dimensions, params HdfAttributeDto[] attributes)
-            : base(parent, name, attributes)
+    public HdfDataset(HdfObject parent, string name, ulong[] dimensions, params HdfAttributeDto[] attributes)
+        : this(parent, name, new HdfType<T>(), dimensions, attributes) { }
+    public HdfDataset(HdfObject parent, string name, params HdfAttributeDto[] attributes)
+        : this(parent, name, new HdfType<T>(), Array.Empty<ulong>(), attributes) { }
+
+    // Methods
+    public override string Describe()
+        => $"{Type.Describe()} dataset";
+
+    public void Write(T value)
+    {
+        DataSpace.Validate(value: value);
+        using (Pointable pointable = Type.CreatePointable(value))
         {
-            Type = type;
-            DataSpace = new(dimensions);
+            Write(pointable);
         }
-        public HdfDataset(HdfObject parent, string name, IHdfType<T> type, params HdfAttributeDto[] attributes)
-            : this(parent, name, type, Array.Empty<ulong>(), attributes) { }
+    }
 
-        public HdfDataset(HdfObject parent, string name, ulong[] dimensions, params HdfAttributeDto[] attributes)
-            : this(parent, name, new HdfType<T>(), dimensions, attributes) { }
-        public HdfDataset(HdfObject parent, string name, params HdfAttributeDto[] attributes)
-            : this(parent, name, new HdfType<T>(), Array.Empty<ulong>(), attributes) { }
-
-        // Methods
-        public override string Describe()
-            => $"{Type.Describe()} dataset";
-
-        public void Write(T value)
+    public void Write(IEnumerable<T> collection)
+    {
+        DataSpace.Validate(collection: collection);
+        using (Pointable pointableArray = Type.CreatePointable(collection))
         {
-            DataSpace.Validate(value: value);
-            using (Pointable pointable = Type.CreatePointable(value))
-            {
-                Write(pointable);
-            }
+            Write(pointableArray);
         }
+    }
 
-        public void Write(IEnumerable<T> collection)
+    public void Write<TRow>(IEnumerable<TRow> matrix)
+        where TRow: IEnumerable<T>
+    {
+        DataSpace.Validate<T, TRow>(matrix: matrix);
+        using (Pointable pointableMatrix = Type.CreatePointable(matrix))
         {
-            DataSpace.Validate(collection: collection);
-            using (Pointable pointableArray = Type.CreatePointable(collection))
-            {
-                Write(pointableArray);
-            }
+            Write(pointableMatrix);
         }
+    }
 
-        public void Write<TRow>(IEnumerable<TRow> matrix)
-            where TRow: IEnumerable<T>
+    // Protected methods
+    protected override long CreateInternal()
+    {
+        using (Type.OpenOrCreate())
+        using (DataSpace.Create())
         {
-            DataSpace.Validate<T, TRow>(matrix: matrix);
-            using (Pointable pointableMatrix = Type.CreatePointable(matrix))
-            {
-                Write(pointableMatrix);
-            }
+            return H5D.create(Parent!.Id, Name!, Type.Id, DataSpace.Id);
         }
+    }
 
-        // Protected methods
-        protected override long CreateInternal()
+    protected override long OpenInternal()
+        => H5D.open(Parent!.Id, Name!);
+
+    protected override int CloseInternal()
+        => H5D.close(Id);
+
+    protected void Write(Pointable pointable)
+    {
+        using (Type.Open())
+        using (DataSpace.Open())
         {
-            using (Type.OpenOrCreate())
-            using (DataSpace.Create())
-            {
-                return H5D.create(Parent!.Id, Name!, Type.Id, DataSpace.Id);
-            }
-        }
-
-        protected override long OpenInternal()
-            => H5D.open(Parent!.Id, Name!);
-
-        protected override int CloseInternal()
-            => H5D.close(Id);
-
-        protected void Write(Pointable pointable)
-        {
-            using (Type.Open())
-            using (DataSpace.Open())
-            {
-                H5D.write(
-                    dset_id: Id,
-                    mem_type_id: Type.Id,
-                    mem_space_id: DataSpace.Id,
-                    file_space_id: H5S.ALL,
-                    plist_id: H5P.DEFAULT,
-                    buf: pointable.Pointer
-                ).ValidateHdfResponse(() => $"write to {DescriptionWithPathName}");
-            }
+            H5D.write(
+                dset_id: Id,
+                mem_type_id: Type.Id,
+                mem_space_id: DataSpace.Id,
+                file_space_id: H5S.ALL,
+                plist_id: H5P.DEFAULT,
+                buf: pointable.Pointer
+            ).ValidateHdfResponse(() => $"write to {DescriptionWithPathName}");
         }
     }
 }

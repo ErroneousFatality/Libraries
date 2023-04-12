@@ -1,8 +1,7 @@
-﻿namespace AndrejKrizan.PhoneNumbers
+﻿namespace AndrejKrizan.PhoneNumbers;
+
+public static class PhoneNumberConstraints
 {
-    public static class PhoneNumberConstraints
-    {
-        // Constants
-        public const int MaxLength = 20;
-    }
+    // Constants
+    public const int MaxLength = 20;
 }

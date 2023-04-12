@@ -1,11 +1,10 @@
-﻿namespace AndrejKrizan.DotNet.TypeConverters
+﻿namespace AndrejKrizan.DotNet.TypeConverters;
+
+public class DateOnlyStringConverter : TypeConverter<DateOnly, string>
 {
-    public class DateOnlyStringConverter : TypeConverter<DateOnly, string>
-    {
-        public DateOnlyStringConverter() : base(
-            date => date.ToString(),
-            DateOnly.Parse
-        )
-        { }
-    }
+    public DateOnlyStringConverter() : base(
+        date => date.ToString(),
+        DateOnly.Parse
+    )
+    { }
 }

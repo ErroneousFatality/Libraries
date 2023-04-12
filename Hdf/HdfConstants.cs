@@ -1,8 +1,7 @@
-﻿namespace AndrejKrizan.Hdf
+﻿namespace AndrejKrizan.Hdf;
+
+public static class HdfConstants
 {
-    public static class HdfConstants
-    {
-        public const int ResponseErrorCode = 0;
-        public const int ResponseSuccessCode = 1;
-    }
+    public const int ResponseErrorCode = 0;
+    public const int ResponseSuccessCode = 1;
 }

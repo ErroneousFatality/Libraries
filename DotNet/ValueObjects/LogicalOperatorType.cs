@@ -1,8 +1,7 @@
-﻿namespace AndrejKrizan.DotNet.ValueObjects
+﻿namespace AndrejKrizan.DotNet.ValueObjects;
+
+public enum LogicalOperatorType : byte
 {
-    public enum LogicalOperatorType : byte
-    {
-        And = 1,
-        Or = 2
-    }
+    And = 1,
+    Or = 2
 }

@@ -1,12 +1,11 @@
-﻿namespace AndrejKrizan.DotNet.Exceptions
-{
-    public class IdentityException : Exception
-    {
-        // Constructors
-        public IdentityException(string message)
-            : base(message) { }
+﻿namespace AndrejKrizan.DotNet.Exceptions;
 
-        public IdentityException(string message, Exception innerException)
-            : base(message, innerException) { }
-    }
+public class IdentityException : Exception
+{
+    // Constructors
+    public IdentityException(string message)
+        : base(message) { }
+
+    public IdentityException(string message, Exception innerException)
+        : base(message, innerException) { }
 }
