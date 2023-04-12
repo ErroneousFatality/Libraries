@@ -11,7 +11,7 @@ namespace AndrejKrizan.EntityFramework.Common.Converters
         public StringImmutableHashSetToStringConverter(ConverterMappingHints? mappingHints = null)
             : base(
                 (domainValue) => string.Join(Delimeter, domainValue),
-                (dataValue) => dataValue.SplitToEnumerable(Delimeter).ToImmutableHashSet(),
+                (dataValue) => dataValue.SplitToEnumerable(Delimeter, StringSplitOptions.None).ToImmutableHashSet(),
                 mappingHints
             )
         { }

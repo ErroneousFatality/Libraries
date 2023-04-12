@@ -11,7 +11,7 @@ namespace AndrejKrizan.EntityFramework.Common.Converters
         public StringListToStringConverter(ConverterMappingHints? mappingHints = null)
             : base(
                 (domainValue) => string.Join(Delimeter, domainValue),
-                (dataValue) => dataValue.SplitToEnumerable(Delimeter).ToList(),
+                (dataValue) => dataValue.SplitToEnumerable(Delimeter, StringSplitOptions.None).ToList(),
                 mappingHints
             )
         { }

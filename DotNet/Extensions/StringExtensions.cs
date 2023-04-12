@@ -11,23 +11,54 @@ namespace AndrejKrizan.DotNet.Extensions
                 span[index] = ch;
             });
 
-
-        public static IEnumerable<string> SplitToEnumerable(this string str, char separator)
+        #region SplitToEnumerable
+        public static IEnumerable<string> SplitToEnumerable(this string str, char separator, StringSplitOptions options = StringSplitOptions.None)
         {
-            int startIndex = 0;
-            while (startIndex < str.Length)
+            for (int startIndex = 0, finishIndex; startIndex < str.Length; startIndex = finishIndex + 1)
             {
-                int finishIndex = str.IndexOf(separator, startIndex);
+                finishIndex = str.IndexOf(separator, startIndex);
                 if (finishIndex == -1)
                 {
                     finishIndex = str.Length;
                 }
-
                 string substring = str[startIndex..finishIndex];
+                if (options.HasFlag(StringSplitOptions.TrimEntries))
+                {
+                    substring = substring.Trim();
+                }
+                if (options.HasFlag(StringSplitOptions.RemoveEmptyEntries) && substring.Length == 0)
+                {
+                    continue;
+                }
                 yield return substring;
-                startIndex = finishIndex + 1;
             }
         }
+
+        public static IEnumerable<string> SplitToEnumerable(this string str, string separator, 
+            StringComparison comparison = StringComparison.CurrentCulture, 
+            StringSplitOptions options = StringSplitOptions.None
+        )
+        {
+            for (int startIndex = 0, finishIndex; startIndex < str.Length; startIndex = finishIndex + 1)
+            {
+                finishIndex = str.IndexOf(separator, startIndex, comparison);
+                if (finishIndex == -1)
+                {
+                    finishIndex = str.Length;
+                }
+                string substring = str[startIndex..finishIndex];
+                if (options.HasFlag(StringSplitOptions.TrimEntries))
+                {
+                    substring = substring.Trim();
+                }
+                if (options.HasFlag(StringSplitOptions.RemoveEmptyEntries) && substring.Length == 0)
+                {
+                    continue;
+                }
+                yield return substring;
+            }
+        }
+        #endregion
 
         public static string? Quote(this string? str)
             => str == null ? str : '\"' + str + '\"';
