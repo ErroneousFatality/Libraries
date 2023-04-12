@@ -1,6 +1,6 @@
 ﻿namespace AndrejKrizan.EntityFramework.PostgreSql.Collations;
 
-public readonly struct Collation
+public class Collation
 {
     // Fields
     public readonly string Name;
