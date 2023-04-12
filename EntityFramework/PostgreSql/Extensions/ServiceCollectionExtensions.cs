@@ -12,10 +12,6 @@ namespace AndrejKrizan.EntityFramework.PostgreSql.Extensions
             DatabaseSettings databaseSettings
         )
             where TDbContext : DbContext
-        => services.AddDbContext<TDbContext>(
-            options => options.UseNpgsql(databaseSettings.ConnectionString),
-            contextLifetime: ServiceLifetime.Scoped,
-            optionsLifetime: ServiceLifetime.Scoped
-        );
+        => services.AddDbContext<TDbContext>(options => options.UseNpgsql(databaseSettings.ConnectionString));
     }
 }
