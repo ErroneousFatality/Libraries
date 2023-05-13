@@ -411,4 +411,54 @@ public static class IEnumerableExtensions
         where TKey : notnull
         => new Dictionary<TKey, TValue>(source, equalityComparer);
     #endregion
+
+    #region Take
+    public static IEnumerable<T> Take<T>(this IEnumerable<T> source, IEnumerable<int> indexes)
+        => source is IList<T> list 
+            ? list.Take(indexes) 
+            : TakeIterator(source, indexes);
+
+    private static IEnumerable<T> TakeIterator<T>(IEnumerable<T> source, IEnumerable<int> indexes)
+    {
+        IEnumerator<int> indexEnumerator = indexes.Order().GetEnumerator();
+        if (!indexEnumerator.MoveNext())
+        {
+            yield break;
+        }
+
+        int position = 0;
+        foreach (T item in source)
+        {
+            if (position == indexEnumerator.Current)
+            {
+                yield return item;
+                if (!indexEnumerator.MoveNext())
+                {
+                    yield break;
+                }
+            }
+            position++;
+        }
+    }
+    #endregion
+
+    #region TakeRandomly
+    public static IEnumerable<T> TakeRandomly<T>(this IEnumerable<T> source, int count)
+    {
+        Random random = new();
+        HashSet<int> indexes = random.NextSet(count, 0, source.Count() - 1);
+        IEnumerable<T> subset = source.Take(indexes);
+        return subset;
+    }
+
+    public static IEnumerable<T> TakeRandomly<T>(this IEnumerable<T> source)
+    {
+        Random random = new();
+        int length = source.Count();
+        int count = random.Next(0, length);
+        HashSet<int> indexes = random.NextSet(count, 0, length - 1);
+        IEnumerable<T> subset = source.Take(indexes);
+        return subset;
+    }
+    #endregion
 }
