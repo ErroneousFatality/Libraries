@@ -1,8 +1,8 @@
 ﻿namespace AndrejKrizan.DotNet.Extensions;
 public static class RandomExtensions
 {
-    public static bool NextBool(this Random random, float truePercentage = 50f)
-        => random.NextDouble() * 100f < truePercentage;
+    public static bool NextBool(this Random random, double truePercentage = 50f)
+        => random.NextDouble() * 100d < truePercentage;
 
     /// <remarks>Works in O(count) complexity.</remarks>
     public static HashSet<int> NextSet(this Random random, int count, int min, int max)
