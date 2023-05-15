@@ -45,7 +45,8 @@ public static class ExpressionExtensions
     #endregion UnwrapConvert
 
     #region ReplaceParameters
-    public static Expression<Func<X, Y>> ReplaceParameters<X, Y>(this Expression<Func<X, Y>> lambda, params ParameterExpression[] parameterExpressions)
+    public static TLambda ReplaceParameters<TLambda>(this TLambda lambda, params ParameterExpression[] parameterExpressions)
+        where TLambda: LambdaExpression
     {
         if (parameterExpressions.Length > lambda.Parameters.Count)
         {
@@ -56,7 +57,7 @@ public static class ExpressionExtensions
         {
             dictionary.Add(lambda.Parameters[i], parameterExpressions[i]);
         }
-        lambda = (Expression<Func<X, Y>>)new ParameterReplacer(dictionary).Visit(lambda);
+        lambda = (TLambda)new ParameterReplacer(dictionary).Visit(lambda);
         return lambda;
     }
 

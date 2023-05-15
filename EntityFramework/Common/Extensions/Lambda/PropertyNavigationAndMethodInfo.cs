@@ -1,19 +1,20 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using AndrejKrizan.EntityFramework.Common.ValueObjects;
 
 namespace AndrejKrizan.EntityFramework.Common.Extensions.Lambda;
 
-internal class PropertyNavigationExpressionAndMethodInfo<TEntity, TProperty>
+internal class PropertyNavigationAndMethodInfo<TEntity, TProperty>
     where TEntity : class
 {
     // Properties
-    public PropertyNavigationExpression<TEntity, TProperty?> PropertyNavigationExpression { get; }
+    public PropertyNavigation<TEntity, TProperty> PropertyNavigationExpression { get; }
     public MethodInfo MethodInfo { get; }
 
     // Constructors
 
-    public PropertyNavigationExpressionAndMethodInfo(
-        PropertyNavigationExpression<TEntity, TProperty?> propertyNavigationExpression,
+    public PropertyNavigationAndMethodInfo(
+        PropertyNavigation<TEntity, TProperty> propertyNavigationExpression,
         MethodInfo methodInfo
     )
     {
@@ -31,7 +32,7 @@ internal class PropertyNavigationExpressionAndMethodInfo<TEntity, TProperty>
     ///     Only conversion unary expressions are allowed inside a property nagivation expression.
     ///     The expression is not a property navigation expression.
     /// </exception>
-    public PropertyNavigationExpressionAndMethodInfo(
+    public PropertyNavigationAndMethodInfo(
         Expression<Func<TEntity, Func<TProperty, bool>>> propertyPredicateMethodNavigationLambda,
         ParameterExpression parameterExpression
     )
@@ -47,7 +48,7 @@ internal class PropertyNavigationExpressionAndMethodInfo<TEntity, TProperty>
     ///     Only conversion unary expressions are allowed inside a property nagivation expression.
     ///     The expression is not a property navigation expression.
     /// </exception>
-    public PropertyNavigationExpressionAndMethodInfo(
+    public PropertyNavigationAndMethodInfo(
         Expression propertyPredicateMethodNavigationExpression,
         ParameterExpression parameterExpression
     )

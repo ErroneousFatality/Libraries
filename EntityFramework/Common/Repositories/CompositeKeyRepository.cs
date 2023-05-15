@@ -1,98 +1,102 @@
 ﻿using System.Collections.Immutable;
 using System.Linq.Expressions;
-using System.Reflection;
 
 using AndrejKrizan.DotNet.Extensions;
-using AndrejKrizan.EntityFramework.Common.Extensions.Lambda;
+using AndrejKrizan.EntityFramework.Common.Extensions.IQueryables;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace AndrejKrizan.EntityFramework.Common.Repositories;
 
-public class CompositeKeyRepository<TEntity> : Repository<TEntity>
+public class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRepository<TEntity, TKey>
     where TEntity : class
+    where TKey : EntityKey<TEntity, TKey>
 {
-    // Properties
-    private ImmutableArray<PropertyInfo> KeyPropertyInfos { get; }
-
     // Constructors
-
-    /// <exception cref="ArgumentException"> Expression must point to a member. </exception>
-    public CompositeKeyRepository(
-        DbContext dbContext,
-        Expression<Func<TEntity, object>> keyPropertyExpression,
-        params Expression<Func<TEntity, object>>[] additionalKeyPropertyExpressions
-    )
-        : base(dbContext)
-    {
-        KeyPropertyInfos = additionalKeyPropertyExpressions
-            .Prepend(keyPropertyExpression)
-            .Select(keyPropertyExpression => keyPropertyExpression.Body.UnwrapConverts().GetPropertyInfo())
-            .ToImmutableArray(additionalKeyPropertyExpressions.Length + 1);
-    }
+    public CompositeKeyRepository(DbContext dbContext)
+        : base(dbContext) { }
 
     // Methods
 
-    /// <exception cref="ArgumentException"> Number of keys does not match number of registered key properties. </exception>
-    public async Task<bool> ExistsAsync(object key, params object[] additionalKeys)
-        => await DbSet.AnyAsync(KeysEqual(key, additionalKeys));
+    public async Task<bool> ExistsAsync(TKey key, CancellationToken cancellationToken = default)
+        => await DbSet.AnyAsync(key.ToPredicateLambda(), cancellationToken);
 
-    /// <exception cref="ArgumentException"> Number of keys does not match number of registered key properties. </exception>
+    public async Task<TEntity?> GetAsync(TKey key, CancellationToken cancellationToken = default)
+        => await DbSet.FindAsync(key.ToValues(), cancellationToken);
 
-    public async Task<TEntity?> GetAsync(object key, params object[] additionalKeys)
-        => await DbSet.FindAsync(CombineKeys(key, additionalKeys));
 
-    /// <exception cref="ArgumentException"> Number of keys does not match number of registered key properties. </exception>
-    public void Remove(object key, params object[] additionalKeys)
+    public async Task<ImmutableArray<TEntity>> GetManyAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
+        => await DbSet
+            .WhereAny(keys, key => key.ToPredicateLambda())
+            .ToImmutableArrayAsync(cancellationToken);
+
+    public async Task<ImmutableArray<TEntity>> GetManyAsync(IEnumerable<TKey> keys, int chunkSize, CancellationToken cancellationToken = default)
+        => await DbSet.WhereAnyAsync(keys, chunkSize, key => key.ToPredicateLambda(), cancellationToken);
+
+
+    public async Task<ImmutableArray<TKey>> GetKeysAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
     {
-        ImmutableArray<object> keys = CombineKeys(key, additionalKeys);
-        TEntity entity = Mock(keys);
-        DbSet.Remove(entity);
+        if (!keys.Any())
+        {
+            return ImmutableArray<TKey>.Empty;
+        }
+        Expression<Func<TEntity, TKey>> entityToKeyLambda = keys.First().ToEntityToKeyLambda();
+        ImmutableArray<TKey> existingKeys = await DbSet
+            .WhereAny(keys, key => key.ToPredicateLambda())
+            .Select(entityToKeyLambda)
+            .ToImmutableArrayAsync(cancellationToken);
+        return existingKeys;
     }
 
-    // Helper methods
-    /// <exception cref="ArgumentException"> Number of keys does not match number of registered key properties. </exception>
-    protected Expression<Func<TEntity, bool>> KeysEqual(object key, params object[] additionalKeys)
+    public async Task<ImmutableArray<TKey>> GetExistingKeysAsync(IEnumerable<TKey> keys, int chunkSize, CancellationToken cancellationToken = default)
     {
-        ParameterExpression parameterExpression = Expression.Parameter(typeof(TEntity), "entity");
-        ImmutableArray<object> keys = CombineKeys(key, additionalKeys);
-        BinaryExpression keysEqualExpression = KeyPropertyInfos.Zip(keys)
-            .Select(((PropertyInfo PropertyInfo, object Value) key)
-                => Expression.Equal(
-                    Expression.Property(parameterExpression, key.PropertyInfo),
-                    Expression.Constant(key.Value)
-                )
-            )
-            .Aggregate(Expression.AndAlso);
-        Expression<Func<TEntity, bool>> keysEqualLambda = Expression.Lambda<Func<TEntity, bool>>(
-            keysEqualExpression,
-            parameterExpression
+        if (!keys.Any())
+        {
+            return ImmutableArray<TKey>.Empty;
+        }
+        Expression<Func<TEntity, TKey>> entityToKeyLambda = keys.First().ToEntityToKeyLambda();
+        ImmutableArray<TKey> existingKeys = await DbSet.WhereAnyAsync(keys, chunkSize, 
+            key => key.ToPredicateLambda(), 
+            query => query.Select(entityToKeyLambda), 
+            cancellationToken
         );
-        return keysEqualLambda;
+        return existingKeys;
     }
 
-    /// <exception cref="ArgumentException"> Number of keys does not match number of registered key properties. </exception>
-    protected ImmutableArray<object> CombineKeys(object key, params object[] additionalKeys)
+
+    public void Delete(TKey key)
     {
-        int keyCount = additionalKeys.Length + 1;
-        if (keyCount != KeyPropertyInfos.Length)
-        {
-            throw new ArgumentException("Number of keys does not match number of registered key properties.");
-        }
-        ImmutableArray<object> keys = additionalKeys
-            .Prepend(key)
-            .ToImmutableArray(keyCount);
-        return keys;
+        TEntity mockEntity = Mock(key);
+        DbSet.Remove(mockEntity);
     }
 
-    // Private methods
-    private TEntity Mock(IEnumerable<object> keys)
+
+    public void DeleteMany(params TKey[] keys)
+        => DeleteMany((IEnumerable<TKey>)keys);
+
+    public void DeleteMany(IEnumerable<TKey> keys)
     {
-        TEntity entity = (TEntity)Activator.CreateInstance(typeof(TEntity), nonPublic: true)!;
-        foreach ((PropertyInfo propertyInfo, object _key) in KeyPropertyInfos.Zip(keys))
+        IEnumerable<TEntity> mockEntities = keys.Select(Mock);
+        DbSet.RemoveRange(mockEntities);
+    }
+
+
+    /// <returns>whether key was found in the database before being deleted</returns>
+    public async Task<bool> TryDeleteAsync(TKey key, CancellationToken cancellationToken = default)
+    {
+        if (!await ExistsAsync(key, cancellationToken))
         {
-            propertyInfo.SetValue(entity, _key);
+            return false;
         }
-        return entity;
+        Delete(key);
+        return true;
+    }
+
+    // Protected methods
+    protected TEntity Mock(TKey key)
+    {
+        TEntity mockEntity = key.ToMockEntity();
+        DbSet.Attach(mockEntity);
+        return mockEntity;
     }
 }

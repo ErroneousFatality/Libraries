@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using AndrejKrizan.DotNet.Extensions;
 using AndrejKrizan.DotNet.ValueObjects;
 using AndrejKrizan.EntityFramework.Common.Extensions.Lambda;
+using AndrejKrizan.EntityFramework.Common.ValueObjects;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -144,12 +145,12 @@ public static class IQueryableExtensions
     )
         where TEntity : class
     {
-        ParameterExpression parameterExpression = Expression.Parameter(typeof(TEntity), "entity");
-        IEnumerable<PropertyNavigationExpressionAndMethodInfo<TEntity, string>> stringPropertyNavigationExpressionAndMethodInfoEnumerable = additionalStringPropertyMethodNavigationExpression
+        ParameterExpression parameterExpression = Expression.Parameter(typeof(TEntity), typeof(TEntity).Name.ToLowercasedFirstCharacterInvariant());
+        IEnumerable<PropertyNavigationAndMethodInfo<TEntity, string>> stringPropertyNavigationExpressionAndMethodInfoEnumerable = additionalStringPropertyMethodNavigationExpression
             .Prepend(stringPropertyMethodNavigationExpression)
             .Select(_stringPropertyMethodNavigationExpression =>
             {
-                PropertyNavigationExpressionAndMethodInfo<TEntity, string> propertyNavigationExpressionAndMethodInfo = new(_stringPropertyMethodNavigationExpression, parameterExpression);
+                PropertyNavigationAndMethodInfo<TEntity, string> propertyNavigationExpressionAndMethodInfo = new(_stringPropertyMethodNavigationExpression, parameterExpression);
                 if (!SupportedStringMethodInfos.Contains(propertyNavigationExpressionAndMethodInfo.MethodInfo))
                 {
                     string supportedStringMethodNamesString = string.Join(", ", SupportedStringMethodInfos.Select((methodInfo) => methodInfo.Name));
@@ -171,11 +172,11 @@ public static class IQueryableExtensions
         where TEntity : class
     {
         ParameterExpression parameterExpression = Expression.Parameter(typeof(TEntity), "entity");
-        IEnumerable<PropertyNavigationExpressionAndMethodInfo<TEntity, string>> stringPropertyNavigationExpressionAndMethodInfoCollection = additionalStringPropertyLambdas
+        IEnumerable<PropertyNavigationAndMethodInfo<TEntity, string?>> stringPropertyNavigationExpressionAndMethodInfoCollection = additionalStringPropertyLambdas
             .Prepend(stringPropertyLambda)
             .Select(_stringPropertyLambda =>
-                new PropertyNavigationExpressionAndMethodInfo<TEntity, string>(
-                    new PropertyNavigationExpression<TEntity, string?>(_stringPropertyLambda, parameterExpression),
+                new PropertyNavigationAndMethodInfo<TEntity, string?>(
+                    new PropertyNavigation<TEntity, string?>(_stringPropertyLambda, parameterExpression),
                     methodInfo
                 )
             );
@@ -189,7 +190,7 @@ public static class IQueryableExtensions
         this IQueryable<TEntity> query,
         string? filter,
         ParameterExpression parameterExpression,
-        IEnumerable<PropertyNavigationExpressionAndMethodInfo<TEntity, string>> stringPropertyNavigationExpressionAndMethodInfoEnumerable
+        IEnumerable<PropertyNavigationAndMethodInfo<TEntity, string>> stringPropertyNavigationExpressionAndMethodInfoEnumerable
     )
         where TEntity : class
     {
@@ -389,23 +390,22 @@ public static class IQueryableExtensions
         return entities;
     }
 
-    public static async Task<ImmutableArray<TEntity>> WhereAnyAsync<TEntity, TData>(this IQueryable<TEntity> query,
+    public static async Task<ImmutableArray<TResult>> WhereAnyAsync<TEntity, TData, TResult>(this IQueryable<TEntity> query,
         IEnumerable<TData> dataSource,
         int chunkSize,
         Func<TData, Expression<Func<TEntity, bool>>> predicateBuilder,
-        int initialCapacity,
+        Func<IQueryable<TEntity>, IQueryable<TResult>> additionalOperations,
         CancellationToken cancellationToken = default
     )
     {
-        ImmutableArray<TEntity>.Builder entitiesBuilder = ImmutableArray.CreateBuilder<TEntity>(initialCapacity);
+        List<TResult> resultBuffer = new(dataSource.Count());
         foreach (TData[] dataChunk in dataSource.Chunk(chunkSize))
         {
-            List<TEntity> entityChunk = await query
-                .WhereAny(dataChunk, predicateBuilder)
-                .ToListAsync(cancellationToken);
-            entitiesBuilder.AddRange(entityChunk);
+            IQueryable<TResult> resultQuery = additionalOperations(query.WhereAny(dataChunk, predicateBuilder));
+            List<TResult> resultChunk = await resultQuery.ToListAsync(cancellationToken);
+            resultBuffer.AddRange(resultChunk);
         }
-        ImmutableArray<TEntity> entities = entitiesBuilder.ToImmutableArray();
+        ImmutableArray<TResult> entities = resultBuffer.Distinct().ToImmutableArray();
         return entities;
     }
     #endregion
