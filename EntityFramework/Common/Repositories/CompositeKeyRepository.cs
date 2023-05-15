@@ -27,7 +27,7 @@ public class CompositeKeyRepository<TEntity> : Repository<TEntity>
     {
         KeyPropertyInfos = additionalKeyPropertyExpressions
             .Prepend(keyPropertyExpression)
-            .Select((keyPropertyExpression) => keyPropertyExpression.GetEntityKeyPropertyInfo())
+            .Select(keyPropertyExpression => keyPropertyExpression.Body.UnwrapConverts().GetPropertyInfo())
             .ToImmutableArray(additionalKeyPropertyExpressions.Length + 1);
     }
 

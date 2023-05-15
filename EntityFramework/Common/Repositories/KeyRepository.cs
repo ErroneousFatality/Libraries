@@ -23,7 +23,7 @@ public class KeyRepository<TEntity, TKey> : Repository<TEntity>
     )
         : base(dbContext)
     {
-        KeyPropertyInfo = keyPropertyLambda.GetEntityKeyPropertyInfo();
+        KeyPropertyInfo = keyPropertyLambda.Body.GetPropertyInfo();
     }
 
     // Methods
