@@ -377,15 +377,15 @@ public static class IQueryableExtensions
         CancellationToken cancellationToken = default
     )
     {
-        ImmutableArray<TEntity>.Builder entitiesBuilder = ImmutableArray.CreateBuilder<TEntity>();
+        List<TEntity> entitiesBuffer = new(dataSource.Count());
         foreach (TData[] dataChunk in dataSource.Chunk(chunkSize))
         {
             List<TEntity> entityChunk = await query
                 .WhereAny(dataChunk, predicateBuilder)
                 .ToListAsync(cancellationToken);
-            entitiesBuilder.AddRange(entityChunk);
+            entitiesBuffer.AddRange(entityChunk);
         }
-        ImmutableArray<TEntity> entities = entitiesBuilder.ToImmutableArray();
+        ImmutableArray<TEntity> entities = entitiesBuffer.Distinct().ToImmutableArray();
         return entities;
     }
 
