@@ -74,6 +74,8 @@ public class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRepository<
             .Select(KeyNavigation.Lambda)
             .Where(key => keys.Contains(key))
             .ToImmutableArrayAsync(cancellationToken);
+    public Task<ImmutableArray<TKey>> GetIdsAsync(IEnumerable<TKey> ids, CancellationToken cancellationToken = default)
+        => GetKeysAsync(ids, cancellationToken);
 
     public void Delete(TKey key)
     {
