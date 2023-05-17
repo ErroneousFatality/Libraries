@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
-using AndrejKrizan.EntityFramework.Common.ValueObjects;
+
+using AndrejKrizan.DotNet.ValueObjects;
 
 namespace AndrejKrizan.EntityFramework.Common.Extensions.Lambda;
 

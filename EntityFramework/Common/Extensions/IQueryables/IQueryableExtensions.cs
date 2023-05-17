@@ -6,7 +6,6 @@ using System.Runtime.CompilerServices;
 using AndrejKrizan.DotNet.Extensions;
 using AndrejKrizan.DotNet.ValueObjects;
 using AndrejKrizan.EntityFramework.Common.Extensions.Lambda;
-using AndrejKrizan.EntityFramework.Common.ValueObjects;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -140,17 +139,17 @@ public static class IQueryableExtensions
     public static IQueryable<TEntity> WhereFilter<TEntity>(
         this IQueryable<TEntity> query,
         string? filter,
-        Expression<Func<TEntity, Func<string, bool>>> stringPropertyMethodNavigationExpression,
-        params Expression<Func<TEntity, Func<string, bool>>>[] additionalStringPropertyMethodNavigationExpression
+        Expression<Func<TEntity, Func<string?, bool>>> stringPropertyMethodNavigationExpression,
+        params Expression<Func<TEntity, Func<string?, bool>>>[] additionalStringPropertyMethodNavigationExpression
     )
         where TEntity : class
     {
         ParameterExpression parameterExpression = Expression.Parameter(typeof(TEntity), typeof(TEntity).Name.ToLowercasedFirstCharacterInvariant());
-        IEnumerable<PropertyNavigationAndMethodInfo<TEntity, string>> stringPropertyNavigationExpressionAndMethodInfoEnumerable = additionalStringPropertyMethodNavigationExpression
+        IEnumerable<PropertyNavigationAndMethodInfo<TEntity, string?>> stringPropertyNavigationExpressionAndMethodInfoEnumerable = additionalStringPropertyMethodNavigationExpression
             .Prepend(stringPropertyMethodNavigationExpression)
             .Select(_stringPropertyMethodNavigationExpression =>
             {
-                PropertyNavigationAndMethodInfo<TEntity, string> propertyNavigationExpressionAndMethodInfo = new(_stringPropertyMethodNavigationExpression, parameterExpression);
+                PropertyNavigationAndMethodInfo<TEntity, string?> propertyNavigationExpressionAndMethodInfo = new(_stringPropertyMethodNavigationExpression, parameterExpression);
                 if (!SupportedStringMethodInfos.Contains(propertyNavigationExpressionAndMethodInfo.MethodInfo))
                 {
                     string supportedStringMethodNamesString = string.Join(", ", SupportedStringMethodInfos.Select((methodInfo) => methodInfo.Name));
@@ -190,7 +189,7 @@ public static class IQueryableExtensions
         this IQueryable<TEntity> query,
         string? filter,
         ParameterExpression parameterExpression,
-        IEnumerable<PropertyNavigationAndMethodInfo<TEntity, string>> stringPropertyNavigationExpressionAndMethodInfoEnumerable
+        IEnumerable<PropertyNavigationAndMethodInfo<TEntity, string?>> stringPropertyNavigationExpressionAndMethodInfoEnumerable
     )
         where TEntity : class
     {

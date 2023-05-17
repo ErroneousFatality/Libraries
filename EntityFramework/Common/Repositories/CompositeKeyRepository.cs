@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 
 using AndrejKrizan.DotNet.Extensions;
+using AndrejKrizan.DotNet.ValueObjects.Keys;
 using AndrejKrizan.EntityFramework.Common.Extensions.IQueryables;
 
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,7 @@ namespace AndrejKrizan.EntityFramework.Common.Repositories;
 
 public class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRepository<TEntity, TKey>
     where TEntity : class
-    where TKey : EntityKey<TEntity, TKey>
+    where TKey : Key<TEntity, TKey>
 {
     // Constructors
     public CompositeKeyRepository(DbContext dbContext)
@@ -40,7 +41,7 @@ public class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRe
         {
             return ImmutableArray<TKey>.Empty;
         }
-        Expression<Func<TEntity, TKey>> entityToKeyLambda = keys.First().ToEntityToKeyLambda();
+        Expression<Func<TEntity, TKey>> entityToKeyLambda = keys.First().ToKeyLambda();
         ImmutableArray<TKey> existingKeys = await DbSet
             .WhereAny(keys, key => key.ToPredicateLambda())
             .Select(entityToKeyLambda)
@@ -54,7 +55,7 @@ public class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRe
         {
             return ImmutableArray<TKey>.Empty;
         }
-        Expression<Func<TEntity, TKey>> entityToKeyLambda = keys.First().ToEntityToKeyLambda();
+        Expression<Func<TEntity, TKey>> entityToKeyLambda = keys.First().ToKeyLambda();
         ImmutableArray<TKey> existingKeys = await DbSet.WhereAnyAsync(keys, chunkSize, 
             key => key.ToPredicateLambda(), 
             query => query.Select(entityToKeyLambda), 
@@ -95,7 +96,7 @@ public class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRe
     // Protected methods
     protected TEntity Mock(TKey key)
     {
-        TEntity mockEntity = key.ToMockEntity();
+        TEntity mockEntity = key.ToObject();
         DbSet.Attach(mockEntity);
         return mockEntity;
     }
