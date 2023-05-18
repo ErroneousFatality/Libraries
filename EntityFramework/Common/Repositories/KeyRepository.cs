@@ -1,6 +1,8 @@
 ﻿using System.Collections.Immutable;
 using System.Linq.Expressions;
 using System.Reflection;
+
+using AndrejKrizan.DotNet.Entities;
 using AndrejKrizan.DotNet.ValueObjects;
 using AndrejKrizan.EntityFramework.Common.Extensions.IQueryables;
 
@@ -113,7 +115,7 @@ public class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRepository<
 }
 
 public class KeyRepository<TEntity> : KeyRepository<TEntity, Guid>
-    where TEntity : Entity
+    where TEntity : Entity<Guid>
 {
     // Constructors
     public KeyRepository(DbContext dbContext)
