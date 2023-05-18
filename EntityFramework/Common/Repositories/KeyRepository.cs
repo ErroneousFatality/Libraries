@@ -2,7 +2,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-using AndrejKrizan.DotNet.Entities;
 using AndrejKrizan.DotNet.ValueObjects;
 using AndrejKrizan.EntityFramework.Common.Extensions.IQueryables;
 
@@ -14,21 +13,21 @@ public class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRepository<
     where TEntity : class
 {
     // Fields
-    protected internal readonly PropertyNavigation<TEntity, TKey> KeyNavigation;
+    protected internal readonly PropertyNavigation<TEntity, TKey> Key;
 
     // Constructors
     public KeyRepository(
         DbContext dbContext,
-        Expression<Func<TEntity, TKey>> keyPropertyLambda
+        Expression<Func<TEntity, TKey>> key
     )
         : base(dbContext)
     {
-        KeyNavigation = new(keyPropertyLambda);
+        Key = new(key);
     }
 
     // Methods
     public async Task<bool> ExistsAsync(TKey key, CancellationToken cancellationToken = default)
-        => await DbSet.AnyAsync(KeyNavigation.ToEqualsLambda(key), cancellationToken);
+        => await DbSet.AnyAsync(Key.ToEqualsLambda(key), cancellationToken);
 
     public async Task<TEntity?> GetAsync(TKey key, CancellationToken cancellationToken = default)
         => await DbSet.FindAsync(keyValues: new object?[] { key }, cancellationToken);
@@ -49,7 +48,7 @@ public class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRepository<
                     => method.Name == nameof(ImmutableArray<TKey>.Contains)
                     && method.GetParameters().Length == 1
                 );
-            keysContain = Expression.Call(instance: Expression.Constant(keys), method: containsMethodInfo, KeyNavigation.Expression);
+            keysContain = Expression.Call(instance: Expression.Constant(keys), method: containsMethodInfo, Key.Expression);
         }
         else
         {
@@ -60,9 +59,9 @@ public class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRepository<
                     && method.GetParameters().Length == 2
                 )
                 .MakeGenericMethod(typeof(TKey));
-            keysContain = Expression.Call(instance: null, method: containsMethodInfo, KeyNavigation.Expression);
+            keysContain = Expression.Call(instance: null, method: containsMethodInfo, Key.Expression);
         }
-        Expression<Func<TEntity, bool>> keysContainEntityKeyLambda = Expression.Lambda<Func<TEntity, bool>>(keysContain, KeyNavigation.Parameter);
+        Expression<Func<TEntity, bool>> keysContainEntityKeyLambda = Expression.Lambda<Func<TEntity, bool>>(keysContain, Key.Parameter);
         ImmutableArray<TEntity> entities = await DbSet
             .Where(keysContainEntityKeyLambda)
             .ToImmutableArrayAsync(cancellationToken);
@@ -71,7 +70,7 @@ public class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRepository<
 
     public async Task<ImmutableArray<TKey>> GetKeysAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
         => await DbSet
-            .Select(KeyNavigation.Lambda)
+            .Select(Key.Lambda)
             .Where(key => keys.Contains(key))
             .ToImmutableArrayAsync(cancellationToken);
     public Task<ImmutableArray<TKey>> GetIdsAsync(IEnumerable<TKey> ids, CancellationToken cancellationToken = default)
@@ -108,18 +107,8 @@ public class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRepository<
     // Protected methods
     protected TEntity Mock(TKey key)
     {
-        TEntity mockEntity = KeyNavigation.ToMockObject(key);
+        TEntity mockEntity = Key.ToMockObject(key);
         DbSet.Attach(mockEntity);
         return mockEntity;
-    }
-}
-
-public class KeyRepository<TEntity> : KeyRepository<TEntity, Guid>
-    where TEntity : Entity<Guid>
-{
-    // Constructors
-    public KeyRepository(DbContext dbContext)
-        : base(dbContext, entity => entity.Id)
-    {
     }
 }

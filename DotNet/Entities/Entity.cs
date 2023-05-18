@@ -15,7 +15,7 @@ public abstract class Entity<TId> : IEntity<TId>
         Id = id;
     }
 
-    /// <summary>Constructor for EntityFrameworkCore.</summary>
+    /// <summary>Constructor for deserialization.</summary>
     /// <remarks>EntityFrameworkCore chooses the constructor with the least amount of parameters (including 0) where all of them correspond to a property.</remarks>
     protected Entity() { }
 }

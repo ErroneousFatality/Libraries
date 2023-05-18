@@ -9,11 +9,6 @@ public abstract class Key<T, TSelf>
     where T : class
     where TSelf : Key<T, TSelf>
 {
-    // Properties
-    public readonly ImmutableArray<IKeyPropertyBinding<T, TSelf>> PropertyBindings;
-    public readonly ParameterExpression ObjectParameter;
-    public readonly ParameterExpression KeyParameter;
-
     // Constructors
     protected Key(
         IKeyPropertyBinding<T, TSelf> propertyBinding,
@@ -53,4 +48,9 @@ public abstract class Key<T, TSelf>
         }
         return obj;
     }
+
+    // Protected Fields
+    protected readonly ImmutableArray<IKeyPropertyBinding<T, TSelf>> PropertyBindings;
+    protected readonly ParameterExpression ObjectParameter;
+    protected readonly ParameterExpression KeyParameter;
 }
