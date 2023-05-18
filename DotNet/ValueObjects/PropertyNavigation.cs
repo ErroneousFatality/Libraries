@@ -1,8 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 
-using AndrejKrizan.DotNet;
-
 namespace AndrejKrizan.DotNet.ValueObjects;
 
 public interface IPropertyNavigation<T>

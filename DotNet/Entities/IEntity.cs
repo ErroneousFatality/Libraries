@@ -2,5 +2,5 @@
 
 public interface IEntity<TId>
 {
-    public TId Id { get; }
+    TId Id { get; }
 }

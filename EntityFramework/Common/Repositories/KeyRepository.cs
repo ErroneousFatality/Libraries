@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Linq.Expressions;
 using System.Reflection;
-
 using AndrejKrizan.DotNet.ValueObjects;
 using AndrejKrizan.EntityFramework.Common.Extensions.IQueryables;
 
