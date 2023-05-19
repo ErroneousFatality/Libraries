@@ -1,7 +1,9 @@
 ﻿using System.Collections.Immutable;
 
-namespace AndrejKrizan.EntityFramework.Common.Repositories;
-public interface IKeyRepository<TEntity, TKey> where TEntity : class
+namespace AndrejKrizan.EntityFramework.Common.Repositories.Key;
+public interface IKeyRepository<TEntity, TKey>
+    where TEntity : class
+    where TKey : struct
 {
     Task<bool> ExistsAsync(TKey key, CancellationToken cancellationToken = default);
     Task<TEntity?> GetAsync(TKey key, CancellationToken cancellationToken = default);
@@ -11,6 +13,6 @@ public interface IKeyRepository<TEntity, TKey> where TEntity : class
 
     void DeleteMany(IEnumerable<TKey> keys);
     void DeleteMany(params TKey[] keys);
-    
+
     Task<bool> TryDeleteAsync(TKey key, CancellationToken cancellationToken = default);
 }

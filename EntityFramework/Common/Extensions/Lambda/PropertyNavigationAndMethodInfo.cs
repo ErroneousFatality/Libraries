@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
-using AndrejKrizan.DotNet.ValueObjects;
+using AndrejKrizan.DotNet.ValueObjects.PropertyNavigations;
 
 namespace AndrejKrizan.EntityFramework.Common.Extensions.Lambda;
 
@@ -67,7 +67,7 @@ internal class PropertyNavigationAndMethodInfo<TEntity, TProperty>
                 .FirstOrDefault();
             if (propertyNavigationExpression != null)
             {
-                PropertyNavigationExpression = new(propertyNavigationExpression, parameterExpression);
+                PropertyNavigationExpression = new(parameterExpression, propertyNavigationExpression);
                 MethodInfo = methodInfo;
                 return;
             }

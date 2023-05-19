@@ -1,5 +1,7 @@
-﻿using AndrejKrizan.DotNet.Entities;
+﻿using System.Linq.Expressions;
 
+using AndrejKrizan.DotNet.Entities;
+using AndrejKrizan.EntityFramework.Common.Repositories.Key;
 using Microsoft.EntityFrameworkCore;
 
 namespace AndrejKrizan.EntityFramework.Common.Repositories;
@@ -10,5 +12,8 @@ public class EntityRepository<TEntity, TId> : KeyRepository<TEntity, TId>
 {
     // Constructors
     public EntityRepository(DbContext dbContext)
-        : base(dbContext, key: entity => entity.Id) { }
+        : base(dbContext) { }
+
+    protected override Expression<Func<TEntity, TId>> KeyLambda()
+        => entity => entity.Id;
 }

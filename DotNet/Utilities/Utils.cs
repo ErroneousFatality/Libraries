@@ -11,4 +11,10 @@ public static partial class Utils
         => comparer.Compare(first, second) >= 0 ? first : second;
     public static T Max<T>(T first, T second)
         => Max(first, second, Comparer<T>.Default);
+
+    public static T CreateDefaultInstance<T>()
+    => (T)Activator.CreateInstance(typeof(T), nonPublic: true)!;
+
+    public static TResult GetFromDefaultInstance<T, TResult>(Func<T, TResult> selector)
+        => selector(CreateDefaultInstance<T>());
 }
