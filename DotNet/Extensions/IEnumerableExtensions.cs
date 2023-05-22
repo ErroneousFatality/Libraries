@@ -379,10 +379,9 @@ public static class IEnumerableExtensions
     {
         if (!dataSource.Any())
         {
-            return (T item) => true;
+            return (T item) => false;
         }
-        string parameterName = typeof(T).Name.ToLowercasedFirstCharacterInvariant();
-        ParameterExpression parameterExpression = Expression.Parameter(typeof(T), parameterName);
+        ParameterExpression parameterExpression = Expression.Parameter(typeof(T), typeof(T).Name.ToLowercasedFirstCharacterInvariant());
 
         IEnumerable<Expression> predicateExpressions = dataSource.Select(data
             => predicateBuilder(data)

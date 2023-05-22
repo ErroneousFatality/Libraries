@@ -4,7 +4,7 @@ using System.Reflection;
 
 using AndrejKrizan.DotNet.ValueObjects.PropertyNavigations;
 
-namespace AndrejKrizan.EntityFramework.Common.Repositories.CompositeKey.PropertyBindings;
+namespace AndrejKrizan.DotNet.ValueObjects.PropertyBindings;
 
 public readonly struct PropertyBinding<TEntity, TKey, TProperty> : IPropertyBinding<TEntity, TKey>
     where TEntity : class
@@ -39,7 +39,7 @@ public readonly struct PropertyBinding<TEntity, TKey, TProperty> : IPropertyBind
 
     [SetsRequiredMembers]
     public PropertyBinding(
-        ParameterExpression entityParameter, Expression entityProperty, 
+        ParameterExpression entityParameter, Expression entityProperty,
         ParameterExpression keyParameter, PropertyInfo keyProperty
     )
     : this(

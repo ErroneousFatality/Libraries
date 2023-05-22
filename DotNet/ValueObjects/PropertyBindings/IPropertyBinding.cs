@@ -1,7 +1,8 @@
 ﻿using System.Linq.Expressions;
+
 using AndrejKrizan.DotNet.ValueObjects.PropertyNavigations;
 
-namespace AndrejKrizan.EntityFramework.Common.Repositories.CompositeKey.PropertyBindings;
+namespace AndrejKrizan.DotNet.ValueObjects.PropertyBindings;
 
 public interface IPropertyBinding<TEntity, TKey>
     where TEntity : class

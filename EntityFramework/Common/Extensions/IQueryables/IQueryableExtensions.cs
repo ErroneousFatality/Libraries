@@ -81,14 +81,7 @@ public static class IQueryableExtensions
         IEnumerable<TData> dataSource,
         Func<TData, Expression<Func<TEntity, bool>>> predicateBuilder
     )
-    {
-        if (dataSource.Any())
-        {
-            Expression<Func<TEntity, bool>> predicate = dataSource.ToPredicateLambda(predicateBuilder);
-            query = query.Where(predicate);
-        }
-        return query;
-    }
+        => query.Where(dataSource.ToPredicateLambda(predicateBuilder));
 
     #region String filtering
     /// <summary>
@@ -171,7 +164,7 @@ public static class IQueryableExtensions
     )
         where TEntity : class
     {
-        ParameterExpression parameterExpression = Expression.Parameter(typeof(TEntity), "entity");
+        ParameterExpression parameterExpression = Expression.Parameter(typeof(TEntity), typeof(TEntity).Name.ToLowercasedFirstCharacterInvariant());
         IEnumerable<PropertyNavigationAndMethodInfo<TEntity, string?>> stringPropertyNavigationExpressionAndMethodInfoCollection = additionalStringPropertyLambdas
             .Prepend(stringPropertyLambda)
             .Select(_stringPropertyLambda =>
@@ -343,7 +336,7 @@ public static class IQueryableExtensions
     ///     Page number must be a positive integer not larger than int.MaxValue.
     ///     (pageNumber - 1) * pageSize cannot be larger than int.MaxValue due to Entity framework core restriction.
     /// </exception>
-    public static async Task<Page<T>> ToPageAsync<T>(this IQueryable<T> query, uint pageSize, uint pageNumber, CancellationToken cancellationToken = default)
+    public static async Task<Page<TEntity>> ToPageAsync<TEntity>(this IQueryable<TEntity> query, uint pageSize, uint pageNumber, CancellationToken cancellationToken = default)
     {
         if (pageSize < 1 || pageSize > int.MaxValue)
         {
@@ -362,11 +355,11 @@ public static class IQueryableExtensions
             );
         }
         ulong totalCount = (ulong)await query.LongCountAsync(cancellationToken);
-        ImmutableArray<T> results = await query
+        ImmutableArray<TEntity> entities = await query
             .Skip((int)skipLong)
             .Take((int)pageSize)
             .ToImmutableArrayAsync(cancellationToken);
-        Page<T> page = new(results, totalCount, pageSize);
+        Page<TEntity> page = new(entities, totalCount, pageSize);
         return page;
     }
 
@@ -405,8 +398,8 @@ public static class IQueryableExtensions
             List<TResult> resultChunk = await resultQuery.ToListAsync(cancellationToken);
             resultBuffer.AddRange(resultChunk);
         }
-        ImmutableArray<TResult> entities = resultBuffer.Distinct().ToImmutableArray();
-        return entities;
+        ImmutableArray<TResult> results = resultBuffer.Distinct().ToImmutableArray();
+        return results;
     }
     #endregion
 }

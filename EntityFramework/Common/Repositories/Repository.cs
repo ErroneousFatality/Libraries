@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AndrejKrizan.EntityFramework.Common.Repositories;
 
-public class Repository<TEntity> where TEntity : class
+public class Repository<TEntity> 
+    where TEntity : class
 {
     // Properties
     protected DbContext DbContext { get; }
