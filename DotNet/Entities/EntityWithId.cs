@@ -3,9 +3,8 @@ using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("AndrejKrizan.EntityFramework.Common")]
 namespace AndrejKrizan.DotNet.Entities;
-public abstract class EntityWithId<TKey, TSelf> : Entity<TKey, TSelf>
+public abstract class EntityWithId<TKey> : Entity<TKey, EntityWithId<TKey>>
     where TKey : struct
-    where TSelf: EntityWithId<TKey, TSelf>
 {
     // Properties
     public TKey Id { get; private set; }
@@ -20,6 +19,6 @@ public abstract class EntityWithId<TKey, TSelf> : Entity<TKey, TSelf>
     protected EntityWithId() { }
 
     // Protected properties
-    protected internal override Expression<Func<TSelf, TKey>> KeyLambda
+    protected internal override Expression<Func<EntityWithId<TKey>, TKey>> KeyLambda
         => entity => entity.Id;
 }
