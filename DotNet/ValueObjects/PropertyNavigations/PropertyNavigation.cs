@@ -89,8 +89,8 @@ public class PropertyNavigation<T, TProperty> : IPropertyNavigation<T>
     }
 
     // Conversions
-    public static implicit operator PropertyNavigation<T, TProperty>(Expression<Func<T, TProperty>> propertySelector)
-        => new(propertySelector);
+    public static implicit operator PropertyNavigation<T, TProperty>(Expression<Func<T, TProperty>> lambda)
+        => new(lambda);
 
     // Methods
     public PropertyNavigation<T, TProperty> ReplaceParameter(ParameterExpression parameter)

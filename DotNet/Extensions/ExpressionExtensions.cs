@@ -24,25 +24,42 @@ public static class ExpressionExtensions
     public static BinaryExpression OrElse(this Expression left, Expression right)
         => Expression.OrElse(left, right);
 
-    #region UnwrapConvert
-    public static Expression UnwrapConvert(this Expression expression)
+    #region UnwrapConversion
+    public static Expression UnwrapConversion<TConvert, T>(this Expression expression)
     {
-        if (expression is UnaryExpression unaryExpression && unaryExpression.NodeType == ExpressionType.Convert)
+        if (expression is UnaryExpression convert && convert.NodeType == ExpressionType.Convert && convert.Type == typeof(TConvert))
         {
-            expression = unaryExpression.Operand;
+            Expression innerExpression = convert.Operand;
+            if (innerExpression.Type == typeof(T))
+            {
+                return innerExpression;
+            }
         }
-        return expression;
+        throw new ArgumentException($"Expression is not a conversion from {nameof(T)} to {nameof(TConvert)}.", nameof(expression));
     }
 
-    public static Expression UnwrapConverts(this Expression expression)
+    public static Expression<Func<TParameter, T>> UnwrapConversion<TParameter, TConvert, T>(this Expression<Func<TParameter, TConvert>> lambda)
+        => Expression.Lambda<Func<TParameter, T>>(lambda.Body.UnwrapConversion<TConvert, T>(), lambda.Parameters);
+
+
+    public static Expression UnwrapConversionsUntilType(this Expression expression, Type type)
     {
-        while (expression is UnaryExpression unaryExpression && unaryExpression.NodeType == ExpressionType.Convert)
+        while (expression is UnaryExpression conversion && conversion.NodeType == ExpressionType.Convert)
         {
-            expression = unaryExpression.Operand;
+            Expression innerExpression = conversion.Operand;
+            if (innerExpression.Type == type)
+            {
+                return innerExpression;
+            }
         }
-        return expression;
+        throw new ArgumentException($"No conversion to {type.Name} found.", nameof(expression));
     }
-    #endregion UnwrapConvert
+    public static Expression UnwrapConversionsUntilType<T>(this Expression expression)
+        => expression.UnwrapConversionsUntilType(typeof(T));
+
+    public static Expression<Func<TParameter, T>> UnwrapConversionsUntilType<TParameter, TCurrent, T>(this Expression<Func<TParameter, TCurrent>> lambda)
+        => Expression.Lambda<Func<TParameter, T>>(lambda.Body.UnwrapConversionsUntilType<T>(), lambda.Parameters);
+    #endregion UnwrapConversion
 
     #region ReplaceParameters
     public static TLambda ReplaceParameters<TLambda>(this TLambda lambda, params ParameterExpression[] parameterExpressions)

@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
+using AndrejKrizan.DotNet.Entities;
 using AndrejKrizan.DotNet.Extensions;
 using AndrejKrizan.DotNet.Utilities;
 using AndrejKrizan.DotNet.ValueObjects.PropertyBindings;
@@ -13,7 +14,7 @@ namespace AndrejKrizan.EntityFramework.Common.Repositories;
 
 public abstract class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRepository<TEntity, TKey>
     where TEntity : class
-    where TKey : struct
+    where TKey : struct, IKey<TEntity>
 {
     // Constructors
     public CompositeKeyRepository(DbContext dbContext)
@@ -83,42 +84,36 @@ public abstract class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity
     }
 
     // Protected properties
-    protected abstract Expression<Func<TEntity, TKey>> KeyLambda { get; }
+    protected static readonly Expression<Func<TEntity, TKey>> KeyLambda;
+    protected static readonly ParameterExpression EntityParameter;
+    protected static readonly ImmutableArray<IPropertyBinding<TEntity, TKey>> KeyPropertyBindings;
 
-    protected ParameterExpression EntityParameter => _entityParameter ??= KeyLambda.Parameters.Single();
-    private static ParameterExpression? _entityParameter;
-
-    protected ImmutableArray<IPropertyBinding<TEntity, TKey>> KeyPropertyBindings
+    static CompositeKeyRepository()
     {
-        get
+        KeyLambda = TKey.Lambda.UnwrapConversionsUntilType<TEntity, object?, TKey>();
+        EntityParameter = KeyLambda.Parameters.Single();
+
+        const string errorMessage = $"The {nameof(KeyLambda)} expression must use an object initializer. For example: entity => new EntityKey {{ A = entity.A, B = entity.B}}";
+        if (KeyLambda.Body is not MemberInitExpression initialization)
         {
-            if (!_keyPropertyBindings.HasValue)
-            {
-                const string errorMessage = $"The {nameof(KeyLambda)} expression must use an object initializer. For example: entity => new EntityKey {{ A = entity.A, B = entity.B}}";
-                if (KeyLambda.Body is not MemberInitExpression initialization)
-                {
-                    throw new Exception(errorMessage);
-                }
-                ParameterExpression keyParameter = Expression.Parameter(typeof(TKey), "key");
-                _keyPropertyBindings = initialization.Bindings.Convert((MemberBinding memberBinding) =>
-                {
-                    if (memberBinding.Member is not PropertyInfo keyProperty || memberBinding is not MemberAssignment keyAssignment)
-                    {
-                        throw new Exception(errorMessage);
-                    }
-                    Expression entityProperty = keyAssignment.Expression;
-                    Type bindingType = typeof(PropertyBinding<,,>).MakeGenericType(typeof(TEntity), typeof(TKey), keyProperty.PropertyType);
-                    IPropertyBinding<TEntity, TKey> propertyBinding = (IPropertyBinding<TEntity, TKey>)Activator.CreateInstance(bindingType, EntityParameter, entityProperty, keyParameter, keyProperty)!;
-                    return propertyBinding;
-                });
-            }
-            return _keyPropertyBindings.Value;
+            throw new Exception(errorMessage);
         }
+        ParameterExpression keyParameter = Expression.Parameter(typeof(TKey), "key");
+        KeyPropertyBindings = initialization.Bindings.Convert((MemberBinding memberBinding) =>
+        {
+            if (memberBinding.Member is not PropertyInfo keyProperty || memberBinding is not MemberAssignment keyAssignment)
+            {
+                throw new Exception(errorMessage);
+            }
+            Expression entityProperty = keyAssignment.Expression;
+            Type bindingType = typeof(PropertyBinding<,,>).MakeGenericType(typeof(TEntity), typeof(TKey), keyProperty.PropertyType);
+            IPropertyBinding<TEntity, TKey> propertyBinding = (IPropertyBinding<TEntity, TKey>)Activator.CreateInstance(bindingType, EntityParameter, entityProperty, keyParameter, keyProperty)!;
+            return propertyBinding;
+        });
     }
-    private static ImmutableArray<IPropertyBinding<TEntity, TKey>>? _keyPropertyBindings;
 
     // Protected methods
-    protected virtual Expression<Func<TEntity, bool>> CreateKeyPredicateLambda(TKey key)
+    protected Expression<Func<TEntity, bool>> CreateKeyPredicateLambda(TKey key)
         => Expression.Lambda<Func<TEntity, bool>>(
             KeyPropertyBindings
                 .Select(binding => binding.ToEqualsExpression(key))
