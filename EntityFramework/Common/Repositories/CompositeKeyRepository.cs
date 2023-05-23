@@ -90,7 +90,7 @@ public abstract class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity
 
     static CompositeKeyRepository()
     {
-        KeyLambda = TKey.Lambda.UnwrapConversionsUntilType<TEntity, object?, TKey>();
+        KeyLambda = TKey.Lambda.UnwrapConversion<TEntity, object?, TKey>();
         EntityParameter = KeyLambda.Parameters.Single();
 
         const string errorMessage = $"The {nameof(KeyLambda)} expression must use an object initializer. For example: entity => new EntityKey {{ A = entity.A, B = entity.B}}";
