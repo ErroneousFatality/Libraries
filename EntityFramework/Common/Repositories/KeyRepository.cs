@@ -113,9 +113,9 @@ public class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity>
             KeyNavigation!.SetValue(entity, key);
         }
         else foreach (IPropertyBinding<TEntity, TKey> keyProperty in KeyPropertyBindings)
-            {
-                keyProperty.SetValue(entity, key);
-            }
+        {
+            keyProperty.SetValue(entity, key);
+        }
         DbSet.Attach(entity);
         return entity;
     }
