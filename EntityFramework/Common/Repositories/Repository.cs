@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AndrejKrizan.EntityFramework.Common.Repositories;
 
-public class Repository<TEntity> 
+public class Repository<TEntity>
     where TEntity : class
 {
     // Properties
@@ -36,5 +36,8 @@ public class Repository<TEntity>
         => DbSet.Remove(entity);
 
     public void DeleteMany(IEnumerable<TEntity> entities)
+        => DbSet.RemoveRange(entities);
+
+    public void DeleteMany(params TEntity[] entities)
         => DbSet.RemoveRange(entities);
 }
