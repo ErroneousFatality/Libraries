@@ -1,8 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Linq.Expressions;
 using System.Reflection;
-
-using AndrejKrizan.DotNet;
+using AndrejKrizan.DotNet.Entities;
 using AndrejKrizan.DotNet.Extensions;
 using AndrejKrizan.DotNet.Utilities;
 using AndrejKrizan.DotNet.ValueObjects.PropertyBindings;

@@ -1,6 +1,5 @@
 ﻿using System.Linq.Expressions;
-
-using AndrejKrizan.DotNet;
+using AndrejKrizan.DotNet.Entities;
 using AndrejKrizan.DotNet.Utilities;
 
 using Microsoft.EntityFrameworkCore;
