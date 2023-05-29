@@ -9,6 +9,7 @@ public interface IPropertyBinding<TEntity, TKey>
     where TKey : struct
 {
     // Properties
+    Type Type { get; }
     IPropertyNavigation<TEntity> EntityProperty { get; }
     IPropertyNavigation<TKey> KeyProperty { get; }
 

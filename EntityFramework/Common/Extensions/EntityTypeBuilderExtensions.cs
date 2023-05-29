@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Collections.Immutable;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -15,16 +16,19 @@ public static class EntityTypeBuilderExtensions
         where TEntity : class
         where TKey: struct, IKey<TEntity, TKey>
     {
-        Type type = CreateAnonymousKeyType<TEntity, TKey>();
-        ConstructorInfo constructor = type.GetConstructor(Type.EmptyTypes)!;
-        IEnumerable<Expression> parameters = IKey<TEntity, TKey>.PropertyBindings.Select(property => property.EntityProperty.Expression);
-        NewExpression construction = Expression.New(constructor, parameters);
-        Expression<Func<TEntity, object?>> constructionLambda = Expression.Lambda<Func<TEntity, object?>>(construction, IKey<TEntity, TKey>.EntityParameter);
-        return entity.HasKey(constructionLambda);
+        ImmutableArray<IPropertyBinding<TEntity, TKey>> propertyBindings = IKey<TEntity, TKey>.PropertyBindings;
+        Type type = CreateAnonymousKeyType(propertyBindings);
+        ConstructorInfo constructor = type.GetConstructor(propertyBindings.Select(property => property.Type).ToArray())!;
+        IEnumerable<MemberExpression> arguments = propertyBindings.Select(property => (MemberExpression)property.EntityProperty.Expression);
+        Expression<Func<TEntity, object?>> construction = Expression.Lambda<Func<TEntity, object?>>(
+            Expression.New(constructor, arguments), 
+            IKey<TEntity, TKey>.EntityParameter
+        );
+        return entity.HasKey(construction);
     }
 
     // Private methods
-    private static Type CreateAnonymousKeyType<TEntity, TKey>()
+    private static Type CreateAnonymousKeyType<TEntity, TKey>(IEnumerable<IPropertyBinding<TEntity, TKey>> propertyBindings)
         where TEntity: class
         where TKey : struct, IKey<TEntity, TKey>
     {
@@ -32,7 +36,7 @@ public static class EntityTypeBuilderExtensions
             .DefineDynamicAssembly(new AssemblyName("DynamicAnonymousTypeCreator"), AssemblyBuilderAccess.RunAndCollect)
             .DefineDynamicModule("DynamicAnonymousTypeCreator")
             .DefineType(typeof(TKey).Name, TypeAttributes.Public);
-        foreach (IPropertyBinding<TEntity, TKey> propertyBinding in IKey<TEntity, TKey>.PropertyBindings)
+        foreach (IPropertyBinding<TEntity, TKey> propertyBinding in propertyBindings)
         {
             PropertyInfo property = propertyBinding.EntityProperty.PropertyInfo;
             builder.DefineField(property.Name, property.PropertyType, FieldAttributes.Public);

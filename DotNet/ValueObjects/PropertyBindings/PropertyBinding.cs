@@ -11,6 +11,7 @@ public readonly struct PropertyBinding<TEntity, TKey, TProperty> : IPropertyBind
     where TKey : struct
 {
     // Properties
+    public Type Type => EntityProperty.Type;
     public readonly required PropertyNavigation<TEntity, TProperty> EntityProperty { get; init; }
     public readonly required PropertyNavigation<TKey, TProperty> KeyProperty { get; init; }
 
