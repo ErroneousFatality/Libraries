@@ -34,7 +34,7 @@ public abstract class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRe
         }
 
         MethodCallExpression keysContain;
-        if (keys is ImmutableArray<TKey>)
+        if (keys is ImmutableArray<TKey> _keys)
         {
             MethodInfo containsMethodInfo = typeof(ImmutableArray<TKey>)
                 .GetMethods(BindingFlags.Public | BindingFlags.Instance)
@@ -42,7 +42,7 @@ public abstract class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRe
                     => method.Name == nameof(ImmutableArray<TKey>.Contains)
                     && method.GetParameters().Length == 1
                 );
-            keysContain = Expression.Call(instance: Expression.Constant(keys), method: containsMethodInfo, KeyNavigation.Expression);
+            keysContain = Expression.Call(instance: Expression.Constant(_keys), method: containsMethodInfo, KeyNavigation.Expression);
         }
         else
         {
@@ -53,7 +53,7 @@ public abstract class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRe
                     && method.GetParameters().Length == 2
                 )
                 .MakeGenericMethod(typeof(TKey));
-            keysContain = Expression.Call(instance: null, method: containsMethodInfo, KeyNavigation.Expression);
+            keysContain = Expression.Call(instance: null, method: containsMethodInfo, Expression.Constant(keys), KeyNavigation.Expression);
         }
         Expression<Func<TEntity, bool>> keysContainEntityKeyLambda = Expression.Lambda<Func<TEntity, bool>>(keysContain, EntityParameter);
         ImmutableArray<TEntity> entities = await DbSet
