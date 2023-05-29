@@ -14,7 +14,7 @@ namespace AndrejKrizan.EntityFramework.Common.Repositories;
 
 public abstract class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRepository<TEntity, TKey>
     where TEntity : class
-    where TKey : struct, IKey<TEntity>
+    where TKey : struct, IKey<TEntity, TKey>
 {
     // Constructors
     public CompositeKeyRepository(DbContext dbContext)
@@ -90,7 +90,7 @@ public abstract class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity
 
     static CompositeKeyRepository()
     {
-        KeyLambda = TKey.Lambda.UnwrapConversion<TEntity, object?, TKey>();
+        KeyLambda = TKey.Lambda;
         EntityParameter = KeyLambda.Parameters.Single();
 
         const string errorMessage = $"The {nameof(KeyLambda)} expression must use an object initializer. For example: entity => new EntityKey {{ A = entity.A, B = entity.B}}";
