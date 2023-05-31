@@ -5,8 +5,8 @@ public static class Predefined
         = new("unicode_accent_insensitive_case_insensitive", locale: "und-u-ks-level1", provider: "icu");
 
     public static readonly Collation UnicodeAccentInsensitiveCaseInsensitiveUndeterministic
-        = new("unicode_accent_insensitive_case_insensitive_deterministic", locale: "und-u-ks-level1", provider: "icu", deterministic: true);
+        = new("unicode_accent_insensitive_case_insensitive_deterministic", locale: "und-u-ks-level1", provider: "icu", deterministic: false);
 
     public static readonly Collation UnicodeAccentInsensitiveCaseInsensitiveDeterministic
-        = new("unicode_accent_insensitive_case_insensitive_undeterministic", locale: "und-u-ks-level1", provider: "icu", deterministic: false);
+        = new("unicode_accent_insensitive_case_insensitive_undeterministic", locale: "und-u-ks-level1", provider: "icu", deterministic: true);
 }

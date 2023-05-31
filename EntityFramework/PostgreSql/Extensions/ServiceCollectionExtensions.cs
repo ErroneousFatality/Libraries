@@ -12,5 +12,5 @@ public static class ServiceCollectionExtensions
         DatabaseSettings databaseSettings
     )
         where TDbContext : DbContext
-    => services.AddDbContext<TDbContext>(options => options.UseNpgsql(databaseSettings.ConnectionString));
+        => services.AddDbContext<TDbContext>(options => options.UseNpgsql(databaseSettings.ConnectionString));
 }
