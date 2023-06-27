@@ -7,12 +7,12 @@
 		<Authors>ErroneousFatality</Authors>
 		<RepositoryUrl>https://github.com/ErroneousFatality/Libraries/tree/main/EntityFramework/SqlServer</RepositoryUrl>
 		<PackageOutputPath>..\..\Nugets</PackageOutputPath>
-		<Version>1.0.43</Version>
+		<Version>1.0.44</Version>
 		<SignAssembly>True</SignAssembly>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.8" />
 	</ItemGroup>
 
 	<ItemGroup>
