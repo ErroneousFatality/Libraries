@@ -100,8 +100,7 @@ public abstract class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRe
     protected PropertyNavigation<TEntity, TKey> KeyNavigation => _keyNavigation ??= new(KeyLambda);
     private static PropertyNavigation<TEntity, TKey>? _keyNavigation;
 
-    protected ParameterExpression EntityParameter => _entityParameter ??= KeyLambda.Parameters.Single();
-    private static ParameterExpression? _entityParameter;
+    protected ParameterExpression EntityParameter => KeyNavigation.Parameter;
 
     // Protected methods
     protected virtual TEntity MockEntity(TKey key)
