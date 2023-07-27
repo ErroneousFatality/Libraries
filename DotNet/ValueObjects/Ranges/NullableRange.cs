@@ -7,12 +7,15 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>
     where T : struct
 {
     // Properties
+
     /// <summary>Inclusive.</summary>
     public T? From { get; private set; }
+
     /// <summary>Inclusive.</summary>
     public T? To { get; private set; }
 
     // Constructors
+
     /// <param name="from">Inclusive.</param>
     /// <param name="to">Inclusive.</param>
     [JsonConstructor]
@@ -39,15 +42,6 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>
     private NullableRange() { }
 
     // Methods
-    public void Deconstruct(out T? from, out T? to)
-    {
-        from = From;
-        to = To;
-    }
-
-    public override string ToString()
-        => $"[{From?.ToString() ?? "null"}, {To?.ToString() ?? "null"}]";
-
     public int CompareTo(NullableRange<T>? other)
     {
         if (other == null)
@@ -64,7 +58,24 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>
         return toDiff;
     }
 
+    public void Deconstruct(out T? from, out T? to)
+    {
+        from = From;
+        to = To;
+    }
+
+    public override string ToString()
+        => $"[{From?.ToString() ?? "null"}, {To?.ToString() ?? "null"}]";
+
+    public override bool Equals(object? other)
+        => ReferenceEquals(this, other) || (other is NullableRange<T> range && CompareTo(range) == 0);
+
+    public override int GetHashCode()
+        => From.GetHashCode() ^ To.GetHashCode();
+
+
     // Private methods
+
     /// <param name="from">Inclusive.</param>
     /// <param name="to">Inclusive.</param>
     /// <param name="validate">Should throw an <see cref="ArgumentException"/> if from is greater than to?</param>
@@ -79,7 +90,11 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>
         To = to;
     }
 
-    // Static converters
+    // Implicit conversions
+
+    public static implicit operator NullableRange<T>((T? From, T? To) pair) => new NullableRange<T>(pair.From, pair.To);
+    public static implicit operator (T? From, T? To)(NullableRange<T> range) => (range.From, range.To);
+
     public static implicit operator NullableRange<T>(T?[] array) => new NullableRange<T>(array);
     public static implicit operator T?[](NullableRange<T> range) => new T?[] { range.From, range.To };
 
@@ -88,4 +103,28 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>
 
     public static implicit operator NullableRange<T>(List<T?> list) => new NullableRange<T>(list);
     public static implicit operator List<T?>(NullableRange<T> range) => new List<T?>(2) { range.From, range.To };
+
+    // Comparisons
+
+    public static bool operator ==(NullableRange<T>? x, NullableRange<T>? y)
+        => ReferenceEquals(x, y) || (x is not null && x.CompareTo(y) == 0);
+
+    public static bool operator !=(NullableRange<T>? x, NullableRange<T>? y)
+        => !(x == y);
+
+    public static bool operator <(NullableRange<T>? left, NullableRange<T>? right)
+        => left is null
+            ? right is not null
+            : left.CompareTo(right) < 0;
+
+    public static bool operator <=(NullableRange<T>? left, NullableRange<T>? right)
+        => left is null || left.CompareTo(right) <= 0;
+
+    public static bool operator >(NullableRange<T>? left, NullableRange<T>? right)
+        => left is not null && left.CompareTo(right) > 0;
+
+    public static bool operator >=(NullableRange<T>? left, NullableRange<T>? right)
+        => left is null
+            ? right is null
+            : left.CompareTo(right) >= 0;
 }
