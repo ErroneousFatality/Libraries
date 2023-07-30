@@ -299,26 +299,19 @@ public static class IQueryableExtensions
     #endregion Ordering
 
     #region ToImmutableArrayAsync
-    public static async Task<ImmutableArray<T>> ToImmutableArrayAsync<T>(this IQueryable<T> query,
+    public static Task<ImmutableArray<T>> ToImmutableArrayAsync<T>(this IQueryable<T> query,
         CancellationToken cancellationToken = default
     )
-    {
-        ImmutableArray<T>.Builder builder = ImmutableArray.CreateBuilder<T>();
-        ConfiguredCancelableAsyncEnumerable<T> asyncEnumerable = query.AsAsyncEnumerable().WithCancellation(cancellationToken);
-        await foreach (T item in asyncEnumerable)
-        {
-            builder.Add(item);
-        }
-        ImmutableArray<T> immutableArray = builder.ToImmutable();
-        return immutableArray;
-    }
+        => query.ToImmutableArrayAsync(ImmutableArray.CreateBuilder<T>(), cancellationToken);
 
-    public static async Task<ImmutableArray<T>> ToImmutableArrayAsync<T>(this IQueryable<T> query,
+    public static Task<ImmutableArray<T>> ToImmutableArrayAsync<T>(this IQueryable<T> query,
         int initialCapacity,
         CancellationToken cancellationToken = default
     )
+        => query.ToImmutableArrayAsync(ImmutableArray.CreateBuilder<T>(initialCapacity), cancellationToken);
+
+    private static async Task<ImmutableArray<T>> ToImmutableArrayAsync<T>(this IQueryable<T> query, ImmutableArray<T>.Builder builder, CancellationToken cancellationToken = default)
     {
-        ImmutableArray<T>.Builder builder = ImmutableArray.CreateBuilder<T>(initialCapacity);
         ConfiguredCancelableAsyncEnumerable<T> asyncEnumerable = query.AsAsyncEnumerable().WithCancellation(cancellationToken);
         await foreach (T item in asyncEnumerable)
         {
