@@ -355,10 +355,11 @@ public static class IQueryableExtensions
             );
         }
         ulong totalCount = (ulong)await query.LongCountAsync(cancellationToken);
+        int _pageSize = (int)pageSize;
         ImmutableArray<TEntity> entities = await query
             .Skip((int)skipLong)
-            .Take((int)pageSize)
-            .ToImmutableArrayAsync(cancellationToken);
+            .Take(_pageSize)
+            .ToImmutableArrayAsync(_pageSize, cancellationToken);
         Page<TEntity> page = new(entities, totalCount, pageSize);
         return page;
     }
