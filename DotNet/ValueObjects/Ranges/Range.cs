@@ -9,37 +9,45 @@ public sealed class Range<T> : IComparable<Range<T>>
     // Properties
 
     /// <summary>Inclusive.</summary>
-    public T From { get; private set; }
+    public T From { get; init; }
 
     /// <summary>Inclusive.</summary>
-    public T To { get; private set; }
+    public T To { get; init; }
 
     // Constructors
 
     /// <param name="from">Inclusive.</param>
     /// <param name="to">Inclusive.</param>
-    [JsonConstructor]
-    public Range(T from, T to)
-        => Initialize(from, to, validate: true);
+    /// <param name="validate">Should throw an <see cref="ArgumentException"/> if from is greater than to?</param>
+    public Range(T from, T to, bool validate = true)
+    {
+        if (validate && Comparer<T>.Default.Compare(from, to) > 0)
+        {
+            throw new ArgumentException($"{nameof(from)} cannot be greater than {nameof(to)}.");
+        }
+
+        From = from;
+        To = to;
+    }
 
     /// <param name="from">Inclusive.</param>
     /// <param name="to">Inclusive.</param>
-    /// <param name="validate">Should throw an <see cref="ArgumentException"/> if from is greater than to?</param>
-    public Range(T from, T to, bool validate = true)
-        => Initialize(from, to, validate);
+    [JsonConstructor]
+    public Range(T from, T to)
+        : this(from, to, validate: true) { }
 
     /// <param name="list">A list with two elements</param>
     /// <param name="validate">Should throw an <see cref="ArgumentException"/> if from is greater than to?</param>
     public Range(IReadOnlyList<T> list, bool validate = true)
+        : this(list.ElementAtOrDefault(0), list.ElementAtOrDefault(1), validate)
     {
         if (list.Count != 2)
         {
             throw new ArgumentException($"The range can only be created from a {nameof(IReadOnlyList<T>)} which has exactly two elements.", nameof(list));
         }
-        Initialize(list[0], list[1], validate);
     }
 
-    private Range() { }
+    public Range() { }
 
     // Methods
     public int CompareTo(Range<T>? other)
@@ -72,22 +80,6 @@ public sealed class Range<T> : IComparable<Range<T>>
 
     public override int GetHashCode()
         => From.GetHashCode() ^ To.GetHashCode();
-
-    // Private methods
-
-    /// <param name="from">Inclusive.</param>
-    /// <param name="to">Inclusive.</param>
-    /// <param name="validate">Should throw an <see cref="ArgumentException"/> if from is greater than to?</param>
-    private void Initialize(T from, T to, bool validate)
-    {
-        if (validate && Comparer<T>.Default.Compare(from, to) > 0)
-        {
-            throw new ArgumentException($"{nameof(from)} cannot be greater than {nameof(to)}.");
-        }
-
-        From = from;
-        To = to;
-    }
 
     // Implicit conversions
 
