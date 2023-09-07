@@ -322,8 +322,8 @@ public static class IQueryableExtensions
     }
     #endregion
 
-    /// <param name="pageSize">Positive integer not larger than <see cref="int.MaxValue."/></param>
-    /// <param name="pageNumber">Positive integer not larger than <see cref="int.MaxValue."/></param>
+    /// <param name="pageSize">Positive integer not larger than <see cref="int.MaxValue"/></param>
+    /// <param name="pageNumber">Positive integer not larger than <see cref="int.MaxValue"/></param>
     /// <exception cref="ArgumentOutOfRangeException">
     ///     Page size must be a positive integer not larger than int.MaxValue.
     ///     Page number must be a positive integer not larger than int.MaxValue.

@@ -9,7 +9,7 @@ public static class ExpressionExtensions
     /// </summary>
     /// <param name="left">An <see cref="Expression"/> to set the <see cref="BinaryExpression.Left"/> property equal to.</param>
     /// <param name="right">An <see cref="Expression"/> to set the <see cref="BinaryExpression.Right"/> property equal to.</param>
-    /// <returns>A <see cref="BinaryExpression"/> that has the <see cref="NodeType"/> property equal to <see cref="ExpressionType.AndAlso"/>
+    /// <returns>A <see cref="BinaryExpression"/> that has the <see cref="Expression.NodeType"/> property equal to <see cref="ExpressionType.AndAlso"/>
     /// and the <see cref="BinaryExpression.Left"/> and <see cref="BinaryExpression.Right"/> properties set to the specified values.</returns>
     public static BinaryExpression AndAlso(this Expression left, Expression right)
         => Expression.AndAlso(left, right);
@@ -19,7 +19,7 @@ public static class ExpressionExtensions
     /// </summary>
     /// <param name="left">An <see cref="Expression"/> to set the <see cref="BinaryExpression.Left"/> property equal to.</param>
     /// <param name="right">An <see cref="Expression"/> to set the <see cref="BinaryExpression.Right"/> property equal to.</param>
-    /// <returns>A <see cref="BinaryExpression"/> that has the <see cref="NodeType"/> property equal to <see cref="ExpressionType.OrElse"/>
+    /// <returns>A <see cref="BinaryExpression"/> that has the <see cref="Expression.NodeType"/> property equal to <see cref="ExpressionType.OrElse"/>
     /// and the <see cref="BinaryExpression.Left"/> and <see cref="BinaryExpression.Right"/> properties set to the specified values.</returns>
     public static BinaryExpression OrElse(this Expression left, Expression right)
         => Expression.OrElse(left, right);

@@ -3,7 +3,7 @@
 namespace AndrejKrizan.EntityFramework.Common.Converters;
 
 /// <summary>
-/// Converts <see cref="TimeOnly" /> to <see cref="TimeSpan"/> and vice versa.
+/// Converts <see cref="TimeOnly"/> to <see cref="TimeSpan"/> and vice versa.
 /// </summary>
 public class TimeOnlyConverter : ValueConverter<TimeOnly, TimeSpan>
 {
@@ -19,7 +19,7 @@ public class TimeOnlyConverter : ValueConverter<TimeOnly, TimeSpan>
 }
 
 /// <summary>
-/// Converts <see cref="TimeOnly?" /> to <see cref="TimeSpan?"/> and vice versa.
+/// Converts <see cref="TimeOnly"/>? to <see cref="TimeSpan"/>? and vice versa.
 /// </summary>
 public class NullableTimeOnlyConverter : ValueConverter<TimeOnly?, TimeSpan?>
 {

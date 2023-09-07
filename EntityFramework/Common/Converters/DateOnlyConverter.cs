@@ -19,7 +19,7 @@ public class DateOnlyConverter : ValueConverter<DateOnly, DateTime>
 }
 
 /// <summary>
-/// Converts <see cref="DateOnly?" /> to <see cref="DateTime?"/> and vice versa.
+/// Converts <see cref="DateOnly" />? to <see cref="DateTime"/>? and vice versa.
 /// </summary>
 public class NullableDateOnlyConverter : ValueConverter<DateOnly?, DateTime?>
 {
