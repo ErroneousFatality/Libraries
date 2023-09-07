@@ -7,7 +7,7 @@
 		<Authors>ErroneousFatality</Authors>
 		<RepositoryUrl>https://github.com/ErroneousFatality/Libraries/tree/main/EntityFramework/PostgreSql</RepositoryUrl>
 		<PackageOutputPath>..\..\Nugets</PackageOutputPath>
-		<Version>1.0.55</Version>
+		<Version>1.0.56</Version>
 		<SignAssembly>True</SignAssembly>
 	</PropertyGroup>
 
