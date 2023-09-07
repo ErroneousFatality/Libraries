@@ -9,6 +9,7 @@
 		<PackageOutputPath>..\..\Nugets</PackageOutputPath>
 		<Version>1.0.56</Version>
 		<SignAssembly>True</SignAssembly>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<ItemGroup>
