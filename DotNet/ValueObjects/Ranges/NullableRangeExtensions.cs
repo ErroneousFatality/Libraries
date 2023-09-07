@@ -1,6 +1,7 @@
 ﻿namespace AndrejKrizan.DotNet.ValueObjects.Ranges;
 public static class NullableRangeExtensions
 {
+    #region GetDelta
     public static sbyte GetDelta(this NullableRange<sbyte> range)
         => (sbyte)((range.To ?? sbyte.MaxValue) - (range.From ?? sbyte.MinValue));
 
@@ -45,4 +46,5 @@ public static class NullableRangeExtensions
 
     public static ushort GetDelta(this NullableRange<char> range)
         => (ushort)((range.To ?? char.MaxValue) - (range.From ?? char.MinValue));
+    #endregion
 }

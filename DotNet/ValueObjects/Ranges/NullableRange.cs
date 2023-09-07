@@ -44,6 +44,10 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>
     public NullableRange() { }
 
     // Methods
+    public bool Contains(T value)
+        => (!From.HasValue || Comparer<T>.Default.Compare(value, From.Value) >= 0)
+        && (!To.HasValue || Comparer<T>.Default.Compare(value, To.Value) <= 0);
+
     public int CompareTo(NullableRange<T>? other)
     {
         if (other == null)

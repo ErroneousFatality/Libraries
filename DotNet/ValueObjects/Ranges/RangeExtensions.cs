@@ -1,6 +1,7 @@
 ﻿namespace AndrejKrizan.DotNet.ValueObjects.Ranges;
 public static class RangeExtensions
 {
+    #region GetDelta
     public static sbyte GetDelta(this Range<sbyte> range)
         => (sbyte)(range.To - range.From);
 
@@ -45,4 +46,5 @@ public static class RangeExtensions
 
     public static ushort GetDelta(this Range<char> range)
         => (ushort)(range.To - range.From);
+    #endregion
 }

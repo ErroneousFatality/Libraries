@@ -50,6 +50,10 @@ public sealed class Range<T> : IComparable<Range<T>>
     public Range() { }
 
     // Methods
+    public bool Contains(T value)
+        => Comparer<T>.Default.Compare(value, From) >= 0
+        && Comparer<T>.Default.Compare(value, To) <= 0;
+
     public int CompareTo(Range<T>? other)
     {
         if (other == null)
