@@ -2,7 +2,7 @@
 
 using PhoneNumbers;
 
-namespace AndrejKrizan.PhoneNumbers.Extensions;
+namespace AndrejKrizan.PhoneNumbers;
 
 public static class StringExtensions
 {
@@ -13,10 +13,10 @@ public static class StringExtensions
     /// <param name="regionCode">ISO 3166 country alpha-2 code (<see href="https://www.iso.org/obp/ui/#search/code/"/>).</param>
     /// <returns>A region formatted phone number string.</returns>
     /// <exception cref="ArgumentException"></exception>
-    public static string ToPhoneNumber(this string phoneNumber, 
+    public static string ToPhoneNumber(this string phoneNumber,
         string? owner = null,
         string? regionCode = null,
-        PhoneNumberFormat format = PhoneNumberFormat.INTERNATIONAL, 
+        PhoneNumberFormat format = PhoneNumberFormat.INTERNATIONAL,
         int maxLength = PhoneNumberConstraints.MaxLength
     )
     {
