@@ -53,6 +53,11 @@ public static class StringExtensions
         int maxLength = PhoneNumberConstraints.MaxLength
     )
     {
+        if (!Enum.IsDefined(format))
+        {
+            throw new ArgumentOutOfRangeException(nameof(format));
+        }
+
         if (string.IsNullOrWhiteSpace(source))
         {
             exception = new ArgumentException($"{CreateName(owner)} must not be empty.", nameof(source));
@@ -79,7 +84,7 @@ public static class StringExtensions
             goto Fail;
         }
 
-        Library.PhoneNumberFormat _format = (Library.PhoneNumberFormat)((int)format + 1);
+        Library.PhoneNumberFormat _format = (Library.PhoneNumberFormat)((int)format - 1);
         phoneNumber = utils.Format(phoneNumberObj, _format);
 
         if (phoneNumber.Length > maxLength)
