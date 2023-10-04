@@ -1,57 +1,86 @@
-﻿using System.Text;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 using PhoneNumbers;
+
+using Library = PhoneNumbers;
 
 namespace AndrejKrizan.PhoneNumbers;
 
 public static class StringExtensions
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="owner">Will be added to the validation error message.</param>
+    /// <param name="owner">Will be added to the exception messages. E.g.: "The {owner}'s phone number...".</param>
     /// <param name="regionCode">ISO 3166 country alpha-2 code (<see href="https://www.iso.org/obp/ui/#search/code/"/>).</param>
-    /// <returns>A region formatted phone number string.</returns>
+    /// <param name="maxLength">If the resulting string has length greater than this value, then an argument exception will be thrown.</param>
+    /// <returns>A valid region formatted phone number derived from this string.</returns>
     /// <exception cref="ArgumentException"></exception>
-    public static string ToPhoneNumber(this string phoneNumber,
+    public static string ToPhoneNumber(this string source,
+        string? owner = null,
+        string? regionCode = null,
+        PhoneNumberFormat format = PhoneNumberFormat.INTERNATIONAL,
+        int maxLength = PhoneNumberConstraints.MaxLength
+    )
+        => source.TryGetPhoneNumber(out string? phoneNumber, out ArgumentException? exception, owner, regionCode, format, maxLength)
+            ? phoneNumber
+            : throw exception;
+        
+    
+
+    /// <param name="phoneNumber">A valid region formatted phone number derived from this string.</param>
+    /// <param name="owner">Will be added to the exception messages. E.g.: "The {owner}'s phone number...".</param>
+    /// <param name="regionCode">ISO 3166 country alpha-2 code (<see href="https://www.iso.org/obp/ui/#search/code/"/>).</param>
+    /// <param name="maxLength">If the resulting string has length greater than this value, then an argument exception will be thrown.</param>
+    /// <exception cref="ArgumentException"></exception>
+    public static bool TryGetPhoneNumber(this string source,
+        [NotNullWhen(true)] out string? phoneNumber,
+        [NotNullWhen(false)] out ArgumentException? exception,
         string? owner = null,
         string? regionCode = null,
         PhoneNumberFormat format = PhoneNumberFormat.INTERNATIONAL,
         int maxLength = PhoneNumberConstraints.MaxLength
     )
     {
-        if (string.IsNullOrWhiteSpace(phoneNumber))
+        if (string.IsNullOrWhiteSpace(source))
         {
-            throw new ArgumentException($"{CreateName(owner)} must not be empty.", nameof(phoneNumber));
-        }
-
-        if (phoneNumber.Length > maxLength)
-        {
-            throw new ArgumentException($"{CreateName(owner)} is too long. Maximum length: {maxLength}.", nameof(phoneNumber));
+            exception = new ArgumentException($"{CreateName(owner)} must not be empty.", nameof(source));
+            goto Fail;
         }
 
         PhoneNumberUtil utils = PhoneNumberUtil.GetInstance();
-        PhoneNumber _phoneNumber;
+        PhoneNumber phoneNumberObj;
         try
         {
-            _phoneNumber = utils.Parse(phoneNumber, regionCode);
+            phoneNumberObj = utils.Parse(source, regionCode);
         }
-        catch (NumberParseException exception)
+        catch (NumberParseException numberParseException)
         {
-            if (exception.ErrorType == ErrorType.INVALID_COUNTRY_CODE)
-            {
-                throw new ArgumentOutOfRangeException($"The phone number region code \"{regionCode}\" is not valid.", exception);
-            }
-            throw new ArgumentException(CreateErrorMessage(owner, regionCode), nameof(phoneNumber), exception);
+            exception = (numberParseException.ErrorType == ErrorType.INVALID_COUNTRY_CODE)
+                ? new ArgumentOutOfRangeException($"The phone number region code \"{regionCode}\" is not valid.", numberParseException)
+                : new ArgumentException(CreateErrorMessage(owner, regionCode), nameof(source), numberParseException);
+            goto Fail;
         }
 
-        if (regionCode != null && !utils.IsValidNumberForRegion(_phoneNumber, regionCode))
+        if (regionCode != null && !utils.IsValidNumberForRegion(phoneNumberObj, regionCode))
         {
-            throw new ArgumentException(CreateErrorMessage(owner, regionCode), nameof(phoneNumber));
+            exception = new ArgumentException(CreateErrorMessage(owner, regionCode), nameof(source));
+            goto Fail;
         }
 
-        string validPhoneNumber = utils.Format(_phoneNumber, format);
-        return validPhoneNumber;
+        Library.PhoneNumberFormat _format = (Library.PhoneNumberFormat)((int)format + 1);
+        phoneNumber = utils.Format(phoneNumberObj, _format);
+
+        if (phoneNumber.Length > maxLength)
+        {
+            exception = new ArgumentException($"{CreateName(owner)} is too long. Maximum length: {maxLength}.", nameof(source));
+            goto Fail;
+        }
+
+        exception = null;
+        return true;
+
+    Fail:
+        phoneNumber = null;
+        return false;
     }
 
 
