@@ -24,6 +24,17 @@ public static class StringExtensions
     /// <exception cref="ArgumentException"></exception>
     public static bool TryGetEmailAddress(this string source,
         [NotNullWhen(true)] out string? emailAddress,
+        string? owner = null,
+        int maxLength = CommonConstraints.EmailAddressMaxLength
+    )
+        => source.TryGetEmailAddress(out emailAddress, out _, owner, maxLength);
+
+    /// <param name="emailAddress">A valid and formatted email address derived from this string.</param>
+    /// <param name="owner">Will be added to the exception messages. E.g.: "The {owner}'s email address...".</param>
+    /// <param name="maxLength">If the resulting string has length greater than this value, then an argument exception will be thrown.</param>
+    /// <exception cref="ArgumentException"></exception>
+    public static bool TryGetEmailAddress(this string source,
+        [NotNullWhen(true)] out string? emailAddress,
         [NotNullWhen(false)] out ArgumentException? exception,
         string? owner = null,
         int maxLength = CommonConstraints.EmailAddressMaxLength

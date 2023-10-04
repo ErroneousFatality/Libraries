@@ -23,9 +23,22 @@ public static class StringExtensions
         => source.TryGetPhoneNumber(out string? phoneNumber, out ArgumentException? exception, owner, regionCode, format, maxLength)
             ? phoneNumber
             : throw exception;
-        
-    
 
+
+    /// <param name="phoneNumber">A valid region formatted phone number derived from this string.</param>
+    /// <param name="owner">Will be added to the exception messages. E.g.: "The {owner}'s phone number...".</param>
+    /// <param name="regionCode">ISO 3166 country alpha-2 code (<see href="https://www.iso.org/obp/ui/#search/code/"/>).</param>
+    /// <param name="maxLength">If the resulting string has length greater than this value, then an argument exception will be thrown.</param>
+    /// <exception cref="ArgumentException"></exception>
+    public static bool TryGetPhoneNumber(this string source,
+        [NotNullWhen(true)] out string? phoneNumber,
+        string? owner = null,
+        string? regionCode = null,
+        PhoneNumberFormat format = PhoneNumberFormat.INTERNATIONAL,
+        int maxLength = PhoneNumberConstraints.MaxLength
+    )
+        => source.TryGetPhoneNumber(out phoneNumber, out _, owner, regionCode, format, maxLength);
+        
     /// <param name="phoneNumber">A valid region formatted phone number derived from this string.</param>
     /// <param name="owner">Will be added to the exception messages. E.g.: "The {owner}'s phone number...".</param>
     /// <param name="regionCode">ISO 3166 country alpha-2 code (<see href="https://www.iso.org/obp/ui/#search/code/"/>).</param>
