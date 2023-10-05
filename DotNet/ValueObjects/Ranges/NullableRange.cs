@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace AndrejKrizan.DotNet.ValueObjects.Ranges;
 
-public sealed class NullableRange<T> : IComparable<NullableRange<T>>
+public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable<NullableRange<T>>
     where T : struct
 {
     // Properties
@@ -63,6 +63,9 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>
         int toDiff = comparer.Compare(To, other.To);
         return toDiff;
     }
+
+    public bool Equals(NullableRange<T>? other)
+        => ReferenceEquals(this, other) || CompareTo(other) == 0;
 
     public void Deconstruct(out T? from, out T? to)
     {

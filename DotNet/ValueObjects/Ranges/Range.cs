@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace AndrejKrizan.DotNet.ValueObjects.Ranges;
 
-public sealed class Range<T> : IComparable<Range<T>>
+public sealed class Range<T> : IComparable<Range<T>>, IEquatable<Range<T>>
     where T : struct
 {
     // Properties
@@ -69,6 +69,9 @@ public sealed class Range<T> : IComparable<Range<T>>
         int toDiff = comparer.Compare(To, other.To);
         return toDiff;
     }
+
+    public bool Equals(Range<T>? other)
+        => ReferenceEquals(this, other) || CompareTo(other) == 0;
 
     public void Deconstruct(out T from, out T to)
     {
