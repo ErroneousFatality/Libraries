@@ -47,6 +47,80 @@ public static class IEnumerableExtensions
         return array;
     }
 
+    #region SplitToImmutableArrays
+    public static (ImmutableArray<T> Positives, ImmutableArray<T> Negatives) SplitToImmutableArrays<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+        => source.TryGetNonEnumeratedCount(out int count)
+        ? source.SplitToImmutableArrays(predicate, count)
+        : SplitToImmutableArrays(
+            source, predicate,
+            ImmutableArray.CreateBuilder<T>(), ImmutableArray.CreateBuilder<T>()
+        );
+
+    public static (ImmutableArray<T> Positives, ImmutableArray<T> Negatives) SplitToImmutableArrays<T>(this IEnumerable<T> source, Func<T, bool> predicate, int initialCapacity)
+        => SplitToImmutableArrays(
+            source, predicate,
+            ImmutableArray.CreateBuilder<T>(initialCapacity), ImmutableArray.CreateBuilder<T>(initialCapacity)
+        );
+
+    private static (ImmutableArray<T> Positives, ImmutableArray<T> Negatives) SplitToImmutableArrays<T>(
+        IEnumerable<T> source, Func<T, bool> predicate,
+        ImmutableArray<T>.Builder positiveBuffer, ImmutableArray<T>.Builder negativeBuffer
+    )
+    {
+        foreach (T item in source)
+        {
+            if (predicate(item))
+            {
+                positiveBuffer.Add(item);
+            }
+            else
+            {
+                negativeBuffer.Add(item);
+            }
+        }
+        ImmutableArray<T> positives, negatives;
+        if (positiveBuffer.Count == positiveBuffer.Capacity)
+        {
+            positives = positiveBuffer.MoveToImmutable();
+            negatives = ImmutableArray<T>.Empty;
+        }
+        else
+        {
+            positives = positiveBuffer.ToImmutableArray();
+            negatives = negativeBuffer.ToImmutableArray();
+        }
+        return (positives, negatives);
+    }
+    #endregion
+
+    #region ToValidImmutableArray
+    /// <param name="onInvalid">If there are any invalid elements, this action will be called with them as its argument.</param>
+    /// <returns>An immutable array of elements that passed the predicate.</returns>
+    public static ImmutableArray<T> ToValidImmutableArray<T>(this IEnumerable<T> source, Func<T, bool> predicate, Action<ImmutableArray<T>> onInvalid)
+    {
+        (ImmutableArray<T> positives, ImmutableArray<T> negatives) = source.SplitToImmutableArrays(predicate);
+        if (negatives.Length > 0)
+        {
+            onInvalid(negatives);
+        }
+        return positives;
+    }
+
+    /// <param name="onInvalid">If there are any invalid elements, this action will be called with them as its argument.</param>
+    /// <returns>An immutable array of elements that passed the predicate.</returns>
+    public static ImmutableArray<T> ToValidImmutableArray<T>(this IEnumerable<T> source, Func<T, bool> predicate, Action<ImmutableArray<T>> onInvalid, int initialCapacity)
+    {
+        (ImmutableArray<T> positives, ImmutableArray<T> negatives) = source.SplitToImmutableArrays(predicate, initialCapacity);
+        if (negatives.Length > 0)
+        {
+            onInvalid(negatives);
+        }
+        return positives;
+    }
+    #endregion
+
+
+
     #region Convert
     public static ImmutableArray<TResult> Convert<T, TResult>(this IEnumerable<T> items, Func<T, TResult> selector)
         => items.Select(selector).ToImmutableArray();
