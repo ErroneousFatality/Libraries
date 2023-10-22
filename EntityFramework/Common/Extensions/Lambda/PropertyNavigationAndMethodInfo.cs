@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+
 using AndrejKrizan.DotNet.ValueObjects.PropertyNavigations;
 
 namespace AndrejKrizan.EntityFramework.Common.Extensions.Lambda;
@@ -21,22 +22,6 @@ internal class PropertyNavigationAndMethodInfo<TEntity, TProperty>
         PropertyNavigationExpression = propertyNavigationExpression;
         MethodInfo = methodInfo;
     }
-
-    /// <summary>
-    ///     Example of a property predicate navigation expression: (TEntity entity) => entity.Property1...PropertyN.BoolMethod
-    /// </summary>
-    /// <exception cref="ArgumentException">
-    ///     Expression must point to a method belonging to a property.
-    ///     The property navigation expression's target property type does not match the property type.
-    ///     The parameter expression's type does not match the entity type.
-    ///     Only conversion unary expressions are allowed inside a property nagivation expression.
-    ///     The expression is not a property navigation expression.
-    /// </exception>
-    public PropertyNavigationAndMethodInfo(
-        Expression<Func<TEntity, Func<TProperty, bool>>> propertyPredicateMethodNavigationLambda,
-        ParameterExpression parameterExpression
-    )
-        : this(propertyPredicateMethodNavigationLambda.Body, parameterExpression) { }
 
     /// <summary>
     ///     Example of a property predicate navigation expression: (TEntity entity) => entity.Property1...PropertyN.BoolMethod

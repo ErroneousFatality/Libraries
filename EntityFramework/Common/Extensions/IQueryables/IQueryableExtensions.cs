@@ -143,7 +143,7 @@ public static class IQueryableExtensions
             .Prepend(stringPropertyMethodNavigationExpression)
             .Select(_stringPropertyMethodNavigationExpression =>
             {
-                PropertyNavigationAndMethodInfo<TEntity, string?> propertyNavigationExpressionAndMethodInfo = new(_stringPropertyMethodNavigationExpression, parameterExpression);
+                PropertyNavigationAndMethodInfo<TEntity, string?> propertyNavigationExpressionAndMethodInfo = new(_stringPropertyMethodNavigationExpression.Body, parameterExpression);
                 if (!SupportedStringMethodInfos.Contains(propertyNavigationExpressionAndMethodInfo.MethodInfo))
                 {
                     string supportedStringMethodNamesString = string.Join(", ", SupportedStringMethodInfos.Select((methodInfo) => methodInfo.Name));
