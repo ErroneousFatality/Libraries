@@ -133,8 +133,8 @@ public static class IQueryableExtensions
     public static IQueryable<TEntity> WhereFilter<TEntity>(
         this IQueryable<TEntity> query,
         string? filter,
-        Expression<Func<TEntity, Func<string?, bool>>> stringPropertyMethodNavigationExpression,
-        params Expression<Func<TEntity, Func<string?, bool>>>[] additionalStringPropertyMethodNavigationExpression
+        Expression<Func<TEntity, Func<string, bool>>> stringPropertyMethodNavigationExpression,
+        params Expression<Func<TEntity, Func<string, bool>>>[] additionalStringPropertyMethodNavigationExpression
     )
         where TEntity : class
     {
@@ -261,28 +261,28 @@ public static class IQueryableExtensions
     public static IOrderedQueryable<TEntity> SetOrder<TEntity>(
         this IQueryable<TEntity> query,
         OrderDirection orderDirection,
-        Expression<Func<TEntity, object>> propertySelector,
-        params Expression<Func<TEntity, object>>[] additionalPropertySelectors
+        Expression<Func<TEntity, object?>> propertySelector,
+        params Expression<Func<TEntity, object?>>[] additionalPropertySelectors
     )
         where TEntity : class
     {
-        Func<IQueryable<TEntity>, Expression<Func<TEntity, object>>, IOrderedQueryable<TEntity>> orderBy;
-        Func<IOrderedQueryable<TEntity>, Expression<Func<TEntity, object>>, IOrderedQueryable<TEntity>> thenOrderBy;
+        Func<IQueryable<TEntity>, Expression<Func<TEntity, object?>>, IOrderedQueryable<TEntity>> orderBy;
+        Func<IOrderedQueryable<TEntity>, Expression<Func<TEntity, object?>>, IOrderedQueryable<TEntity>> thenOrderBy;
         switch (orderDirection)
         {
             case OrderDirection.Ascending:
-                orderBy = Queryable.OrderBy<TEntity, object>;
-                thenOrderBy = Queryable.ThenBy<TEntity, object>;
+                orderBy = Queryable.OrderBy<TEntity, object?>;
+                thenOrderBy = Queryable.ThenBy<TEntity, object?>;
                 break;
             case OrderDirection.Descending:
-                orderBy = Queryable.OrderByDescending<TEntity, object>;
-                thenOrderBy = Queryable.ThenByDescending<TEntity, object>;
+                orderBy = Queryable.OrderByDescending<TEntity, object?>;
+                thenOrderBy = Queryable.ThenByDescending<TEntity, object?>;
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(orderDirection));
         }
         IOrderedQueryable<TEntity> orderedQuery = orderBy(query, propertySelector);
-        foreach (Expression<Func<TEntity, object>> _propertySelector in additionalPropertySelectors)
+        foreach (Expression<Func<TEntity, object?>> _propertySelector in additionalPropertySelectors)
         {
             orderedQuery = thenOrderBy(orderedQuery, _propertySelector);
         }
