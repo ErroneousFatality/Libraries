@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
-namespace AndrejKrizan.DotNet.ValueObjects.Ranges;
+namespace AndrejKrizan.DotNet.Ranges;
 
 public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable<NullableRange<T>>
     where T : struct
@@ -21,13 +21,12 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable
     /// <param name="validate">Should throw an <see cref="ArgumentException"/> if from is greater than to?</param>
     public NullableRange(T? from = null, T? to = null, bool validate = true)
     {
-        if (validate && Comparer<T?>.Default.Compare(from, to) > 0)
-        {
-            throw new ArgumentException($"{nameof(from)} cannot be greater than {nameof(to)}.");
-        }
-
         From = from;
         To = to;
+        if (validate)
+        {
+            Validate();
+        }
     }
 
     /// <param name="from">Inclusive.</param>
@@ -44,6 +43,14 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable
     public NullableRange() { }
 
     // Methods
+    public void Validate()
+    {
+        if (Comparer<T?>.Default.Compare(From, To) > 0)
+        {
+            throw new ArgumentException($"{nameof(From)} cannot be greater than {nameof(To)}.");
+        }
+    }
+
     public bool Contains(T value)
         => (!From.HasValue || Comparer<T>.Default.Compare(value, From.Value) >= 0)
         && (!To.HasValue || Comparer<T>.Default.Compare(value, To.Value) <= 0);
@@ -77,7 +84,7 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable
         => $"[{From?.ToString() ?? "null"}, {To?.ToString() ?? "null"}]";
 
     public override bool Equals(object? other)
-        => ReferenceEquals(this, other) || (other is NullableRange<T> range && CompareTo(range) == 0);
+        => ReferenceEquals(this, other) || other is NullableRange<T> range && CompareTo(range) == 0;
 
     public override int GetHashCode()
         => From.GetHashCode() ^ To.GetHashCode();
@@ -99,7 +106,7 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable
     // Comparisons
 
     public static bool operator ==(NullableRange<T>? x, NullableRange<T>? y)
-        => ReferenceEquals(x, y) || (x is not null && x.CompareTo(y) == 0);
+        => ReferenceEquals(x, y) || x is not null && x.CompareTo(y) == 0;
 
     public static bool operator !=(NullableRange<T>? x, NullableRange<T>? y)
         => !(x == y);

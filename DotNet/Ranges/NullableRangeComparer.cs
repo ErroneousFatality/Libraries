@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace AndrejKrizan.DotNet.ValueObjects.Ranges;
+namespace AndrejKrizan.DotNet.Ranges;
 
 public class NullableRangeComparer<T> : IEqualityComparer<NullableRange<T>>
     where T : struct
