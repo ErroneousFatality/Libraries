@@ -4,8 +4,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 
 using AndrejKrizan.DotNet.Extensions;
+using AndrejKrizan.DotNet.PropertyNavigations;
 using AndrejKrizan.DotNet.ValueObjects;
-using AndrejKrizan.DotNet.ValueObjects.PropertyNavigations;
 using AndrejKrizan.EntityFramework.Common.Extensions.Lambda;
 
 using Microsoft.EntityFrameworkCore;

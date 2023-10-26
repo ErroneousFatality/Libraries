@@ -1,7 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
-
-using AndrejKrizan.DotNet.ValueObjects.PropertyNavigations;
+using AndrejKrizan.DotNet.PropertyNavigations;
 
 namespace AndrejKrizan.EntityFramework.Common.Extensions.Lambda;
 

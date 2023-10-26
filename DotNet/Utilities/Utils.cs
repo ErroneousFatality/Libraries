@@ -1,7 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
-
-using AndrejKrizan.DotNet.ValueObjects.PropertyNavigations;
+using AndrejKrizan.DotNet.PropertyNavigations;
 
 namespace AndrejKrizan.DotNet.Utilities;
 
@@ -25,7 +24,7 @@ public static partial class Utils
 
     #region GetFromStaticProperty
     public static T? GetFromStaticProperty<TObject, T>(PropertyNavigation<TObject, T> navigation)
-    => (T?)navigation.PropertyInfo.GetValue(null);
+    => (T?)navigation.Info.GetValue(null);
 
     public static T? GetFromStaticProperty<TObject, T>(Expression<Func<TObject, T>> selector)
         => GetFromStaticProperty(new PropertyNavigation<TObject, T>(selector));
