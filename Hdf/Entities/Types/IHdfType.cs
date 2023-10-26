@@ -1,4 +1,4 @@
-﻿using AndrejKrizan.DotNet.ValueObjects.Pointables;
+﻿using AndrejKrizan.DotNet.Pointables;
 using AndrejKrizan.Hdf.Entities.Objects;
 
 namespace AndrejKrizan.Hdf.Entities.Types;

@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
-
-using AndrejKrizan.DotNet.ValueObjects.Pointables;
+using AndrejKrizan.DotNet.Pointables;
 
 namespace AndrejKrizan.Hdf.Entities.Types;
 
