@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace AndrejKrizan.DotNet.ValueObjects.Pointables;
+namespace AndrejKrizan.DotNet.Pointables;
 
 public sealed class PointableArray : Pointable
 {
@@ -11,7 +11,7 @@ public sealed class PointableArray : Pointable
     public PointableArray(IEnumerable<Pointable> pointables)
     {
         Pointables = pointables.ToImmutableArray();
-        IntPtr[] pointers = Pointables.Select(pointable => pointable.Pointer).ToArray();
+        nint[] pointers = Pointables.Select(pointable => pointable.Pointer).ToArray();
         SetHandle(pointers);
     }
 

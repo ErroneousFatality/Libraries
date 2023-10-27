@@ -1,10 +1,8 @@
 ﻿using System.Collections.Immutable;
-using System.Linq.Expressions;
-
-using AndrejKrizan.DotNet.Entities;
+using AndrejKrizan.DotNet.CompositeKeys;
+using AndrejKrizan.DotNet.CompositeKeys.KeyPropertyBindings;
 using AndrejKrizan.DotNet.Extensions;
 using AndrejKrizan.DotNet.Utilities;
-using AndrejKrizan.DotNet.ValueObjects.PropertyBindings;
 using AndrejKrizan.EntityFramework.Common.Extensions.IQueryables;
 
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +11,7 @@ namespace AndrejKrizan.EntityFramework.Common.Repositories;
 
 public abstract class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRepository<TEntity, TKey>
     where TEntity : class
-    where TKey : struct, IKey<TEntity, TKey>
+    where TKey : ICompositeKey<TEntity, TKey>
 {
     // Constructors
     public CompositeKeyRepository(DbContext dbContext)
@@ -22,35 +20,35 @@ public abstract class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity
     // Methods
 
     public async Task<bool> ExistsAsync(TKey key, CancellationToken cancellationToken = default)
-        => await DbSet.AnyAsync(CreateKeyPredicateLambda(key), cancellationToken);
+        => await DbSet.AnyAsync(key.ToEntityHasKeyLambda(), cancellationToken);
 
     public async Task<TEntity?> GetAsync(TKey key, CancellationToken cancellationToken = default)
     {
-        object?[] keyValues = IKey<TEntity, TKey>.PropertyBindings.Select(binding => binding.KeyProperty.GetValue(key)).ToArray();
+        object?[] keyValues = ICompositeKey<TEntity, TKey>.PropertyBindings.Select(binding => binding.KeyNavigation.GetValue(key)).ToArray();
         TEntity? entity = await DbSet.FindAsync(keyValues, cancellationToken);
         return entity;
     }
 
 
     public async Task<ImmutableArray<TEntity>> GetManyAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
-        => await DbSet
-            .WhereAny(keys, CreateKeyPredicateLambda)
+    => await DbSet
+            .WhereAny(keys, key => key.ToEntityHasKeyLambda())
             .ToImmutableArrayAsync(cancellationToken);
 
     public async Task<ImmutableArray<TEntity>> GetManyAsync(IEnumerable<TKey> keys, int chunkSize, CancellationToken cancellationToken = default)
-        => await DbSet.WhereAnyAsync(keys, chunkSize, CreateKeyPredicateLambda, cancellationToken);
+        => await DbSet.WhereAnyAsync(keys, chunkSize, key => key.ToEntityHasKeyLambda(), cancellationToken);
 
 
     public async Task<ImmutableArray<TKey>> GetKeysAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
         => await DbSet
-            .WhereAny(keys, CreateKeyPredicateLambda)
-            .Select(TKey.Lambda)
+            .WhereAny(keys, key => key.ToEntityHasKeyLambda())
+            .Select(TKey.Selector)
             .ToImmutableArrayAsync(cancellationToken);
 
     public async Task<ImmutableArray<TKey>> GetKeysAsync(IEnumerable<TKey> keys, int chunkSize, CancellationToken cancellationToken = default)
         => await DbSet.WhereAnyAsync(keys, chunkSize,
-                CreateKeyPredicateLambda,
-                query => query.Select(TKey.Lambda),
+                key => key.ToEntityHasKeyLambda(),
+                query => query.Select(TKey.Selector),
                 cancellationToken
             );
 
@@ -83,18 +81,10 @@ public abstract class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity
     }
 
     // Protected methods
-    protected Expression<Func<TEntity, bool>> CreateKeyPredicateLambda(TKey key)
-        => Expression.Lambda<Func<TEntity, bool>>(
-            IKey<TEntity, TKey>.PropertyBindings
-                .Select(binding => binding.ToEqualsExpression(key))
-                .Aggregate(Expression.AndAlso),
-            IKey<TEntity, TKey>.EntityParameter
-        );
-
     protected TEntity MockEntity(TKey key)
     {
         TEntity entity = Utils.CreateDefaultInstance<TEntity>();
-        foreach (IPropertyBinding<TEntity, TKey> keyProperty in IKey<TEntity, TKey>.PropertyBindings)
+        foreach (IKeyPropertyBinding<TEntity, TKey> keyProperty in ICompositeKey<TEntity, TKey>.PropertyBindings)
         {
             keyProperty.SetValue(entity, key);
         }

@@ -1,9 +1,8 @@
 ﻿using System.Collections.Immutable;
 using System.Linq.Expressions;
 using System.Reflection;
-
+using AndrejKrizan.DotNet.PropertyNavigations;
 using AndrejKrizan.DotNet.Utilities;
-using AndrejKrizan.DotNet.ValueObjects.PropertyNavigations;
 using AndrejKrizan.EntityFramework.Common.Extensions.IQueryables;
 
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +11,6 @@ namespace AndrejKrizan.EntityFramework.Common.Repositories;
 
 public abstract class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRepository<TEntity, TKey> 
     where TEntity : class
-    where TKey : struct
 {
     // Constructors
     public KeyRepository(DbContext dbContext)
@@ -21,7 +19,7 @@ public abstract class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRe
     // Methods
 
     public async Task<bool> ExistsAsync(TKey key, CancellationToken cancellationToken = default)
-        => await DbSet.AnyAsync(KeyNavigation.ToEqualsLambda(key), cancellationToken);
+        => await DbSet.AnyAsync(KeyNavigation.CreateEqualsLambda(key), cancellationToken);
 
     public async Task<TEntity?> GetAsync(TKey key, CancellationToken cancellationToken = default)
         => await DbSet.FindAsync(new object?[] { key }, cancellationToken);

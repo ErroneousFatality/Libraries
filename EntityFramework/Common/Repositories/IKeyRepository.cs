@@ -3,7 +3,6 @@
 namespace AndrejKrizan.EntityFramework.Common.Repositories;
 public interface IKeyRepository<TEntity, TKey>
     where TEntity : class
-    where TKey : struct
 {
     Task<bool> ExistsAsync(TKey key, CancellationToken cancellationToken = default);
 

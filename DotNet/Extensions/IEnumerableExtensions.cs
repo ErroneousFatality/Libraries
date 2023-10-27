@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 
 using AndrejKrizan.DotNet.Extensions;
-using AndrejKrizan.DotNet.ValueObjects.Ranges;
+using AndrejKrizan.DotNet.Ranges;
 
 namespace AndrejKrizan.DotNet.Extensions;
 

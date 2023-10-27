@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace AndrejKrizan.DotNet.ValueObjects.Pointables;
+namespace AndrejKrizan.DotNet.Pointables;
 
 public class Pointable : IDisposable
 {
@@ -8,7 +8,7 @@ public class Pointable : IDisposable
     private GCHandle Handle { get; set; }
 
     // Computed properties
-    public IntPtr Pointer
+    public nint Pointer
         => Handle.AddrOfPinnedObject();
 
     // Constructors

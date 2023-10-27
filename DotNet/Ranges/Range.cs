@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
-namespace AndrejKrizan.DotNet.ValueObjects.Ranges;
+namespace AndrejKrizan.DotNet.Ranges;
 
 public sealed class Range<T> : IComparable<Range<T>>, IEquatable<Range<T>>
     where T : struct
@@ -21,13 +21,12 @@ public sealed class Range<T> : IComparable<Range<T>>, IEquatable<Range<T>>
     /// <param name="validate">Should throw an <see cref="ArgumentException"/> if from is greater than to?</param>
     public Range(T from, T to, bool validate = true)
     {
-        if (validate && Comparer<T>.Default.Compare(from, to) > 0)
-        {
-            throw new ArgumentException($"{nameof(from)} cannot be greater than {nameof(to)}.");
-        }
-
         From = from;
         To = to;
+        if (validate)
+        {
+            Validate();
+        }
     }
 
     /// <param name="from">Inclusive.</param>
@@ -50,6 +49,14 @@ public sealed class Range<T> : IComparable<Range<T>>, IEquatable<Range<T>>
     public Range() { }
 
     // Methods
+    public void Validate()
+    {
+        if (Comparer<T>.Default.Compare(From, To) > 0)
+        {
+            throw new ArgumentException($"{nameof(From)} cannot be greater than {nameof(To)}.");
+        }
+    }
+
     public bool Contains(T value)
         => Comparer<T>.Default.Compare(value, From) >= 0
         && Comparer<T>.Default.Compare(value, To) <= 0;
@@ -83,7 +90,7 @@ public sealed class Range<T> : IComparable<Range<T>>, IEquatable<Range<T>>
         => $"[{From}, {To}]";
 
     public override bool Equals(object? other)
-        => ReferenceEquals(this, other) || (other is Range<T> range && CompareTo(range) == 0);
+        => ReferenceEquals(this, other) || other is Range<T> range && CompareTo(range) == 0;
 
     public override int GetHashCode()
         => From.GetHashCode() ^ To.GetHashCode();
@@ -105,24 +112,24 @@ public sealed class Range<T> : IComparable<Range<T>>, IEquatable<Range<T>>
     // Comparisons
 
     public static bool operator ==(Range<T>? x, Range<T>? y)
-        => ReferenceEquals(x, y) || (x is not null && x.CompareTo(y) == 0);
+        => ReferenceEquals(x, y) || x is not null && x.CompareTo(y) == 0;
 
     public static bool operator !=(Range<T>? x, Range<T>? y)
         => !(x == y);
 
     public static bool operator <(Range<T>? left, Range<T>? right)
-        => left is null 
-            ? right is not null 
+        => left is null
+            ? right is not null
             : left.CompareTo(right) < 0;
 
     public static bool operator <=(Range<T>? left, Range<T>? right)
-        =>  left is null || left.CompareTo(right) <= 0;
+        => left is null || left.CompareTo(right) <= 0;
 
     public static bool operator >(Range<T>? left, Range<T>? right)
         => left is not null && left.CompareTo(right) > 0;
 
     public static bool operator >=(Range<T>? left, Range<T>? right)
-        => left is null 
-            ? right is null 
+        => left is null
+            ? right is null
             : left.CompareTo(right) >= 0;
 }

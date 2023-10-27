@@ -1,4 +1,4 @@
-﻿namespace AndrejKrizan.DotNet.ValueObjects.Ranges;
+﻿namespace AndrejKrizan.DotNet.Ranges;
 public static class RangeExtensions
 {
     #region GetDelta
