@@ -18,8 +18,10 @@ public interface ICompositeKey<TEntity, TSelf>
     /// </code></example>
     static abstract Expression<Func<TEntity, TSelf>> Selector { get; }
 
-    // Private static fields
+    // Static computed properies
     static ParameterExpression EntityParameter => TSelf.Selector.Parameters[0];
+
+    // Static fields
     static readonly ImmutableArray<IKeyPropertyBinding<TEntity, TSelf>> PropertyBindings;
 
     // Static constructor
