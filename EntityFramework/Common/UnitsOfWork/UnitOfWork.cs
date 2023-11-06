@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace AndrejKrizan.EntityFramework.Common;
+namespace AndrejKrizan.EntityFramework.Common.UnitsOfWork;
 
-public abstract class UnitOfWork
+public class UnitOfWork : IUnitOfWork
 {
     // Properties
-    private DbContext Context { get; }
+    private readonly DbContext Context;
 
     // Constructors
-    protected UnitOfWork(DbContext dbContext)
+    public UnitOfWork(DbContext dbContext)
     {
         Context = dbContext;
     }
@@ -25,10 +25,4 @@ public abstract class UnitOfWork
 
     public async Task AbortTransactionAsync(CancellationToken cancellationToken = default)
         => await Context.Database.RollbackTransactionAsync(cancellationToken);
-
-    public async Task SaveChangesAndCommitTransactionAsync(CancellationToken cancellationToken = default)
-    {
-        await SaveChangesAsync(cancellationToken);
-        await CommitTransactionAsync(cancellationToken);
-    }
 }
