@@ -2,11 +2,11 @@
 public static class BytesConverter
 {
     public static byte[] ToBytes<T>(T value)
-        where T: notnull
+        where T: struct
     => value switch
     {
         bool _bool => BitConverter.GetBytes(_bool),
-        byte _byte => new byte[] { _byte },
+        byte _byte => [_byte],
         short _short => BitConverter.GetBytes(_short),
         ushort _ushort => BitConverter.GetBytes(_ushort),
         int _int => BitConverter.GetBytes(_int),
@@ -21,7 +21,7 @@ public static class BytesConverter
     };
 
     public static T FromBytes<T>(byte[] bytes)
-        where T : notnull
+        where T : struct
     {
         Type type = typeof(T);
         object value = type switch
