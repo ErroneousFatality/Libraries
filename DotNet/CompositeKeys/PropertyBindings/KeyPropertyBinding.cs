@@ -1,9 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
+
 using AndrejKrizan.DotNet.PropertyNavigations;
 
-namespace AndrejKrizan.DotNet.CompositeKeys.KeyPropertyBindings;
+namespace AndrejKrizan.DotNet.CompositeKeys.PropertyBindings;
 
 public readonly struct KeyPropertyBinding<TEntity, TKey, TProperty> : IKeyPropertyBinding<TEntity, TKey>
     where TEntity : class

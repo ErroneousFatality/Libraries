@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
+
 using AndrejKrizan.DotNet.CompositeKeys;
-using AndrejKrizan.DotNet.CompositeKeys.KeyPropertyBindings;
+using AndrejKrizan.DotNet.CompositeKeys.PropertyBindings;
 using AndrejKrizan.DotNet.Extensions;
 using AndrejKrizan.DotNet.Utilities;
 using AndrejKrizan.EntityFramework.Common.Extensions.IQueryables;

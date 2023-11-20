@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-using AndrejKrizan.DotNet.CompositeKeys.KeyPropertyBindings;
+using AndrejKrizan.DotNet.CompositeKeys.PropertyBindings;
 using AndrejKrizan.DotNet.Extensions;
 
 namespace AndrejKrizan.DotNet.CompositeKeys;
