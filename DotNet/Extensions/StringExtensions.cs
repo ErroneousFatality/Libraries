@@ -1,4 +1,6 @@
-﻿namespace AndrejKrizan.DotNet.Extensions;
+﻿using System.Collections.Immutable;
+
+namespace AndrejKrizan.DotNet.Extensions;
 
 public static class StringExtensions
 {
@@ -98,10 +100,41 @@ public static class StringExtensions
     #endregion
 
     #region ContainsAny
-    public static bool ContainsAny(this string haystack, params string[] needles)
-        => needles.Any(needle => haystack.Contains(needle));
+    // TODO: optimize to run in O(n)
+    public static bool ContainsAny(this string source, params string[] strings)
+        => strings.Any(source.Contains);
 
-    public static bool ContainsAny(this string haystack, StringComparison comparison, params string[] needles)
-        => needles.Any(needle => haystack.Contains(needle, comparison));
+    public static bool ContainsAny(this string source, StringComparison comparison, params string[] strings)
+        => strings.Any(needle => source.Contains(needle, comparison));
+
+    public static bool ContainsAny(this string source, params char[] chars)
+        => source.IndexOfAny(chars) >= 0;
+    #endregion
+
+    #region ReplaceAll
+    public static string ReplaceAll(this string source, IEnumerable<char> oldChars, char newChar)
+        => source.ReplaceAll(oldChars.ToImmutableHashSet(), newChar);
+
+    public static string ReplaceAll(this string source, IReadOnlySet<char> oldChars, char newChar)
+    {
+        IEnumerable<char> chars = source.Select(character
+            => oldChars.Contains(character)
+                ? newChar
+                : character
+        );
+        string result = string.Concat(chars);
+        return result;
+    }
+
+    public static string ReplaceAll(this string source, IReadOnlyDictionary<char, char> dictionary)
+    {
+        IEnumerable<char> chars = source.Select(character
+            => dictionary.TryGetValue(character, out char newChar)
+                ? newChar
+                : character
+        );
+        string result = string.Concat(chars);
+        return result;
+    }
     #endregion
 }
