@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Text;
 
 namespace AndrejKrizan.DotNet.Extensions;
 
@@ -137,4 +138,18 @@ public static class StringExtensions
         return result;
     }
     #endregion
+
+    public static string RemoveAll(this string source, IReadOnlySet<char> chars)
+    {
+        StringBuilder builder = new(source.Length);
+        foreach(char character in source)
+        {
+            if (!chars.Contains(character))
+            {
+                builder.Append(character);
+            }
+        }
+        string result = builder.ToString();
+        return result;
+    }
 }
