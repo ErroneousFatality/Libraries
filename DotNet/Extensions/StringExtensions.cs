@@ -1,7 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Text;
-
-namespace AndrejKrizan.DotNet.Extensions;
+﻿namespace AndrejKrizan.DotNet.Extensions;
 
 public static class StringExtensions
 {
@@ -114,7 +111,7 @@ public static class StringExtensions
 
     #region ReplaceAll
     public static string ReplaceAll(this string source, IEnumerable<char> oldChars, char newChar)
-        => source.ReplaceAll(oldChars.ToImmutableHashSet(), newChar);
+        => source.ReplaceAll(oldChars.ToHashSet(), newChar);
 
     public static string ReplaceAll(this string source, IReadOnlySet<char> oldChars, char newChar)
     {
@@ -126,6 +123,15 @@ public static class StringExtensions
         string result = string.Concat(chars);
         return result;
     }
+
+    public static string ReplaceAll(this string source, params (char Old, char New)[] mappings)
+    {
+        IEnumerable<KeyValuePair<char, char>> keyValuePairs = mappings.Select(mapping => new KeyValuePair<char, char>(mapping.Old, mapping.New));
+        Dictionary<char, char> dictionary = new(keyValuePairs);
+        string result = source.ReplaceAll(dictionary);
+        return result;
+    }
+        
 
     public static string ReplaceAll(this string source, IReadOnlyDictionary<char, char> dictionary)
     {
@@ -139,17 +145,18 @@ public static class StringExtensions
     }
     #endregion
 
+    #region RemoveAll
+    public static string RemoveAll(this string source, params char[] chars)
+    => source.RemoveAll((IEnumerable<char>)chars);
+
+    public static string RemoveAll(this string source, IEnumerable<char> chars)
+        => source.RemoveAll(chars.ToHashSet());
+
     public static string RemoveAll(this string source, IReadOnlySet<char> chars)
     {
-        StringBuilder builder = new(source.Length);
-        foreach(char character in source)
-        {
-            if (!chars.Contains(character))
-            {
-                builder.Append(character);
-            }
-        }
-        string result = builder.ToString();
+        IEnumerable<char> _chars = source.Where(character => !chars.Contains(character));
+        string result = string.Concat(_chars);
         return result;
     }
+    #endregion
 }

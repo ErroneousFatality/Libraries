@@ -322,6 +322,36 @@ public static class IQueryableExtensions
     }
     #endregion
 
+    #region ToImmutableDictionaryAsync
+    public static Task<ImmutableDictionary<TKey, TEntity>> ToImmutableDictionaryAsync<TEntity, TKey>(this IQueryable<TEntity> query,
+        Func<TEntity, TKey> keySelector, 
+        IEqualityComparer<TKey>? keyComparer = null,
+        IEqualityComparer<TEntity>? entityComparer = null,
+        CancellationToken cancellationToken = default
+    )
+        where TKey : notnull
+        => query.ToImmutableDictionaryAsync(keySelector, (TEntity entity) => entity, keyComparer, entityComparer, cancellationToken);
+
+    public static async Task<ImmutableDictionary<TKey, TValue>> ToImmutableDictionaryAsync<TEntity, TKey, TValue>(this IQueryable<TEntity> query,
+        Func<TEntity, TKey> keySelector, 
+        Func<TEntity, TValue> valueSelector, 
+        IEqualityComparer<TKey>? keyComparer = null, 
+        IEqualityComparer<TValue>? valueComparer = null,
+        CancellationToken cancellationToken = default
+    )
+        where TKey : notnull
+    {
+        ImmutableDictionary<TKey, TValue>.Builder builder = ImmutableDictionary.CreateBuilder(keyComparer, valueComparer);
+        ConfiguredCancelableAsyncEnumerable<TEntity> asyncEnumerable = query.AsAsyncEnumerable().WithCancellation(cancellationToken);
+        await foreach (TEntity entity in asyncEnumerable)
+        {
+            builder.Add(keySelector(entity), valueSelector(entity));
+        }
+        ImmutableDictionary<TKey, TValue> immutableDictionary = builder.ToImmutable();
+        return immutableDictionary;
+    }
+    #endregion
+
     /// <param name="pageSize">Positive integer not larger than <see cref="int.MaxValue"/></param>
     /// <param name="pageNumber">Positive integer not larger than <see cref="int.MaxValue"/></param>
     /// <exception cref="ArgumentOutOfRangeException">
