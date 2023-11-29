@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+
 using AndrejKrizan.DotNet.Collections;
 
 namespace AndrejKrizan.DotNet.ValueObjects;

@@ -2,7 +2,6 @@
 
 using AndrejKrizan.DotNet.CompositeKeys;
 using AndrejKrizan.DotNet.CompositeKeys.PropertyBindings;
-using AndrejKrizan.DotNet.Extensions;
 using AndrejKrizan.DotNet.Utilities;
 using AndrejKrizan.EntityFramework.Common.Extensions.IQueryables;
 
