@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 
 using AndrejKrizan.DotNet.Extensions;
 using AndrejKrizan.DotNet.Ranges;
+using AndrejKrizan.DotNet.Strings;
 
 namespace AndrejKrizan.DotNet.Extensions;
 

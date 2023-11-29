@@ -1,4 +1,4 @@
-﻿namespace AndrejKrizan.DotNet.Extensions;
+﻿namespace AndrejKrizan.DotNet.Strings;
 
 public static class StringExtensions
 {
@@ -32,8 +32,8 @@ public static class StringExtensions
         }
     }
 
-    public static IEnumerable<string> SplitToEnumerable(this string str, string separator, 
-        StringComparison comparison = StringComparison.CurrentCulture, 
+    public static IEnumerable<string> SplitToEnumerable(this string str, string separator,
+        StringComparison comparison = StringComparison.CurrentCulture,
         StringSplitOptions options = StringSplitOptions.None
     )
     {
@@ -86,15 +86,26 @@ public static class StringExtensions
 
     #endregion
 
-    #region AddPrefixIdempotent
-    public static string AddPrefixIdempotent(this string str, char prefix)
-        => str.StartsWith(prefix)
-            ? str
-            : prefix + str;
-    public static string AddPrefixIdempotent(this string str, string prefix)
-        => str.StartsWith(prefix)
-            ? str
-            : prefix + str;
+    #region EnsureStartsWith
+    public static string EnsureStartsWith(this string source, char prefix)
+        => source.StartsWith(prefix)
+            ? source
+            : prefix + source;
+    public static string EnsureStartsWith(this string source, string prefix)
+        => source.StartsWith(prefix)
+            ? source
+            : prefix + source;
+    #endregion
+
+    #region EnsureEndsWith
+    public static string EnsureEndsWith(this string source, char suffix)
+        => source.EndsWith(suffix)
+            ? source
+            : source + suffix;
+    public static string EnsureEndsWith(this string source, string suffix)
+        => source.EndsWith(suffix)
+            ? source
+            : source + suffix;
     #endregion
 
     #region ContainsAny
@@ -131,7 +142,7 @@ public static class StringExtensions
         string result = source.ReplaceAll(dictionary);
         return result;
     }
-        
+
 
     public static string ReplaceAll(this string source, IReadOnlyDictionary<char, char> dictionary)
     {
