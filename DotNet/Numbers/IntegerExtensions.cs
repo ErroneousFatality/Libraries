@@ -1,4 +1,4 @@
-﻿namespace AndrejKrizan.DotNet.Extensions;
+﻿namespace AndrejKrizan.DotNet.Numbers;
 
 public static class IntegerExtensions
 {

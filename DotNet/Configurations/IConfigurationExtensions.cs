@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace AndrejKrizan.DotNet.Extensions;
+namespace AndrejKrizan.DotNet.Configurations;
 
 public static class IConfigurationExtensions
 {

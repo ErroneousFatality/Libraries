@@ -1,6 +1,4 @@
-﻿using AndrejKrizan.DotNet.ValueObjects;
-
-namespace AndrejKrizan.DotNet.Extensions;
+﻿namespace AndrejKrizan.DotNet.DateTimes;
 
 public static class DateTimeExtensions
 {

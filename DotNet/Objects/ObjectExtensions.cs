@@ -1,4 +1,4 @@
-﻿namespace AndrejKrizan.DotNet.Extensions;
+﻿namespace AndrejKrizan.DotNet.Objects;
 
 public static class ObjectExtensions
 {

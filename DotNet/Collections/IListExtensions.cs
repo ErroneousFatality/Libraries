@@ -1,4 +1,4 @@
-﻿namespace AndrejKrizan.DotNet.Extensions;
+﻿namespace AndrejKrizan.DotNet.Collections;
 public static class IListExtensions
 {
     public static IEnumerable<T> Take<T>(this IList<T> source, IEnumerable<int> indexes)

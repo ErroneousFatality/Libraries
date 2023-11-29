@@ -1,8 +1,8 @@
-﻿namespace AndrejKrizan.DotNet.Extensions;
+﻿namespace AndrejKrizan.DotNet.Objects;
 public static class NullableExtensions
 {
-    public static bool TryGetValue<T> (this T? nullable, out T value)
-        where T: struct
+    public static bool TryGetValue<T>(this T? nullable, out T value)
+        where T : struct
     {
         if (nullable.HasValue)
         {

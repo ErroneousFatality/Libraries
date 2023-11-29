@@ -1,4 +1,4 @@
-﻿namespace AndrejKrizan.DotNet.Extensions;
+﻿namespace AndrejKrizan.DotNet.Randoms;
 public static class RandomExtensions
 {
     public static bool NextBool(this Random random, double truePercentage = 50f)

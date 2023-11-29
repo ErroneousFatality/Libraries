@@ -1,5 +1,4 @@
-﻿using AndrejKrizan.DotNet.Extensions;
-
+﻿using AndrejKrizan.DotNet.Collections;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 using System.Collections.Immutable;

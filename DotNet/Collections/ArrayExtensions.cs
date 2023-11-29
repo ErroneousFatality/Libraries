@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 
-namespace AndrejKrizan.DotNet.Extensions;
+namespace AndrejKrizan.DotNet.Collections;
 
 public static class ArrayExtensions
 {

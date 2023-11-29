@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace AndrejKrizan.DotNet.Extensions;
+namespace AndrejKrizan.DotNet.Expressions;
 
 public static class ExpressionExtensions
 {
@@ -26,17 +26,13 @@ public static class ExpressionExtensions
 
     #region ReplaceParameters
     public static TLambda ReplaceParameters<TLambda>(this TLambda lambda, params ParameterExpression[] parameterExpressions)
-        where TLambda: LambdaExpression
+        where TLambda : LambdaExpression
     {
         if (parameterExpressions.Length > lambda.Parameters.Count)
-        {
             throw new ArgumentException("There are more parameter expressions than the lambda has parameters.", nameof(parameterExpressions));
-        }
         Dictionary<ParameterExpression, ParameterExpression> dictionary = new(parameterExpressions.Length);
         for (int i = 0; i < parameterExpressions.Length; i++)
-        {
             dictionary.Add(lambda.Parameters[i], parameterExpressions[i]);
-        }
         lambda = (TLambda)new ParameterReplacer(dictionary).Visit(lambda);
         return lambda;
     }
@@ -64,9 +60,7 @@ public static class ExpressionExtensions
         protected override Expression VisitParameter(ParameterExpression node)
         {
             if (Dictionary.TryGetValue(node, out ParameterExpression? parameter))
-            {
                 return parameter;
-            }
             return node;
         }
     }

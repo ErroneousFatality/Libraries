@@ -1,11 +1,12 @@
 ﻿using System.Collections.Immutable;
 using System.Linq.Expressions;
 
-using AndrejKrizan.DotNet.Extensions;
-using AndrejKrizan.DotNet.Ranges;
+using AndrejKrizan.DotNet.Collections;
+using AndrejKrizan.DotNet.Expressions;
+using AndrejKrizan.DotNet.Randoms;
 using AndrejKrizan.DotNet.Strings;
 
-namespace AndrejKrizan.DotNet.Extensions;
+namespace AndrejKrizan.DotNet.Collections;
 
 public static class IEnumerableExtensions
 {
@@ -49,15 +50,15 @@ public static class IEnumerableExtensions
     }
 
     /// <param name="positivesInitialCapacity">If null, will try to use the <paramref name="source"/>'s non enumerated count.</param>
-    public static (ImmutableArray<T> Positives, ImmutableArray<T> Negatives) SplitToImmutableArrays<T>(this IEnumerable<T> source, 
-        Func<T, bool> predicate, 
+    public static (ImmutableArray<T> Positives, ImmutableArray<T> Negatives) SplitToImmutableArrays<T>(this IEnumerable<T> source,
+        Func<T, bool> predicate,
         int? positivesInitialCapacity = null,
         int? negativesInitialCapacity = null
     )
     {
         ImmutableArray<T>.Builder positiveBuffer = positivesInitialCapacity.HasValue
             ? ImmutableArray.CreateBuilder<T>(positivesInitialCapacity.Value)
-            : source.TryGetNonEnumeratedCount(out int count) 
+            : source.TryGetNonEnumeratedCount(out int count)
                 ? ImmutableArray.CreateBuilder<T>(count)
                 : ImmutableArray.CreateBuilder<T>();
 
@@ -84,8 +85,8 @@ public static class IEnumerableExtensions
     /// <param name="onInvalid">If there are any invalid elements, this action will be called with them as its argument.</param>
     /// <param name="validsInitialCapcity">If null, will try to use the <paramref name="source"/>'s non enumerated count.</param>
     /// <returns>An immutable array of elements that passed the predicate.</returns>
-    public static ImmutableArray<T> ToValidImmutableArray<T>(this IEnumerable<T> source, 
-        Func<T, bool> predicate, 
+    public static ImmutableArray<T> ToValidImmutableArray<T>(this IEnumerable<T> source,
+        Func<T, bool> predicate,
         Action<ImmutableArray<T>> onInvalid,
         int? validsInitialCapcity = null,
         int? invalidsInitialCapcity = null
@@ -247,7 +248,7 @@ public static class IEnumerableExtensions
         => new HashSet<T>(source, comparer).SetEquals(other);
 
     public static bool SetEquals<T>(this IEnumerable<T> source, IEnumerable<T> other)
-        => SetEquals(source, other, EqualityComparer<T>.Default);
+        => source.SetEquals(other, EqualityComparer<T>.Default);
 
 
     public static bool ContentEquals<T>(this IEnumerable<T> source, IEnumerable<T> target, IEqualityComparer<T> comparer)
@@ -278,7 +279,7 @@ public static class IEnumerableExtensions
 
     public static bool ContentEquals<T>(this IEnumerable<T> source, IEnumerable<T> target)
         where T : notnull
-        => ContentEquals(source, target, EqualityComparer<T>.Default);
+        => source.ContentEquals(target, EqualityComparer<T>.Default);
     #endregion
 
     #region MinBy
@@ -406,7 +407,7 @@ public static class IEnumerableExtensions
     {
         if (!dataSource.Any())
         {
-            return (T item) => false;
+            return (item) => false;
         }
         ParameterExpression parameterExpression = Expression.Parameter(typeof(T), typeof(T).Name.ToLowercasedFirstCharacterInvariant());
 
@@ -440,8 +441,8 @@ public static class IEnumerableExtensions
 
     #region Take
     public static IEnumerable<T> Take<T>(this IEnumerable<T> source, IEnumerable<int> indexes)
-        => source is IList<T> list 
-            ? list.Take(indexes) 
+        => source is IList<T> list
+            ? list.Take(indexes)
             : TakeIterator(source, indexes);
 
     private static IEnumerable<T> TakeIterator<T>(IEnumerable<T> source, IEnumerable<int> indexes)

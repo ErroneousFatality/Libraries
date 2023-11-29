@@ -16,18 +16,12 @@ public static class StringExtensions
         {
             finishIndex = str.IndexOf(separator, startIndex);
             if (finishIndex == -1)
-            {
                 finishIndex = str.Length;
-            }
             string substring = str[startIndex..finishIndex];
             if (options.HasFlag(StringSplitOptions.TrimEntries))
-            {
                 substring = substring.Trim();
-            }
             if (options.HasFlag(StringSplitOptions.RemoveEmptyEntries) && substring.Length == 0)
-            {
                 continue;
-            }
             yield return substring;
         }
     }
@@ -41,18 +35,12 @@ public static class StringExtensions
         {
             finishIndex = str.IndexOf(separator, startIndex, comparison);
             if (finishIndex == -1)
-            {
                 finishIndex = str.Length;
-            }
             string substring = str[startIndex..finishIndex];
             if (options.HasFlag(StringSplitOptions.TrimEntries))
-            {
                 substring = substring.Trim();
-            }
             if (options.HasFlag(StringSplitOptions.RemoveEmptyEntries) && substring.Length == 0)
-            {
                 continue;
-            }
             yield return substring;
         }
     }

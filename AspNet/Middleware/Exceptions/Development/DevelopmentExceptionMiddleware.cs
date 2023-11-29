@@ -1,8 +1,10 @@
 ﻿using System.Net;
 using System.Net.Mime;
 
-using AndrejKrizan.DotNet.Extensions;
+using AndrejKrizan.DotNet.Collections;
+using AndrejKrizan.DotNet.Streams;
 using AndrejKrizan.DotNet.Strings;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Logging;

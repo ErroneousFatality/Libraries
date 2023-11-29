@@ -1,4 +1,4 @@
-﻿namespace AndrejKrizan.DotNet.ValueObjects;
+﻿namespace AndrejKrizan.DotNet.DateTimes;
 
 public enum DateTimeUnit : byte
 {

@@ -2,6 +2,7 @@
 
 using AndrejKrizan.DotNet.Extensions;
 using AndrejKrizan.DotNet.Strings;
+
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AndrejKrizan.EntityFramework.Common.Converters;

@@ -1,4 +1,4 @@
-﻿namespace AndrejKrizan.DotNet.Extensions;
+﻿namespace AndrejKrizan.DotNet.Numbers;
 public static class DecimalExtensions
 {
     public static double ToDouble(this decimal value)
