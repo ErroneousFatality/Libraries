@@ -1,8 +1,8 @@
-﻿namespace AndrejKrizan.DotNet.Utilities;
+﻿namespace AndrejKrizan.DotNet.Bytes;
 public static class BytesConverter
 {
     public static byte[] ToBytes<T>(T value)
-        where T: struct
+        where T : struct
     => value switch
     {
         bool _bool => BitConverter.GetBytes(_bool),
