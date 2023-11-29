@@ -4,20 +4,21 @@ using System.Data;
 using Microsoft.Data.SqlClient;
 
 namespace AndrejKrizan.SqlClient;
-internal abstract class SqlClientRepository
-{
-    // Static properties
-    public static string ConnectionString { get; private set; } = null!;
 
-    // Static methods
-    internal static void Initialize(string connectionString)
+public sealed class SqlClientRepository
+{
+    // Fields
+    public readonly string ConnectionString;
+
+    // Constructors
+    public SqlClientRepository(string connectionString)
     {
         ConnectionString = connectionString;
     }
 
     // Protected methods
 
-    protected internal static async Task ExecuteAsync(string name,
+    public async Task ExecuteAsync(string name,
         Action<SqlParameterCollection> configureParameters,
         CancellationToken cancellationToken = default
     )
@@ -29,7 +30,7 @@ internal abstract class SqlClientRepository
         _ = await command.ExecuteNonQueryAsync(cancellationToken);
     }
 
-    protected internal static async Task<T> ExecuteAndGetAsync<T>(string name,
+    public async Task<T> ExecuteAndGetAsync<T>(string name,
         Action<SqlParameterCollection> configureParameters,
         Func<SqlParameterCollection, T> select,
         CancellationToken cancellationToken = default
@@ -47,7 +48,7 @@ internal abstract class SqlClientRepository
         return result;
     }
 
-    protected internal static async Task<ImmutableArray<T>> ExecuteAndGetManyAsync<T>(string name,
+    public async Task<ImmutableArray<T>> ExecuteAndGetManyAsync<T>(string name,
         Action<SqlParameterCollection> configureParameters,
         Func<SqlDataReader, T> read,
         CancellationToken cancellationToken = default
