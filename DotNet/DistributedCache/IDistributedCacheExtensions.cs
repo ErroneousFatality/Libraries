@@ -74,6 +74,22 @@ public static class IDistributedCacheExtensions
         return value;
     }
 
+    public static async Task<T> GetOrSetAsync<T>(this IDistributedCache cache, 
+        string key, Func<CancellationToken, Task<(T Value, DistributedCacheEntryOptions Options)>> createAsync, 
+        CancellationToken cancellationToken = default
+    )
+        where T : struct
+    {
+        T? _cache = await cache.GetAsync<T>(key, cancellationToken);
+        if (_cache.HasValue)
+        {
+            return _cache.Value;
+        }
+        (T value, DistributedCacheEntryOptions options) = await createAsync(cancellationToken);
+        await cache.SetAsync(key, value, options, cancellationToken);
+        return value;
+    }
+
 
     public static async Task<string> GetOrSetAsync(this IDistributedCache cache,
         string key, Func<CancellationToken, Task<string>> createAsync,
@@ -101,6 +117,21 @@ public static class IDistributedCacheExtensions
             return _cache;
         }
         string value = await createAsync(cancellationToken);
+        await cache.SetStringAsync(key, value, options, cancellationToken);
+        return value;
+    }
+
+    public static async Task<string> GetOrSetAsync(this IDistributedCache cache, 
+        string key, Func<CancellationToken, Task<(string Value, DistributedCacheEntryOptions Options)>> createAsync, 
+        CancellationToken cancellationToken = default
+    )
+    {
+        string? _cache = await cache.GetStringAsync(key, cancellationToken);
+        if (_cache != null)
+        {
+            return _cache;
+        }
+        (string value, DistributedCacheEntryOptions options) = await createAsync(cancellationToken);
         await cache.SetStringAsync(key, value, options, cancellationToken);
         return value;
     }
