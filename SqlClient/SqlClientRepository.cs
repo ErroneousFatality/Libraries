@@ -16,7 +16,25 @@ public sealed class SqlClientRepository
         ConnectionString = connectionString;
     }
 
-    // Protected methods
+    // Methods
+
+    public async Task<ImmutableArray<T>> GetManyAsync<T>(string query, Func<SqlDataReader, T> read, CancellationToken cancellationToken = default)
+    {
+        ImmutableArray<T>.Builder builder = ImmutableArray.CreateBuilder<T>();
+        using (SqlConnection connection = new(ConnectionString))
+        using (SqlCommand command = new(query, connection))
+        {
+            await connection.OpenAsync(cancellationToken);
+            SqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken);
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                T result = read(reader);
+                builder.Add(result);
+            }
+        }
+        ImmutableArray<T> results = builder.ToImmutableArray();
+        return results;
+    }
 
     public async Task ExecuteAsync(string name,
         Action<SqlParameterCollection> configureParameters,
