@@ -1,4 +1,4 @@
-﻿namespace AndrejKrizan.DotNet.Objects;
+﻿namespace AndrejKrizan.DotNet.Nullables;
 public static class NullableExtensions
 {
     public static bool TryGetValue<T>(this T? nullable, out T value)
