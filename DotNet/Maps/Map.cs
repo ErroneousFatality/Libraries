@@ -1,10 +1,11 @@
 ﻿using System.Collections;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
-namespace AndrejKrizan.DotNet.ValueObjects;
+namespace AndrejKrizan.DotNet.Maps;
 
 /// <summary>A bidirectional dictionary.</summary>
-public class Map<TLeft, TRight> : IEnumerable<KeyValuePair<TLeft, TRight>>
+public sealed class Map<TLeft, TRight> : IEnumerable<Mapping<TLeft, TRight>>
     where TLeft : notnull
     where TRight : notnull
 {
@@ -19,14 +20,12 @@ public class Map<TLeft, TRight> : IEnumerable<KeyValuePair<TLeft, TRight>>
         Backward = new(rightComparer);
     }
 
-    public Map(uint capacity, 
+    public Map(uint capacity,
         IEqualityComparer<TLeft>? leftComparer = null, IEqualityComparer<TRight>? rightComparer = null
     )
     {
         if (capacity > int.MaxValue)
-        {
             throw new ArgumentOutOfRangeException(nameof(capacity), $"Capacity cannot exceed {int.MaxValue}.");
-        }
         int _capacity = (int)capacity;
         Forward = new(_capacity, leftComparer);
         Backward = new(_capacity, rightComparer);
@@ -54,12 +53,18 @@ public class Map<TLeft, TRight> : IEnumerable<KeyValuePair<TLeft, TRight>>
         Forward.Add(left, right);
         Backward.Add(right, left);
     }
-    
+
+    public void Add(Mapping<TLeft, TRight> mapping)
+        => Add(mapping.Left, mapping.Right);
+
     public void Add((TLeft Left, TRight Right) pair)
         => Add(pair.Left, pair.Right);
 
     public void Add(KeyValuePair<TLeft, TRight> pair)
         => Add(pair.Key, pair.Value);
+
+    public void Add(KeyValuePair<TRight, TLeft> pair)
+        => Add(pair.Value, pair.Key);
 
 
     public bool ContainsLeft(TLeft left)
@@ -103,8 +108,8 @@ public class Map<TLeft, TRight> : IEnumerable<KeyValuePair<TLeft, TRight>>
 
     public IEnumerator<KeyValuePair<TLeft, TRight>> GetForwardEnumerator()
         => Forward.GetEnumerator();
-    public IEnumerator<KeyValuePair<TLeft, TRight>> GetEnumerator()
-        => GetForwardEnumerator();
+    public IEnumerator<Mapping<TLeft, TRight>> GetEnumerator()
+        => Forward.Select(kvp => new Mapping<TLeft, TRight>(kvp.Key, kvp.Value)).GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator()
         => GetEnumerator();
 
