@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 
+using AndrejKrizan.DotNet.Collections;
 using AndrejKrizan.DotNet.Strings;
 
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -11,7 +12,7 @@ public class ImmutableArrayToStringConverter<T> : ValueConverter<ImmutableArray<
     public ImmutableArrayToStringConverter(Func<string, T> selector, ConverterMappingHints? mappingHints = null)
         : base(
             (domainValue) => string.Join(Delimeter, domainValue),
-            (dataValue) => dataValue.SplitToEnumerable(Delimeter, StringSplitOptions.None).Select(selector).ToImmutableArray(),
+            (dataValue) => dataValue.SplitToEnumerable(Delimeter, StringSplitOptions.None).Convert(selector),
             mappingHints
         )
     { }
