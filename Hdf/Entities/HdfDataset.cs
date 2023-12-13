@@ -24,12 +24,12 @@ public class HdfDataset<T> : HdfAttributableObject
         DataSpace = new(dimensions);
     }
     public HdfDataset(HdfObject parent, string name, IHdfType<T> type, params HdfAttributeDto[] attributes)
-        : this(parent, name, type, Array.Empty<ulong>(), attributes) { }
+        : this(parent, name, type, [], attributes) { }
 
     public HdfDataset(HdfObject parent, string name, ulong[] dimensions, params HdfAttributeDto[] attributes)
         : this(parent, name, new HdfType<T>(), dimensions, attributes) { }
     public HdfDataset(HdfObject parent, string name, params HdfAttributeDto[] attributes)
-        : this(parent, name, new HdfType<T>(), Array.Empty<ulong>(), attributes) { }
+        : this(parent, name, new HdfType<T>(), [], attributes) { }
 
     // Methods
     public override string Describe()

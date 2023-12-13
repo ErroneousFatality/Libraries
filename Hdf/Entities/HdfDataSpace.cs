@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using AndrejKrizan.DotNet.Collections;
+﻿using AndrejKrizan.DotNet.Strings;
 using AndrejKrizan.Hdf.Entities.Objects;
 
 using HDF.PInvoke;
@@ -27,6 +26,7 @@ public class HdfDataSpace : HdfObject
 
     public bool IsScalar() => Dimensions.Length == 0;
 
+#pragma warning disable IDE0060 // Remove unused parameter
     public void Validate<T>(T value)
         where T : notnull
     {
@@ -35,6 +35,7 @@ public class HdfDataSpace : HdfObject
             throw new NotSupportedException("This method can only be called for scalar (0-dimensional) datasets.");
         }
     }
+#pragma warning restore IDE0060 // Remove unused parameter
 
     public void Validate<T>(IEnumerable<T> collection)
     {

@@ -1,54 +1,9 @@
 ﻿using System.Collections.Immutable;
-using System.Linq.Expressions;
-
-using AndrejKrizan.DotNet.Collections;
-using AndrejKrizan.DotNet.Expressions;
-using AndrejKrizan.DotNet.Randoms;
-using AndrejKrizan.DotNet.Strings;
 
 namespace AndrejKrizan.DotNet.Collections;
 
 public static class IEnumerableExtensions
 {
-    #region StringJoin
-
-    public static string StringJoin(this IEnumerable<string?> source, string? separator = ", ", bool quote = false)
-    {
-        if (quote)
-        {
-            source = source.Select(str => str.Quote());
-        }
-        return string.Join(separator, source);
-    }
-
-    public static string StringJoin(this IEnumerable<string?> source, char separator, bool quote = false)
-    {
-        if (quote)
-        {
-            source = source.Select(str => str.Quote());
-        }
-        return string.Join(separator, source);
-    }
-
-
-    public static string StringJoin<T>(this IEnumerable<T?> source, string? separator = ", ", bool quote = false)
-        => source.Select(str => str?.ToString()).StringJoin(separator, quote);
-
-    public static string StringJoin<T>(this IEnumerable<T?> source, char separator, bool quote = false)
-        => source.Select(str => str?.ToString()).StringJoin(separator, quote);
-    #endregion
-
-    public static ImmutableArray<T> ToImmutableArray<T>(this IEnumerable<T> source, int count)
-    {
-        ImmutableArray<T>.Builder arrayBuilder = ImmutableArray.CreateBuilder<T>(count);
-        foreach (T item in source)
-        {
-            arrayBuilder.Add(item);
-        }
-        ImmutableArray<T> array = arrayBuilder.MoveToImmutable();
-        return array;
-    }
-
     /// <param name="positivesInitialCapacity">If null, will try to use the <paramref name="source"/>'s non enumerated count.</param>
     public static (ImmutableArray<T> Positives, ImmutableArray<T> Negatives) SplitToImmutableArrays<T>(this IEnumerable<T> source,
         Func<T, bool> predicate,
@@ -373,7 +328,7 @@ public static class IEnumerableExtensions
         int height = columns.FirstOrDefault()?.Count() ?? 0;
         if (height == 0 || width == 0)
         {
-            return ImmutableArray<ImmutableArray<T>>.Empty;
+            return [];
         }
         if (columns.Skip(1).Any(column => column.Count() != height))
         {
@@ -391,43 +346,6 @@ public static class IEnumerableExtensions
         ImmutableArray<ImmutableArray<T>> matrix = rowBuilders.Convert(rowBuilder => rowBuilder.MoveToImmutable());
         return matrix;
     }
-
-    public static IEnumerable<T> WhereAny<T, TData>(this IEnumerable<T> source, IEnumerable<TData> dataSource, Func<TData, Expression<Func<T, bool>>> predicateBuilder)
-    {
-        if (dataSource.Any())
-        {
-            Func<T, bool> predicate = dataSource.ToPredicateFunc(predicateBuilder);
-            source = source.Where(predicate);
-        }
-        return source;
-    }
-
-    #region ToPredicate
-    public static Expression<Func<T, bool>> ToPredicateLambda<TData, T>(this IEnumerable<TData> dataSource, Func<TData, Expression<Func<T, bool>>> predicateBuilder)
-    {
-        if (!dataSource.Any())
-        {
-            return (item) => false;
-        }
-        ParameterExpression parameterExpression = Expression.Parameter(typeof(T), typeof(T).Name.ToLowercasedFirstCharacterInvariant());
-
-        IEnumerable<Expression> predicateExpressions = dataSource.Select(data
-            => predicateBuilder(data)
-                .ReplaceParameters(parameterExpression)
-                .Body
-        );
-        Expression predicateExpression = predicateExpressions.Aggregate(Expression.OrElse)!;
-        Expression<Func<T, bool>> predicateLambda = Expression.Lambda<Func<T, bool>>(predicateExpression, parameterExpression);
-        return predicateLambda;
-    }
-
-    public static Func<T, bool> ToPredicateFunc<TData, T>(this IEnumerable<TData> dataSource, Func<TData, Expression<Func<T, bool>>> predicateBuilder)
-    {
-        Expression<Func<T, bool>> predicateLambda = dataSource.ToPredicateLambda(predicateBuilder);
-        Func<T, bool> predicateFunc = predicateLambda.Compile();
-        return predicateFunc;
-    }
-    #endregion
 
     #region ToDictionary
     public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source)
@@ -466,26 +384,6 @@ public static class IEnumerableExtensions
             }
             position++;
         }
-    }
-    #endregion
-
-    #region TakeRandomly
-    public static IEnumerable<T> TakeRandomly<T>(this IEnumerable<T> source, int count)
-    {
-        Random random = new();
-        HashSet<int> indexes = random.NextSet(count, 0, source.Count() - 1);
-        IEnumerable<T> subset = source.Take(indexes);
-        return subset;
-    }
-
-    public static IEnumerable<T> TakeRandomly<T>(this IEnumerable<T> source)
-    {
-        Random random = new();
-        int length = source.Count();
-        int count = random.Next(0, length);
-        HashSet<int> indexes = random.NextSet(count, 0, length - 1);
-        IEnumerable<T> subset = source.Take(indexes);
-        return subset;
     }
     #endregion
 }

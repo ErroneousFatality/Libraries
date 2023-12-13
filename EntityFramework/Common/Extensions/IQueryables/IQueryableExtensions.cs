@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 
 using AndrejKrizan.DotNet.Collections;
+using AndrejKrizan.DotNet.Expressions;
 using AndrejKrizan.DotNet.PropertyNavigations;
 using AndrejKrizan.DotNet.Strings;
 using AndrejKrizan.DotNet.ValueObjects;
@@ -16,10 +17,10 @@ namespace AndrejKrizan.EntityFramework.Common.Extensions.IQueryables;
 public static class IQueryableExtensions
 {
     // Static properties
-    private static readonly MethodInfo StringStartsWithMethodInfo = typeof(string).GetMethod(nameof(string.StartsWith), new Type[] { typeof(string) })!;
-    private static readonly MethodInfo StringContainsMethodInfo = typeof(string).GetMethod(nameof(string.Contains), new Type[] { typeof(string) })!;
-    private static readonly MethodInfo StringEndsWithMethodInfo = typeof(string).GetMethod(nameof(string.EndsWith), new Type[] { typeof(string) })!;
-    private static readonly MethodInfo[] SupportedStringMethodInfos = new MethodInfo[] { StringStartsWithMethodInfo, StringContainsMethodInfo, StringEndsWithMethodInfo };
+    private static readonly MethodInfo StringStartsWithMethodInfo = typeof(string).GetMethod(nameof(string.StartsWith), [typeof(string)])!;
+    private static readonly MethodInfo StringContainsMethodInfo = typeof(string).GetMethod(nameof(string.Contains), [typeof(string)])!;
+    private static readonly MethodInfo StringEndsWithMethodInfo = typeof(string).GetMethod(nameof(string.EndsWith), [typeof(string)])!;
+    private static readonly MethodInfo[] SupportedStringMethodInfos = [StringStartsWithMethodInfo, StringContainsMethodInfo, StringEndsWithMethodInfo];
 
     // Methods
 
@@ -362,11 +363,11 @@ public static class IQueryableExtensions
     /// </exception>
     public static async Task<Page<TEntity>> ToPageAsync<TEntity>(this IQueryable<TEntity> query, uint pageSize, uint pageNumber, CancellationToken cancellationToken = default)
     {
-        if (pageSize < 1 || pageSize > int.MaxValue)
+        if (pageSize is < 1 or > int.MaxValue)
         {
             throw new ArgumentOutOfRangeException(nameof(pageSize), $"Page size must be a positive integer not larger than int.MaxValue ({int.MaxValue}).");
         }
-        if (pageNumber < 1 || pageNumber > int.MaxValue)
+        if (pageNumber is < 1 or > int.MaxValue)
         {
             throw new ArgumentOutOfRangeException(nameof(pageNumber), $"Page number must be a positive integer not larger than int.MaxValue ({int.MaxValue}).");
         }
