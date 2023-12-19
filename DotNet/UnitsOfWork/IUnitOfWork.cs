@@ -1,4 +1,4 @@
-﻿namespace AndrejKrizan.EntityFramework.Common.UnitsOfWork;
+﻿namespace AndrejKrizan.DotNet.UnitsOfWork;
 
 public interface IUnitOfWork
 {

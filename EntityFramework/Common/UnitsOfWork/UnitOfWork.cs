@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AndrejKrizan.DotNet.UnitsOfWork;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace AndrejKrizan.EntityFramework.Common.UnitsOfWork;
 
