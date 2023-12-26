@@ -26,8 +26,7 @@ public static class IQueryableExtensions
 
     #region ConditionalWhere
     public static IQueryable<TEntity> ConditionalWhere<TEntity>(this IQueryable<TEntity> query,
-        bool condition,
-        Expression<Func<TEntity, bool>> predicate
+        bool condition, Expression<Func<TEntity, bool>> predicate
     )
     {
         if (!condition)
@@ -38,8 +37,7 @@ public static class IQueryableExtensions
     }
 
     public static IQueryable<TEntity> ConditionalWhere<TEntity, T>(this IQueryable<TEntity> query,
-        T? nullable,
-        Func<T, Expression<Func<TEntity, bool>>> predicateBuilder
+        T? nullable, Func<T, Expression<Func<TEntity, bool>>> predicateBuilder
     )
         where T : struct
     {
@@ -52,12 +50,11 @@ public static class IQueryableExtensions
     }
 
     public static IQueryable<TEntity> ConditionalWhere<TEntity, T>(this IQueryable<TEntity> query,
-         T? nullable,
-         Func<T, Expression<Func<TEntity, bool>>> predicateBuilder
+         T? nullable, Func<T, Expression<Func<TEntity, bool>>> predicateBuilder
     )
          where T : class
     {
-        if (nullable is null)
+        if (nullable == null)
         {
             return query;
         }
@@ -66,11 +63,10 @@ public static class IQueryableExtensions
     }
 
     public static IQueryable<TEntity> ConditionalWhere<TEntity, T>(this IQueryable<TEntity> query,
-         IEnumerable<T> enumerable,
-         Func<IEnumerable<T>, Expression<Func<TEntity, bool>>> predicateBuilder
+         IEnumerable<T>? enumerable, Func<IEnumerable<T>, Expression<Func<TEntity, bool>>> predicateBuilder
     )
     {
-        if (!enumerable.Any())
+        if (enumerable == null || !enumerable.Any())
         {
             return query;
         }
