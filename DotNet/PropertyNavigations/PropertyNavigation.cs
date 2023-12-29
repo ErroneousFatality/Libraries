@@ -61,30 +61,32 @@ public class PropertyNavigation<T, TProperty> : IPropertyNavigation<T>
         while (propertyNavigationExpression is not ParameterExpression)
         {
             if (propertyNavigationExpression is not MemberExpression memberExpression ||
-                memberExpression.Member is not PropertyInfo propertyInfo ||
+                memberExpression.Member is not PropertyInfo _propertyInfo ||
                 memberExpression.Expression == null
             )
             {
                 throw new ArgumentException($"The expression ({expression}) is not a property navigation expression.", nameof(expression));
             }
-            propertyInfosStack.Push(propertyInfo);
+            propertyInfosStack.Push(_propertyInfo);
             propertyNavigationExpression = memberExpression.Expression;
         }
 
+        PropertyInfo propertyInfo;
         if (propertyInfosStack.Count < 1)
         {
             throw new ArgumentException($"The expression ({expression}) is not a property navigation expression.", nameof(expression));
         }
-        Info = propertyInfosStack.Pop();
-
-        propertyNavigationExpression = Expression.Property(parameter, Info);
-        while (propertyInfosStack.Count > 0)
+        do
         {
-            propertyNavigationExpression = Expression.Property(propertyNavigationExpression, propertyInfosStack.Pop());
-        }
+            propertyInfo = propertyInfosStack.Pop();
+            propertyNavigationExpression = Expression.Property(propertyNavigationExpression, propertyInfo);
+        } while (propertyInfosStack.Count > 0);
+        Info = propertyInfo;
+
         while (conversionTypes.Count > 0)
         {
-            propertyNavigationExpression = Expression.Convert(propertyNavigationExpression, conversionTypes.Pop());
+            Type conversionType = conversionTypes.Pop();
+            propertyNavigationExpression = Expression.Convert(propertyNavigationExpression, conversionType);
         }
         Lambda = Expression.Lambda<Func<T, TProperty>>(propertyNavigationExpression, parameter);
     }
@@ -93,13 +95,20 @@ public class PropertyNavigation<T, TProperty> : IPropertyNavigation<T>
     public static implicit operator PropertyNavigation<T, TProperty>(Expression<Func<T, TProperty>> lambda)
         => new(lambda);
 
+    public static implicit operator Expression<Func<T, TProperty>>(PropertyNavigation<T, TProperty> propertyNavigation)
+        => propertyNavigation.Lambda;
+
     // Methods
+    //public PropertyNavigation<T, TProperty> Append(PropertyNavigation<T, TProperty> propertyNavigation)
+    //{
+        
+    //}
+
     public PropertyNavigation<T, TProperty> ReplaceParameter(ParameterExpression parameter)
         => new(Lambda, parameter);
 
     public TProperty GetValue(T obj)
         => Func.Invoke(obj);
-
 
     public Expression CreateEqualsExpression(TProperty value)
         => Expression.Equal(Expression, Expression.Constant(value));
