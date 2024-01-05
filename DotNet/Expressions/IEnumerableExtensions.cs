@@ -12,15 +12,11 @@ public static class IEnumerableExtensions
         {
             return (item) => false;
         }
-        ParameterExpression parameterExpression = Expression.Parameter(typeof(T), typeof(T).Name.ToLowercasedFirstCharacterInvariant());
-
-        IEnumerable<Expression> predicateExpressions = dataSource.Select(data
-            => predicateBuilder(data)
-                .ReplaceParameters(parameterExpression)
-                .Body
-        );
-        Expression predicateExpression = predicateExpressions.Aggregate(Expression.OrElse)!;
-        Expression<Func<T, bool>> predicateLambda = Expression.Lambda<Func<T, bool>>(predicateExpression, parameterExpression);
+        ParameterExpression parameter = Expression.Parameter(typeof(T), typeof(T).Name.ToLowercasedFirstCharacterInvariant());
+        Expression predicateExpression = dataSource
+            .Select(data => predicateBuilder(data).ReplaceParameter(parameter).Body)
+            .Aggregate(Expression.OrElse)!;
+        Expression<Func<T, bool>> predicateLambda = Expression.Lambda<Func<T, bool>>(predicateExpression, parameter);
         return predicateLambda;
     }
 

@@ -1,6 +1,8 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 
+using AndrejKrizan.DotNet.Expressions;
+
 namespace AndrejKrizan.DotNet.PropertyNavigations;
 
 public class PropertyNavigation<T, TProperty> : IPropertyNavigation<T>
@@ -76,16 +78,17 @@ public class PropertyNavigation<T, TProperty> : IPropertyNavigation<T>
         {
             throw new ArgumentException($"The expression ({expression}) is not a property navigation expression.", nameof(expression));
         }
+
         do
         {
             propertyInfo = propertyInfosStack.Pop();
             propertyNavigationExpression = Expression.Property(propertyNavigationExpression, propertyInfo);
         } while (propertyInfosStack.Count > 0);
+
         Info = propertyInfo;
 
-        while (conversionTypes.Count > 0)
+        while (conversionTypes.TryPop(out Type? conversionType))
         {
-            Type conversionType = conversionTypes.Pop();
             propertyNavigationExpression = Expression.Convert(propertyNavigationExpression, conversionType);
         }
         Lambda = Expression.Lambda<Func<T, TProperty>>(propertyNavigationExpression, parameter);
@@ -105,7 +108,7 @@ public class PropertyNavigation<T, TProperty> : IPropertyNavigation<T>
     //}
 
     public PropertyNavigation<T, TProperty> ReplaceParameter(ParameterExpression parameter)
-        => new(Lambda, parameter);
+        => new(Lambda.ReplaceParameter(parameter), parameter);
 
     public TProperty GetValue(T obj)
         => Func.Invoke(obj);

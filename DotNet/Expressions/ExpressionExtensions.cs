@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Collections.ObjectModel;
+using System.Linq.Expressions;
 
 namespace AndrejKrizan.DotNet.Expressions;
 
@@ -25,26 +26,38 @@ public static class ExpressionExtensions
         => Expression.OrElse(left, right);
 
     #region ReplaceParameters
-    public static TLambda ReplaceParameters<TLambda>(this TLambda lambda, params ParameterExpression[] parameterExpressions)
+    public static TLambda ReplaceParameter<TLambda>(this TLambda source, Expression parameter)
         where TLambda : LambdaExpression
     {
-        if (parameterExpressions.Length > lambda.Parameters.Count)
+        ReadOnlyCollection<ParameterExpression> sourceParameters = source.Parameters;
+        if (sourceParameters.Count != 1)
         {
-            throw new ArgumentException("There are more parameter expressions than the lambda has parameters.", nameof(parameterExpressions));
+            throw new ArgumentException("The source lambda must have exactly one parameter.", nameof(source));
         }
-        Dictionary<ParameterExpression, Expression> dictionary = new(parameterExpressions.Length);
-        for (int i = 0; i < parameterExpressions.Length; i++)
+        ParameterExpression oldParameter = sourceParameters[0];
+        TLambda lambda = (TLambda)new ParameterReplacer(oldParameter, parameter).Visit(source);
+        return lambda;
+    }
+
+    public static TLambda ReplaceParameters<TLambda>(this TLambda source, params Expression[] parameters)
+        where TLambda : LambdaExpression
+    {
+        ReadOnlyCollection<ParameterExpression> sourceParameters = source.Parameters;
+        if (parameters.Length > sourceParameters.Count)
         {
-            dictionary.Add(lambda.Parameters[i], parameterExpressions[i]);
+            throw new ArgumentException("There are more provided parameters than the source lambda parameters.", nameof(parameters));
         }
-        lambda = (TLambda)new ParameterReplacer(dictionary).Visit(lambda);
+        Dictionary<ParameterExpression, Expression> parameterMappings = sourceParameters
+            .Zip(parameters, (_old, _new) => new KeyValuePair<ParameterExpression, Expression>(_old, _new))
+            .ToDictionary();
+        TLambda lambda = (TLambda)new ParameterReplacer(parameterMappings).Visit(source);
         return lambda;
     }
 
     public static Expression ReplaceParameter(this Expression source, ParameterExpression parameter, Expression expression)
         => new ParameterReplacer(parameter, expression).Visit(source);
 
-    public static Expression ReplaceParameter(this Expression source, IDictionary<ParameterExpression, Expression> mappings)
+    public static Expression ReplaceParameters(this Expression source, IDictionary<ParameterExpression, Expression> mappings)
         => new ParameterReplacer(mappings).Visit(source);
 
     private class ParameterReplacer : ExpressionVisitor

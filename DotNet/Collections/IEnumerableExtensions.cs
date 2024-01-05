@@ -347,16 +347,6 @@ public static class IEnumerableExtensions
         return matrix;
     }
 
-    #region ToDictionary
-    public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source)
-        where TKey : notnull
-        => new Dictionary<TKey, TValue>(source);
-
-    public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source, IEqualityComparer<TKey>? equalityComparer)
-        where TKey : notnull
-        => new Dictionary<TKey, TValue>(source, equalityComparer);
-    #endregion
-
     #region Take
     public static IEnumerable<T> Take<T>(this IEnumerable<T> source, IEnumerable<int> indexes)
         => source is IList<T> list
