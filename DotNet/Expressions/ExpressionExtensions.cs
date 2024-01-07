@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
 namespace AndrejKrizan.DotNet.Expressions;
 
@@ -32,15 +31,4 @@ public static class ExpressionExtensions
     public static Expression ReplaceParameters(this Expression source, IDictionary<ParameterExpression, Expression> mappings)
         => new ParameterReplacer(mappings).Visit(source);
     #endregion
-
-    public static Expression<Func<TSource, TResult>> Apply<TSource, TIntermediate, TResult>(
-        this Expression<Func<TSource, TIntermediate>> source,
-        Expression<Func<TIntermediate, TResult>> lambda
-    )
-    {
-        ParameterExpression parameter = source.Parameters[0];
-        Expression combinedBody = lambda.Body.ReplaceParameter(lambda.Parameters[0], source.Body);
-        Expression<Func<TSource, TResult>> combinedLambda = Expression.Lambda<Func<TSource, TResult>>(combinedBody, parameter);
-        return combinedLambda;
-    }
 }

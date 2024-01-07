@@ -9,8 +9,9 @@ public sealed class NavigationLambda
     public LambdaExpression Lambda { get; private init; }
 
     // Computed properties
-    public Expression Expression => Lambda.Body;
     public ParameterExpression Parameter => Lambda.Parameters[0];
+    public Expression Expression => Lambda.Body;
+    public Type ReturnType => Lambda.ReturnType;
 
     public Delegate Delegate => _delegate ??= Lambda.Compile();
     private Delegate? _delegate;
