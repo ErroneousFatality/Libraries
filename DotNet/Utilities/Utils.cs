@@ -24,7 +24,7 @@ public static partial class Utils
 
     #region GetFromStaticProperty
     public static T? GetFromStaticProperty<TObject, T>(PropertyNavigation<TObject, T> navigation)
-    => (T?)navigation.Info.GetValue(null);
+        => (T?)navigation.Info.GetValue(null);
 
     public static T? GetFromStaticProperty<TObject, T>(Expression<Func<TObject, T>> selector)
         => GetFromStaticProperty(new PropertyNavigation<TObject, T>(selector));

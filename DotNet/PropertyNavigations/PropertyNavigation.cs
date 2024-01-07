@@ -5,7 +5,7 @@ using AndrejKrizan.DotNet.Expressions;
 
 namespace AndrejKrizan.DotNet.PropertyNavigations;
 
-public class PropertyNavigation<T, TProperty> : IPropertyNavigation<T>
+public sealed class PropertyNavigation<T, TProperty> : IPropertyNavigation<T>
 {
     // Properties
     public PropertyInfo Info { get; }
@@ -102,10 +102,6 @@ public class PropertyNavigation<T, TProperty> : IPropertyNavigation<T>
         => propertyNavigation.Lambda;
 
     // Methods
-    //public PropertyNavigation<T, TProperty> Append(PropertyNavigation<T, TProperty> propertyNavigation)
-    //{
-        
-    //}
 
     public PropertyNavigation<T, TProperty> ReplaceParameter(ParameterExpression parameter)
         => new(Lambda.ReplaceParameter(parameter), parameter);
@@ -135,9 +131,12 @@ public class PropertyNavigation<T, TProperty> : IPropertyNavigation<T>
     IPropertyNavigation<T> IPropertyNavigation<T>.ReplaceParameter(ParameterExpression parameter) => ReplaceParameter(parameter);
     object? IPropertyNavigation<T>.GetValue(T obj) => GetValue(obj);
     Expression IPropertyNavigation<T>.CreateEqualsExpression(object? value)
-        => CreateEqualsExpression(
-            value is TProperty propertyValue 
-                ? propertyValue
-                : throw new ArgumentException($"The value must be of {typeof(TProperty).Name} type.", nameof(value))
-        );
+    {
+        if (value is not TProperty _value)
+        {
+            throw new ArgumentException($"The value must be of {typeof(TProperty).Name} type.", nameof(value));
+        }
+        Expression equals = CreateEqualsExpression(_value);
+        return equals;
+    } 
 }

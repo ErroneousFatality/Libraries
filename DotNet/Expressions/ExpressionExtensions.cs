@@ -25,66 +25,12 @@ public static class ExpressionExtensions
     public static BinaryExpression OrElse(this Expression left, Expression right)
         => Expression.OrElse(left, right);
 
-    #region ReplaceParameters
-    public static TLambda ReplaceParameter<TLambda>(this TLambda source, Expression parameter)
-        where TLambda : LambdaExpression
-    {
-        ReadOnlyCollection<ParameterExpression> sourceParameters = source.Parameters;
-        if (sourceParameters.Count != 1)
-        {
-            throw new ArgumentException("The source lambda must have exactly one parameter.", nameof(source));
-        }
-        ParameterExpression oldParameter = sourceParameters[0];
-        TLambda lambda = (TLambda)new ParameterReplacer(oldParameter, parameter).Visit(source);
-        return lambda;
-    }
-
-    public static TLambda ReplaceParameters<TLambda>(this TLambda source, params Expression[] parameters)
-        where TLambda : LambdaExpression
-    {
-        ReadOnlyCollection<ParameterExpression> sourceParameters = source.Parameters;
-        if (parameters.Length > sourceParameters.Count)
-        {
-            throw new ArgumentException("There are more provided parameters than the source lambda parameters.", nameof(parameters));
-        }
-        Dictionary<ParameterExpression, Expression> parameterMappings = sourceParameters
-            .Zip(parameters, (_old, _new) => new KeyValuePair<ParameterExpression, Expression>(_old, _new))
-            .ToDictionary();
-        TLambda lambda = (TLambda)new ParameterReplacer(parameterMappings).Visit(source);
-        return lambda;
-    }
-
+    #region Parameter replacement
     public static Expression ReplaceParameter(this Expression source, ParameterExpression parameter, Expression expression)
         => new ParameterReplacer(parameter, expression).Visit(source);
 
     public static Expression ReplaceParameters(this Expression source, IDictionary<ParameterExpression, Expression> mappings)
         => new ParameterReplacer(mappings).Visit(source);
-
-    private class ParameterReplacer : ExpressionVisitor
-    {
-        // Properties
-        private IDictionary<ParameterExpression, Expression> Dictionary { get; }
-
-        // Constructors
-        public ParameterReplacer(ParameterExpression parameter, Expression expression)
-        {
-            Dictionary = new Dictionary<ParameterExpression, Expression>
-            {
-                [parameter] = expression
-            };
-        }
-
-        public ParameterReplacer(IDictionary<ParameterExpression, Expression> dictionary)
-        {
-            Dictionary = dictionary;
-        }
-
-        // Methods
-        protected override Expression VisitParameter(ParameterExpression parameter)
-            => Dictionary.TryGetValue(parameter, out Expression? expression)
-                ? expression
-                : parameter;
-    }
     #endregion
 
     public static Expression<Func<TSource, TResult>> Apply<TSource, TIntermediate, TResult>(
