@@ -62,7 +62,7 @@ public class HdfAttribute<T> : HdfAttribute
     }
 
     public void Write<TRow>(IEnumerable<TRow> matrix)
-        where TRow: IEnumerable<T>
+        where TRow : IEnumerable<T>
     {
         DataSpace.Validate<T, TRow>(matrix: matrix);
         using (Pointable pointableMatrix = Type.CreatePointable(matrix))

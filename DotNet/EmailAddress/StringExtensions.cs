@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Mail;
 
+using AndrejKrizan.DotNet.Constraints;
+
 namespace AndrejKrizan.DotNet.EmailAddress;
 
 public static class StringExtensions

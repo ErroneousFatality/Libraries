@@ -3,11 +3,11 @@ using System.Linq.Expressions;
 using System.Reflection;
 
 using AndrejKrizan.DotNet.Collections;
-using AndrejKrizan.DotNet.CompositeKeys.PropertyBindings;
+using AndrejKrizan.DotNet.Lambdas.Properties;
 
 namespace AndrejKrizan.DotNet.CompositeKeys;
 public interface ICompositeKey<TEntity, TSelf>
-    where TEntity: class
+    where TEntity : notnull
     where TSelf : ICompositeKey<TEntity, TSelf>
 {
     // Static properties
@@ -19,50 +19,60 @@ public interface ICompositeKey<TEntity, TSelf>
     static abstract Expression<Func<TEntity, TSelf>> Selector { get; }
 
     // Static fields
-    static readonly ParameterExpression EntityParameter;
-    static readonly ParameterExpression KeyParameter;
-    static readonly ImmutableArray<IKeyPropertyBinding<TEntity, TSelf>> PropertyBindings;
+    private static readonly ImmutableArray<PropertyBinding> PropertyBindings;
 
     // Static constructor
     static ICompositeKey()
     {
-        const string errorMessage = $"The {nameof(TSelf.Selector)} expression must use an object initializer. For example: entity => new EntityKey {{ A = entity.A, B = entity.B}}";
-        if (TSelf.Selector.Body is not MemberInitExpression initialization)
+        const string errorMessage = "The selector expression must use an object initializer. For example: entity => new EntityKey {{ A = entity.A, B = entity.B }}.";
+        Expression<Func<TEntity, TSelf>> selector = TSelf.Selector;
+        if (selector.Body is not MemberInitExpression initialization)
         {
             throw new Exception(errorMessage);
         }
-        EntityParameter = TSelf.Selector.Parameters[0];
-        KeyParameter = Expression.Parameter(typeof(TSelf), "key");
+        ParameterExpression entity = selector.Parameters[0];
+        ParameterExpression key = Expression.Parameter(typeof(TSelf), "key");
         PropertyBindings = initialization.Bindings.Convert((MemberBinding memberBinding) =>
         {
-            if (memberBinding is not MemberAssignment assignment || assignment.Member is not PropertyInfo keyPropertyInfo)
+            if (
+                memberBinding is not MemberAssignment propertyAssignment ||
+                propertyAssignment.Member is not PropertyInfo property
+            )
             {
                 throw new Exception(errorMessage);
             }
-            return CreateKeyPropertyBinding(assignment.Expression, keyPropertyInfo);
+            PropertyLambda entityProperty = new(Expression.Lambda(propertyAssignment.Expression, entity));
+            PropertyLambda keyProperty = new(Expression.Lambda(Expression.Property(key, property), key));
+            PropertyBinding propertyBinding = new(entityProperty, keyProperty);
+            return propertyBinding;
         });
+        if (PropertyBindings.Length < 1)
+            throw new Exception("The selector expression must have at least one property assignment.");
     }
 
+    // Static methods
+    static string[] GetEntityPropertyNames()
+        => PropertyBindings.Select(binding => binding.EntityProperty.PropertyInfo.Name).ToArray();
+
     // Methods
-    public Expression<Func<TEntity, bool>> ToEntityHasKeyLambda()
+    object?[] GetValues()
+        => PropertyBindings.Select(binding => binding.KeyProperty.GetValue((TSelf)this)).ToArray();
+
+
+    Expression<Func<TEntity, bool>> ToEntityPredicate()
         => Expression.Lambda<Func<TEntity, bool>>(
             PropertyBindings
-                .Select(binding => binding.ToEqualsExpression((TSelf)this))
+                .Select(binding => binding.ToEntityPropertyEqualsKeyValueExpression((TSelf)this))
                 .Aggregate(Expression.AndAlso),
-            EntityParameter
+            PropertyBindings[0].EntityProperty.Parameter
         );
 
-    // Private static methods
-    /// <remarks>
-    /// Calls the <see cref="KeyPropertyBinding{TEntity, TKey, TProperty}.KeyPropertyBinding(ParameterExpression, Expression, ParameterExpression, PropertyInfo)"/> constructor using reflection.
-    /// </remarks>
-    private static IKeyPropertyBinding<TEntity, TSelf> CreateKeyPropertyBinding(Expression entityPropertyExpression, PropertyInfo keyPropertyInfo)
+    void InjectValuesInto(TEntity entity)
     {
-        Type bindingType = typeof(KeyPropertyBinding<,,>).MakeGenericType(typeof(TEntity), typeof(TSelf), keyPropertyInfo.PropertyType);
-        IKeyPropertyBinding<TEntity, TSelf> propertyBinding = (IKeyPropertyBinding<TEntity, TSelf>)Activator.CreateInstance(bindingType,
-            EntityParameter, entityPropertyExpression,
-            KeyParameter, keyPropertyInfo
-        )!;
-        return propertyBinding;
+        foreach (PropertyBinding propertyBinding in PropertyBindings)
+        {
+            object? value = propertyBinding.KeyProperty.PropertyInfo.GetValue((TSelf)this);
+            propertyBinding.EntityProperty.SetValue(entity, value);
+        }
     }
 }

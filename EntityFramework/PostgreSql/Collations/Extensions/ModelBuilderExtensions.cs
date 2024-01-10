@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AndrejKrizan.EntityFramework.PostgreSql.Collations;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace AndrejKrizan.EntityFramework.PostgreSql.Collations;
 

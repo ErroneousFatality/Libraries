@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-using AndrejKrizan.EntityFramework.Common.Extensions.IQueryables;
+using AndrejKrizan.EntityFramework.Common.Queries;
 
 using Microsoft.EntityFrameworkCore;
 

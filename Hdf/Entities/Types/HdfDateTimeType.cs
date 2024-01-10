@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+
 using AndrejKrizan.DotNet.Pointables;
 
 namespace AndrejKrizan.Hdf.Entities.Types;

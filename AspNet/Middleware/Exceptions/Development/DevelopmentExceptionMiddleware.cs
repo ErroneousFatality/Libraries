@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Net.Mime;
 
-using AndrejKrizan.DotNet.Collections;
 using AndrejKrizan.DotNet.Streams;
 using AndrejKrizan.DotNet.Strings;
 
@@ -74,7 +73,7 @@ public class DevelopmentExceptionMiddleware
     }
 
     private static bool IsContentHumanReadable(string? contentType)
-        => !string.IsNullOrWhiteSpace(contentType) 
+        => !string.IsNullOrWhiteSpace(contentType)
         && contentType.ContainsAny(StringComparison.InvariantCultureIgnoreCase,
             MediaTypeNames.Text.Plain,
             MediaTypeNames.Text.RichText,

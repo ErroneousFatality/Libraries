@@ -1,7 +1,8 @@
-﻿using AndrejKrizan.DotNet.Collections;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+﻿using System.Collections.Immutable;
 
-using System.Collections.Immutable;
+using AndrejKrizan.DotNet.Collections;
+
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace AndrejKrizan.EntityFramework.Common.Comparers;
 

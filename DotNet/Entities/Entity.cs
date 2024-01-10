@@ -1,5 +1,6 @@
 ﻿namespace AndrejKrizan.DotNet.Entities;
 public abstract class Entity<TId>
+    where TId : notnull
 {
     // Properties
     public TId Id { get; init; }

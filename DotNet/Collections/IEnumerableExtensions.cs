@@ -5,7 +5,7 @@ namespace AndrejKrizan.DotNet.Collections;
 public static class IEnumerableExtensions
 {
     /// <param name="positivesInitialCapacity">If null, will try to use the <paramref name="source"/>'s non enumerated count.</param>
-    public static (ImmutableArray<T> Positives, ImmutableArray<T> Negatives) SplitToImmutableArrays<T>(this IEnumerable<T> source,
+    public static (ImmutableArray<T> Positives, ImmutableArray<T> Negatives) Separate<T>(this IEnumerable<T> source,
         Func<T, bool> predicate,
         int? positivesInitialCapacity = null,
         int? negativesInitialCapacity = null
@@ -47,7 +47,7 @@ public static class IEnumerableExtensions
         int? invalidsInitialCapcity = null
     )
     {
-        (ImmutableArray<T> positives, ImmutableArray<T> negatives) = source.SplitToImmutableArrays(predicate, validsInitialCapcity, invalidsInitialCapcity);
+        (ImmutableArray<T> positives, ImmutableArray<T> negatives) = source.Separate(predicate, validsInitialCapcity, invalidsInitialCapcity);
         if (negatives.Length > 0)
         {
             onInvalid(negatives);

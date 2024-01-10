@@ -44,7 +44,7 @@ public abstract class HdfContainer : HdfAttributableObject
         => CreateDataset(pathName, collection, dispose: true, attributes);
 
     public HdfDataset<DateTime> CreateDateTimeDataset<TRow>(string pathName, IEnumerable<TRow> matrix, bool dispose = true, params HdfAttributeDto[] attributes)
-        where TRow: IEnumerable<DateTime>
+        where TRow : IEnumerable<DateTime>
         => CreateDataset(
             pathName,
             CreateDateTimeConstructor(attributes),
@@ -85,7 +85,7 @@ public abstract class HdfContainer : HdfAttributableObject
         => CreateDataset(pathName, collection, dispose: true, attributes);
 
     public HdfDataset<string> CreateStringDataset<TRow>(string pathName, IEnumerable<TRow> matrix, bool dispose = true, params HdfAttributeDto[] attributes)
-        where TRow: IEnumerable<string>
+        where TRow : IEnumerable<string>
         => CreateDataset(
             pathName,
             CreateStringConstructor(attributes),
@@ -133,7 +133,7 @@ public abstract class HdfContainer : HdfAttributableObject
 
     public HdfDataset<T> CreateDataset<T, TRow>(string pathName, IEnumerable<TRow> matrix, bool dispose = true, params HdfAttributeDto[] attributes)
         where T : notnull
-        where TRow: IEnumerable<T>
+        where TRow : IEnumerable<T>
         => CreateDataset(
             pathName,
             CreateGenericConstructor<T>(attributes),

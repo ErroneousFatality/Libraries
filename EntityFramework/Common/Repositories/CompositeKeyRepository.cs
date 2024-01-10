@@ -1,9 +1,8 @@
 ﻿using System.Collections.Immutable;
 
 using AndrejKrizan.DotNet.CompositeKeys;
-using AndrejKrizan.DotNet.CompositeKeys.PropertyBindings;
 using AndrejKrizan.DotNet.Utilities;
-using AndrejKrizan.EntityFramework.Common.Extensions.IQueryables;
+using AndrejKrizan.EntityFramework.Common.Queries;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -20,11 +19,11 @@ public abstract class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity
     // Methods
 
     public async Task<bool> ExistsAsync(TKey key, CancellationToken cancellationToken = default)
-        => await DbSet.AnyAsync(key.ToEntityHasKeyLambda(), cancellationToken);
+        => await DbSet.AnyAsync(key.ToEntityPredicate(), cancellationToken);
 
     public async Task<TEntity?> GetAsync(TKey key, CancellationToken cancellationToken = default)
     {
-        object?[] keyValues = ICompositeKey<TEntity, TKey>.PropertyBindings.Select(binding => binding.KeyNavigation.GetValue(key)).ToArray();
+        object?[] keyValues = key.GetValues();
         TEntity? entity = await DbSet.FindAsync(keyValues, cancellationToken);
         return entity;
     }
@@ -32,22 +31,24 @@ public abstract class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity
 
     public async Task<ImmutableArray<TEntity>> GetManyAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
     => await DbSet
-            .WhereAny(keys, key => key.ToEntityHasKeyLambda())
+            .WhereAny(keys, key => key.ToEntityPredicate())
             .ToImmutableArrayAsync(cancellationToken);
 
     public async Task<ImmutableArray<TEntity>> GetManyAsync(IEnumerable<TKey> keys, int chunkSize, CancellationToken cancellationToken = default)
-        => await DbSet.WhereAnyAsync(keys, chunkSize, key => key.ToEntityHasKeyLambda(), cancellationToken);
+        => await DbSet.WhereAnyAsync(keys, chunkSize, key => key.ToEntityPredicate(), cancellationToken);
 
 
     public async Task<ImmutableArray<TKey>> GetKeysAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
         => await DbSet
-            .WhereAny(keys, key => key.ToEntityHasKeyLambda())
+            .WhereAny(keys, key => key.ToEntityPredicate())
             .Select(TKey.Selector)
             .ToImmutableArrayAsync(cancellationToken);
 
+
+
     public async Task<ImmutableArray<TKey>> GetKeysAsync(IEnumerable<TKey> keys, int chunkSize, CancellationToken cancellationToken = default)
         => await DbSet.WhereAnyAsync(keys, chunkSize,
-                key => key.ToEntityHasKeyLambda(),
+                key => key.ToEntityPredicate(),
                 query => query.Select(TKey.Selector),
                 cancellationToken
             );
@@ -84,10 +85,7 @@ public abstract class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity
     protected TEntity MockEntity(TKey key)
     {
         TEntity entity = Utils.CreateDefaultInstance<TEntity>();
-        foreach (IKeyPropertyBinding<TEntity, TKey> keyProperty in ICompositeKey<TEntity, TKey>.PropertyBindings)
-        {
-            keyProperty.SetValue(entity, key);
-        }
+        key.InjectValuesInto(entity);
         DbSet.Attach(entity);
         return entity;
     }

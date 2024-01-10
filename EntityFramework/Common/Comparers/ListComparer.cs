@@ -1,4 +1,5 @@
 ﻿using AndrejKrizan.DotNet.Collections;
+
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace AndrejKrizan.EntityFramework.Common.Comparers;

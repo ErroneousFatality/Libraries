@@ -1,4 +1,5 @@
 ﻿using System.Text;
+
 using AndrejKrizan.DotNet.Pointables;
 using AndrejKrizan.Hdf.Entities.Objects;
 using AndrejKrizan.Hdf.Extensions;
@@ -31,7 +32,7 @@ public class HdfStringType : HdfObject, IHdfType<string>
     }
 
     public Pointable CreatePointable<TRow>(IEnumerable<TRow> matrix)
-        where TRow: IEnumerable<string>
+        where TRow : IEnumerable<string>
     {
         IEnumerable<Pointable> pointableArrays = matrix.Select(row => CreatePointable(row));
         PointableArray pointableMatrix = new(pointableArrays);

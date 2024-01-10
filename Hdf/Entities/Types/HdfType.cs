@@ -29,8 +29,8 @@ public class HdfType<T> : HdfObject, IHdfType<T>
         return pointable;
     }
 
-    public Pointable CreatePointable<TRow>(IEnumerable<TRow> matrix) 
-        where TRow: IEnumerable<T>
+    public Pointable CreatePointable<TRow>(IEnumerable<TRow> matrix)
+        where TRow : IEnumerable<T>
     {
         byte[] bytes = matrix.SelectMany(row => row.SelectMany(ConvertToBytes)).ToArray();
         Pointable pointable = new(bytes);
@@ -71,7 +71,7 @@ public class HdfType<T> : HdfObject, IHdfType<T>
         => value switch
         {
             bool _value => BitConverter.GetBytes(_value),
-            byte _value => new byte[] { _value },
+            byte _value => [_value],
             short _value => BitConverter.GetBytes(_value),
             ushort _value => BitConverter.GetBytes(_value),
             int _value => BitConverter.GetBytes(_value),

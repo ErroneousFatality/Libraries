@@ -18,7 +18,7 @@ public sealed class Mapping<TLeft, TRight>
         Left = left;
         Right = right;
     }
-    
+
     // Conversions
     public static implicit operator Mapping<TLeft, TRight>((TLeft Left, TRight Right) pair)
         => new(pair.Left, pair.Right);

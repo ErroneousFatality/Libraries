@@ -74,8 +74,8 @@ public static class IDistributedCacheExtensions
         return value;
     }
 
-    public static async Task<T> GetOrSetAsync<T>(this IDistributedCache cache, 
-        string key, Func<CancellationToken, Task<(T Value, DistributedCacheEntryOptions Options)>> createAsync, 
+    public static async Task<T> GetOrSetAsync<T>(this IDistributedCache cache,
+        string key, Func<CancellationToken, Task<(T Value, DistributedCacheEntryOptions Options)>> createAsync,
         CancellationToken cancellationToken = default
     )
         where T : struct
@@ -121,8 +121,8 @@ public static class IDistributedCacheExtensions
         return value;
     }
 
-    public static async Task<string> GetOrSetAsync(this IDistributedCache cache, 
-        string key, Func<CancellationToken, Task<(string Value, DistributedCacheEntryOptions Options)>> createAsync, 
+    public static async Task<string> GetOrSetAsync(this IDistributedCache cache,
+        string key, Func<CancellationToken, Task<(string Value, DistributedCacheEntryOptions Options)>> createAsync,
         CancellationToken cancellationToken = default
     )
     {

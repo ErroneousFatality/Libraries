@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Mime;
 
-using AndrejKrizan.DotNet.Exceptions;
+using AndrejKrizan.DotNet.Identities;
 
 using Microsoft.AspNetCore.Http;
 

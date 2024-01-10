@@ -1,4 +1,6 @@
-﻿namespace AndrejKrizan.DotNet.Strings;
+﻿using System.Collections.Immutable;
+
+namespace AndrejKrizan.DotNet.Strings;
 
 public static class StringExtensions
 {
@@ -10,40 +12,137 @@ public static class StringExtensions
         });
 
     #region SplitToEnumerable
-    public static IEnumerable<string> SplitToEnumerable(this string str, char separator, StringSplitOptions options = StringSplitOptions.None)
+    public static IEnumerable<string> SplitToEnumerable(this string text,
+        char separator,
+        StringSplitOptions options = StringSplitOptions.None
+    )
     {
-        for (int startIndex = 0, finishIndex; startIndex < str.Length; startIndex = finishIndex + 1)
+        bool trim = options.HasFlag(StringSplitOptions.TrimEntries);
+        bool ignoreEmpty = options.HasFlag(StringSplitOptions.RemoveEmptyEntries);
+        for (int start = 0, end; start < text.Length; start = end + 1)
         {
-            finishIndex = str.IndexOf(separator, startIndex);
-            if (finishIndex == -1)
-                finishIndex = str.Length;
-            string substring = str[startIndex..finishIndex];
-            if (options.HasFlag(StringSplitOptions.TrimEntries))
+            end = text.IndexOf(separator, start);
+            if (end == -1)
+            {
+                end = text.Length;
+            }
+            string substring = text[start..end];
+            if (trim)
+            {
                 substring = substring.Trim();
-            if (options.HasFlag(StringSplitOptions.RemoveEmptyEntries) && substring.Length == 0)
+            }
+            if (ignoreEmpty && substring.Length == 0)
+            {
                 continue;
+            }
             yield return substring;
         }
     }
 
-    public static IEnumerable<string> SplitToEnumerable(this string str, string separator,
-        StringComparison comparison = StringComparison.CurrentCulture,
-        StringSplitOptions options = StringSplitOptions.None
+    public static IEnumerable<string> SplitToEnumerable(this string text, string separator,
+        StringSplitOptions options = StringSplitOptions.None,
+        StringComparison comparison = StringComparison.CurrentCulture
     )
     {
-        for (int startIndex = 0, finishIndex; startIndex < str.Length; startIndex = finishIndex + 1)
+        bool trim = options.HasFlag(StringSplitOptions.TrimEntries);
+        bool ignoreEmpty = options.HasFlag(StringSplitOptions.RemoveEmptyEntries);
+        for (int start = 0, end; start < text.Length; start = end + 1)
         {
-            finishIndex = str.IndexOf(separator, startIndex, comparison);
-            if (finishIndex == -1)
-                finishIndex = str.Length;
-            string substring = str[startIndex..finishIndex];
-            if (options.HasFlag(StringSplitOptions.TrimEntries))
+            end = text.IndexOf(separator, start, comparison);
+            if (end == -1)
+            {
+                end = text.Length;
+            }
+            string substring = text[start..end];
+            if (trim)
+            {
                 substring = substring.Trim();
-            if (options.HasFlag(StringSplitOptions.RemoveEmptyEntries) && substring.Length == 0)
+            }
+            if (ignoreEmpty && substring.Length == 0)
+            {
                 continue;
+            }
             yield return substring;
         }
     }
+    #endregion
+
+    #region SplitToPhrases
+
+    public static IEnumerable<string> SplitToPhraseEnumerable(this string text,
+        char wordSeparator = ' ',
+        char phraseSeparator = '"',
+        StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
+    )
+    {
+        if (wordSeparator == phraseSeparator)
+        {
+            throw new ArgumentException("The word and phrase separators can not be the same.");
+        }
+
+        bool trim = options.HasFlag(StringSplitOptions.TrimEntries);
+        bool ignoreEmpty = options.HasFlag(StringSplitOptions.RemoveEmptyEntries);
+
+        FindPhraseBoundaries(text, phraseSeparator, 0, out int phraseStart, out int phraseEnd);
+        for (int index = 0; index < text.Length;)
+        {
+            string phrase;
+            if (index == phraseStart)
+            {
+                phrase = text[(phraseStart + 1)..phraseEnd];
+                index = phraseEnd + 1;
+                FindPhraseBoundaries(text, phraseSeparator, index, out phraseStart, out phraseEnd);
+            }
+            else
+            {
+                int wordBoundary = text.IndexOf(wordSeparator, index);
+                if (wordBoundary == -1)
+                {
+                    wordBoundary = text.Length;
+                }
+                int wordEnd = Math.Min(wordBoundary, phraseStart);
+                phrase = text[index..wordEnd];
+                index = wordEnd + (wordEnd == wordBoundary ? 1 : 0);
+            }
+            if (trim)
+            {
+                phrase = phrase.Trim();
+            }
+            if (ignoreEmpty && phrase.Length == 0)
+            {
+                continue;
+            }
+            yield return phrase;
+        }
+    }
+
+    public static ImmutableArray<string> SplitToPhrases(this string text,
+        char wordSeparator = ' ',
+        char phraseSeparator = '"',
+        StringSplitOptions options = StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
+    )
+        => text.SplitToPhraseEnumerable(wordSeparator, phraseSeparator, options).ToImmutableArray();
+
+    // Private methods
+    private static void FindPhraseBoundaries(string text, char phraseSeparator, int startIndex, out int phraseStart, out int phraseEnd)
+    {
+        phraseStart = text.IndexOf(phraseSeparator, startIndex);
+        if (phraseStart == -1)
+        {
+            phraseStart = text.Length;
+            phraseEnd = text.Length;
+        }
+        else
+        {
+            phraseEnd = text.IndexOf(phraseSeparator, phraseStart + 1);
+            if (phraseEnd == -1)
+            {
+                phraseStart = text.Length;
+                phraseEnd = text.Length;
+            }
+        }
+    }
+
     #endregion
 
     public static string? Quote(this string? str)

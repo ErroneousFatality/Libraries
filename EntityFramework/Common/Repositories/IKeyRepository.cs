@@ -14,7 +14,7 @@ public interface IKeyRepository<TEntity, TKey>
     /// <returns>whether key was found in the database before being deleted</returns>
     Task<bool> TryDeleteAsync(TKey key, CancellationToken cancellationToken = default);
 
-    
+
     void DeleteMany(IEnumerable<TKey> keys);
     void DeleteMany(params TKey[] keys);
 }

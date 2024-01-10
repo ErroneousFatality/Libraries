@@ -7,3 +7,5 @@
 * [AspNet](https://github.com/ErroneousFatality/Libraries/tree/main/AspNet) [![latest version](https://img.shields.io/nuget/v/AndrejKrizan.AspNet)](https://www.nuget.org/packages/AndrejKrizan.AspNet)
 * [PhoneNumbers](https://github.com/ErroneousFatality/Libraries/tree/main/PhoneNumbers) [![latest version](https://img.shields.io/nuget/v/AndrejKrizan.PhoneNumbers)](https://www.nuget.org/packages/AndrejKrizan.PhoneNumbers)
 * [Hdf](https://github.com/ErroneousFatality/Libraries/tree/main/Hdf) [![latest version](https://img.shields.io/nuget/v/AndrejKrizan.Hdf)](https://www.nuget.org/packages/AndrejKrizan.Hdf)
+* [SqlClient](https://github.com/ErroneousFatality/Libraries/tree/main/SqlClient) [![latest version](https://img.shields.io/nuget/v/AndrejKrizan.SqlClient)](https://www.nuget.org/packages/AndrejKrizan.SqlClient)
+* [ElasticSearch](https://github.com/ErroneousFatality/Libraries/tree/main/ElasticSearch) [![latest version](https://img.shields.io/nuget/v/AndrejKrizan.ElasticSearch)](https://www.nuget.org/packages/AndrejKrizan.ElasticSearch)

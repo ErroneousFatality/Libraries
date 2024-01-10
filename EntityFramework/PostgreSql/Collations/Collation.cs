@@ -1,15 +1,20 @@
-﻿namespace AndrejKrizan.EntityFramework.PostgreSql.Collations;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace AndrejKrizan.EntityFramework.PostgreSql.Collations;
 
 public class Collation
 {
-    // Fields
-    public readonly string Name;
-    public readonly string Locale;
-    public readonly string Provider;
-    public readonly bool Deterministic;
+    // Properties
+    public required string Name { get; init; }
+    public required string Locale { get; init; }
+    public string? Provider { get; init; }
+    public bool Deterministic { get; }
 
     // Constructors
-    public Collation(string name, string locale, string provider, bool deterministic = false)
+    public Collation() { }
+
+    [SetsRequiredMembers]
+    public Collation(string name, string locale, string? provider = null, bool deterministic = false)
     {
         Name = name;
         Locale = locale;

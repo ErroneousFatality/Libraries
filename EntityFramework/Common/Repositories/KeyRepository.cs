@@ -1,17 +1,24 @@
 ﻿using System.Collections.Immutable;
 using System.Linq.Expressions;
 using System.Reflection;
-using AndrejKrizan.DotNet.PropertyNavigations;
+
+using AndrejKrizan.DotNet.Lambdas.Properties;
 using AndrejKrizan.DotNet.Utilities;
-using AndrejKrizan.EntityFramework.Common.Extensions.IQueryables;
+using AndrejKrizan.EntityFramework.Common.Queries;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace AndrejKrizan.EntityFramework.Common.Repositories;
 
-public abstract class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRepository<TEntity, TKey> 
+public abstract class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRepository<TEntity, TKey>
     where TEntity : class
 {
+    // Protected properties
+    protected abstract Expression<Func<TEntity, TKey>> KeySelector { get; }
+
+    protected PropertyLambda<TEntity, TKey> KeyProperty => _keyProperty ??= new PropertyLambda<TEntity, TKey>(KeySelector);
+    private static PropertyLambda<TEntity, TKey>? _keyProperty;
+
     // Constructors
     public KeyRepository(DbContext dbContext)
         : base(dbContext) { }
@@ -19,50 +26,60 @@ public abstract class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRe
     // Methods
 
     public async Task<bool> ExistsAsync(TKey key, CancellationToken cancellationToken = default)
-        => await DbSet.AnyAsync(KeyNavigation.CreateEqualsLambda(key), cancellationToken);
+        => await DbSet.AnyAsync(KeyProperty.ToEqualsLambda<TEntity>(key), cancellationToken);
+
 
     public async Task<TEntity?> GetAsync(TKey key, CancellationToken cancellationToken = default)
-        => await DbSet.FindAsync(new object?[] { key }, cancellationToken);
+        => await DbSet.FindAsync([key], cancellationToken);
 
     public async Task<ImmutableArray<TEntity>> GetManyAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
     {
         if (!keys.Any())
         {
-            return ImmutableArray<TEntity>.Empty;
+            return [];
         }
 
-        MethodCallExpression keysContain;
+        MethodCallExpression _keysContainKey;
         if (keys is ImmutableArray<TKey> _keys)
         {
-            MethodInfo containsMethodInfo = typeof(ImmutableArray<TKey>)
+            MethodInfo contains = typeof(ImmutableArray<TKey>)
                 .GetMethods(BindingFlags.Public | BindingFlags.Instance)
                 .Single(method
                     => method.Name == nameof(ImmutableArray<TKey>.Contains)
                     && method.GetParameters().Length == 1
                 );
-            keysContain = Expression.Call(instance: Expression.Constant(_keys), method: containsMethodInfo, KeyNavigation.Expression);
+            _keysContainKey = Expression.Call(
+                instance: Expression.Constant(_keys),
+                method: contains,
+                arguments: [KeyProperty.Expression]
+            );
         }
         else
         {
-            MethodInfo containsMethodInfo = typeof(Enumerable)
+            MethodInfo contains = typeof(Enumerable)
                 .GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Single(method
                     => method.Name == nameof(Enumerable.Contains)
                     && method.GetParameters().Length == 2
                 )
                 .MakeGenericMethod(typeof(TKey));
-            keysContain = Expression.Call(instance: null, method: containsMethodInfo, Expression.Constant(keys), KeyNavigation.Expression);
+            _keysContainKey = Expression.Call(
+                instance: null,
+                method: contains,
+                arguments: [Expression.Constant(keys), KeyProperty.Expression]
+            );
         }
-        Expression<Func<TEntity, bool>> keysContainEntityKeyLambda = Expression.Lambda<Func<TEntity, bool>>(keysContain, EntityParameter);
+        Expression<Func<TEntity, bool>> keysContainKey = Expression.Lambda<Func<TEntity, bool>>(_keysContainKey, KeyProperty.Parameter);
+
         ImmutableArray<TEntity> entities = await DbSet
-            .Where(keysContainEntityKeyLambda)
+            .Where(keysContainKey)
             .ToImmutableArrayAsync(cancellationToken);
         return entities;
     }
 
     public async Task<ImmutableArray<TKey>> GetKeysAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
         => await DbSet
-            .Select(KeyNavigation.Lambda)
+            .Select(KeyProperty.Lambda)
             .Where(key => keys.Contains(key))
             .ToImmutableArrayAsync(cancellationToken);
 
@@ -92,19 +109,11 @@ public abstract class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRe
         return true;
     }
 
-    // Protected properties
-    protected abstract Expression<Func<TEntity, TKey>> KeyLambda { get; }
-
-    protected PropertyNavigation<TEntity, TKey> KeyNavigation => _keyNavigation ??= new(KeyLambda);
-    private static PropertyNavigation<TEntity, TKey>? _keyNavigation;
-
-    protected ParameterExpression EntityParameter => KeyNavigation.Parameter;
-
     // Protected methods
     protected virtual TEntity MockEntity(TKey key)
     {
         TEntity entity = Utils.CreateDefaultInstance<TEntity>();
-        KeyNavigation.SetValue(entity, key);
+        KeyProperty.SetValue(entity, key);
         DbSet.Attach(entity);
         return entity;
     }

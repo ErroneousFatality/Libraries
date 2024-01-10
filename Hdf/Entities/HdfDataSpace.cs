@@ -51,7 +51,7 @@ public class HdfDataSpace : HdfObject
     }
 
     public void Validate<T, TRow>(IEnumerable<TRow> matrix)
-        where TRow: IEnumerable<T>
+        where TRow : IEnumerable<T>
     {
         if (Dimensions.Length != 2)
         {
