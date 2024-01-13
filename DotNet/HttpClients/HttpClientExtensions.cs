@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Json;
 
 namespace AndrejKrizan.DotNet.HttpClients;
-internal static class HttpClientExtensions
+public static class HttpClientExtensions
 {
     /// <exception cref="HttpRequestException"></exception>
     public static async Task<TResponse> PostAndReadJsonAsync<TRequest, TResponse>(this HttpClient httpClient, string? requestUri, TRequest request, CancellationToken cancellationToken = default)

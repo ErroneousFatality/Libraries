@@ -15,7 +15,7 @@ public class PropertyLambda
     // Constructors
     public PropertyLambda(LambdaExpression lambda)
     {
-        PropertyLambdaVisitor validator = new();
+        PropertyLambdaValidator validator = new();
         PropertyInfo propertyInfo = validator.ValidateAndGetPropertyInfo(lambda);
 
         Lambda = lambda;

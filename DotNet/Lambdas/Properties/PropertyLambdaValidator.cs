@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace AndrejKrizan.DotNet.Lambdas.Properties;
 
-internal sealed class PropertyLambdaVisitor : ExpressionVisitor
+internal sealed class PropertyLambdaValidator : ExpressionVisitor
 {
     // Fields
     private ParameterExpression? Parameter;
