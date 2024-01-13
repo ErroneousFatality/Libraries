@@ -6,6 +6,7 @@ using AndrejKrizan.DotNet.Records;
 using AndrejKrizan.DotNet.Strings;
 using AndrejKrizan.DotNet.Utilities;
 using AndrejKrizan.ElasticSearch.Extensions;
+using AndrejKrizan.ElasticSearch.Pagination;
 using AndrejKrizan.ElasticSearch.UnitsOfWork;
 
 using Elastic.Clients.Elasticsearch;

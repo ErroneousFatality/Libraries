@@ -1,6 +1,6 @@
 ﻿using Elastic.Clients.Elasticsearch;
 
-namespace AndrejKrizan.ElasticSearch.Extensions;
+namespace AndrejKrizan.ElasticSearch.Pagination;
 
 public static class SearchRequestDescriptorExtensions
 {

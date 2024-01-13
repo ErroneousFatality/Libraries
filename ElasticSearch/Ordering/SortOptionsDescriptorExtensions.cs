@@ -4,7 +4,7 @@ using AndrejKrizan.DotNet.Ordering;
 
 using Elastic.Clients.Elasticsearch;
 
-namespace AndrejKrizan.ElasticSearch.Extensions;
+namespace AndrejKrizan.ElasticSearch.Ordering;
 
 public static class SortOptionsDescriptorExtensions
 {
