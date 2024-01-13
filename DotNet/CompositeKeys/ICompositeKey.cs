@@ -12,10 +12,13 @@ public interface ICompositeKey<TEntity, TSelf>
 {
     // Static properties
 
-    /// <summary>Must use an object initializer.</summary>
-    /// <example><code>
-    ///     (Entity entity) => new EntityKey {{ A = entity.A, B = entity.B}} 
-    /// </code></example>
+    /// <summary>
+    ///     Must use an object initializer.<br/>
+    ///     Example:
+    ///     <code>
+    ///         (Entity entity) => new EntityKey {{ A = entity.A, B = entity.B}} 
+    ///     </code>
+    /// </summary>
     static abstract Expression<Func<TEntity, TSelf>> Selector { get; }
 
     // Static fields

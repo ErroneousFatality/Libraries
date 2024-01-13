@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
 namespace AndrejKrizan.DotNet.Ranges;
@@ -9,48 +10,70 @@ public sealed class Range<T> : IComparable<Range<T>>, IEquatable<Range<T>>
     // Properties
 
     /// <summary>Inclusive.</summary>
-    public T From { get; private set; }
+    public required T From { get; init; }
 
     /// <summary>Inclusive.</summary>
-    public T To { get; private set; }
+    public required T To { get; init; }
 
     // Constructors
 
     /// <param name="from">Inclusive.</param>
     /// <param name="to">Inclusive.</param>
-    /// <param name="validate">Should throw an <see cref="ArgumentException"/> if from is greater than to?</param>
+    /// <param name="validate">Should throw an <see cref="ArgumentException"/> if <paramref name="from"/> is greater <paramref name="to"/>?</param>
+    [SetsRequiredMembers]
     public Range(T from, T to, bool validate = true)
     {
-        Initialize(from, to, validate);
+        From = from;
+        To = to;
+        if (validate)
+        {
+            Validate();
+        }
     }
 
     /// <param name="from">Inclusive.</param>
     /// <param name="to">Inclusive.</param>
     [JsonConstructor]
+    [SetsRequiredMembers]
     public Range(T from, T to)
-    {
-        Initialize(from, to, validate: true);
-    }
+        : this(from, to, validate: true) { }
 
     /// <param name="list">A list with two elements</param>
-    /// <param name="validate">Should throw an <see cref="ArgumentException"/> if from is greater than to?</param>
+    /// <param name="validate">Should throw an <see cref="ArgumentException"/> if first element is greater than the second?</param>
+    [SetsRequiredMembers]
     public Range(IReadOnlyList<T> list, bool validate = true)
+        : this(list.ElementAtOrDefault(0), list.ElementAtOrDefault(1), validate)
     {
         if (list.Count != 2)
         {
             throw new ArgumentException($"The range can only be created from a {nameof(IReadOnlyList<T>)} which has exactly two elements.", nameof(list));
         }
-        Initialize(list[0], list[1], validate);
     }
 
-    private Range() { }
+    public Range() { }
 
     // Methods
-    public void Validate()
+    public bool IsValid()
+        => Comparer<T>.Default.Compare(From, To) > 0;
+
+    /// <param name="description">
+    ///     If not null, will be added to the beginning of the error message.<br/>
+    ///     Example: 
+    ///     <code>
+    ///         description: From cannot be greater than To.
+    ///     </code>
+    /// </param>
+    /// <exception cref="ArgumentException"></exception>
+    public void Validate(string? description = null)
     {
-        if (Comparer<T>.Default.Compare(From, To) > 0)
+        if (!IsValid())
         {
-            throw new ArgumentException($"{nameof(From)} cannot be greater than {nameof(To)}.");
+            string error = $"{nameof(From)} cannot be greater than {nameof(To)}.";
+            if (description != null)
+            {
+                error = $"{description}: {error}";
+            }
+            throw new ArgumentException(error);
         }
     }
 
@@ -129,15 +152,4 @@ public sealed class Range<T> : IComparable<Range<T>>, IEquatable<Range<T>>
         => left is null
             ? right is null
             : left.CompareTo(right) >= 0;
-
-    // Private methods
-    private void Initialize(T from, T to, bool validate)
-    {
-        From = from;
-        To = to;
-        if (validate)
-        {
-            Validate();
-        }
-    }
 }
