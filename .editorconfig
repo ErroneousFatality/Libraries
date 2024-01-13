@@ -85,9 +85,9 @@ csharp_style_var_when_type_is_apparent = false:suggestion
 csharp_style_expression_bodied_accessors = true:suggestion
 csharp_style_expression_bodied_constructors = false
 csharp_style_expression_bodied_indexers = true:suggestion
-csharp_style_expression_bodied_lambdas = when_on_single_line
-csharp_style_expression_bodied_local_functions = true:suggestion
-csharp_style_expression_bodied_methods = true:suggestion
+csharp_style_expression_bodied_lambdas = true
+csharp_style_expression_bodied_local_functions = true
+csharp_style_expression_bodied_methods = true
 csharp_style_expression_bodied_operators = true:suggestion
 csharp_style_expression_bodied_properties = true:suggestion
 
@@ -109,7 +109,7 @@ csharp_style_prefer_readonly_struct = true
 csharp_style_prefer_readonly_struct_member = true
 
 # Code-block preferences
-csharp_prefer_braces = false
+csharp_prefer_braces = true
 csharp_prefer_simple_using_statement = true
 csharp_style_namespace_declarations = file_scoped:suggestion
 csharp_style_prefer_method_group_conversion = true:suggestion
@@ -119,7 +119,7 @@ csharp_style_prefer_top_level_statements = false
 # Expression-level preferences
 csharp_prefer_simple_default_expression = true
 csharp_style_deconstructed_variable_declaration = true
-csharp_style_implicit_object_creation_when_type_is_apparent = true:silent
+csharp_style_implicit_object_creation_when_type_is_apparent = true
 csharp_style_inlined_variable_declaration = true:silent
 csharp_style_prefer_index_operator = true
 csharp_style_prefer_local_over_anonymous_function = true
