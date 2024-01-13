@@ -71,4 +71,21 @@ public static class LambdaExtensions
     )
         => (Expression<Func<TSource, TResult>>)source.Extend((LambdaExpression)extension);
     #endregion
+
+    #region Explode
+    public static IEnumerable<LambdaExpression> Explode(this LambdaExpression source,
+        IEnumerable<LambdaExpression> extensions
+    )
+        => extensions.Select(source.Extend);
+
+    public static IEnumerable<Expression<Func<TSource, TResult>>> Explode<TSource, T, TResult>(this Expression<Func<TSource, T>> source,
+        IEnumerable<Expression<Func<T, TResult>>> extensions
+    )
+        => extensions.Select(extension => source.Extend(extension));
+
+    public static IEnumerable<Expression<Func<TSource, object>>> Explode<TSource, T>(this Expression<Func<TSource, T>> source,
+        IEnumerable<Expression<Func<T, object>>> extensions
+    )
+        => extensions.Select(extension => source.Extend(extension));
+    #endregion
 }

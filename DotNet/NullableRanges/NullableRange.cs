@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
-namespace AndrejKrizan.DotNet.Ranges;
+namespace AndrejKrizan.DotNet.NullableRanges;
 
 public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable<NullableRange<T>>
     where T : struct
@@ -9,18 +9,19 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable
     // Properties
 
     /// <summary>Inclusive.</summary>
-    public T? From { get; init; }
+    public T? From { get; private set; }
 
     /// <summary>Inclusive.</summary>
-    public T? To { get; init; }
+    public T? To { get; private set; }
 
     // Constructors
 
     /// <param name="from">Inclusive.</param>
     /// <param name="to">Inclusive.</param>
-    /// <param name="validate">Should throw an <see cref="ArgumentException"/> if from is greater than to?</param>
+    /// <param name="validate">Should throw an <see cref="ArgumentException"/> if <paramref name="from"/> is greater <paramref name="to"/>?</param>
     public NullableRange(T? from = null, T? to = null, bool validate = true)
     {
+        Initialize(from, to, validate);
         From = from;
         To = to;
         if (validate)
@@ -33,14 +34,22 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable
     /// <param name="to">Inclusive.</param>
     [JsonConstructor]
     public NullableRange(T? from = null, T? to = null)
-        : this(from, to, validate: true) { }
+    {
+        Initialize(from, to, validate: true);
+    }
 
     /// <param name="list">A list with two elements</param>
-    /// <param name="validate">Should throw an <see cref="ArgumentException"/> if from is greater than to?</param>
+    /// <param name="validate">Should throw an <see cref="ArgumentException"/> if first element is greater than the second?</param>
     public NullableRange(IReadOnlyList<T?> list, bool validate = true)
-        : this(list.ElementAtOrDefault(0), list.ElementAtOrDefault(1), validate) { }
+    {
+        if (list.Count != 2)
+        {
+            throw new ArgumentException($"The range can only be created from a {nameof(IReadOnlyList<T?>)} which has exactly two elements.", nameof(list));
+        }
+        Initialize(list[0], list[1], validate);
+    }
 
-    public NullableRange() { }
+    private NullableRange() { }
 
     // Methods
     public void Validate()
@@ -50,6 +59,9 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable
             throw new ArgumentException($"{nameof(From)} cannot be greater than {nameof(To)}.");
         }
     }
+
+    public bool HasBoundaries()
+        => From.HasValue || To.HasValue;
 
     public bool Contains(T value)
         => (!From.HasValue || Comparer<T>.Default.Compare(value, From.Value) >= 0)
@@ -126,4 +138,15 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable
         => left is null
             ? right is null
             : left.CompareTo(right) >= 0;
+
+    // Private methods
+    private void Initialize(T? from, T? to, bool validate)
+    {
+        From = from;
+        To = to;
+        if (validate)
+        {
+            Validate();
+        }
+    }
 }

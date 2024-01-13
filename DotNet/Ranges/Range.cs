@@ -9,10 +9,10 @@ public sealed class Range<T> : IComparable<Range<T>>, IEquatable<Range<T>>
     // Properties
 
     /// <summary>Inclusive.</summary>
-    public T From { get; init; }
+    public T From { get; private set; }
 
     /// <summary>Inclusive.</summary>
-    public T To { get; init; }
+    public T To { get; private set; }
 
     // Constructors
 
@@ -21,32 +21,29 @@ public sealed class Range<T> : IComparable<Range<T>>, IEquatable<Range<T>>
     /// <param name="validate">Should throw an <see cref="ArgumentException"/> if from is greater than to?</param>
     public Range(T from, T to, bool validate = true)
     {
-        From = from;
-        To = to;
-        if (validate)
-        {
-            Validate();
-        }
+        Initialize(from, to, validate);
     }
 
     /// <param name="from">Inclusive.</param>
     /// <param name="to">Inclusive.</param>
     [JsonConstructor]
     public Range(T from, T to)
-        : this(from, to, validate: true) { }
+    {
+        Initialize(from, to, validate: true);
+    }
 
     /// <param name="list">A list with two elements</param>
     /// <param name="validate">Should throw an <see cref="ArgumentException"/> if from is greater than to?</param>
     public Range(IReadOnlyList<T> list, bool validate = true)
-        : this(list.ElementAtOrDefault(0), list.ElementAtOrDefault(1), validate)
     {
         if (list.Count != 2)
         {
             throw new ArgumentException($"The range can only be created from a {nameof(IReadOnlyList<T>)} which has exactly two elements.", nameof(list));
         }
+        Initialize(list[0], list[1], validate);
     }
 
-    public Range() { }
+    private Range() { }
 
     // Methods
     public void Validate()
@@ -132,4 +129,15 @@ public sealed class Range<T> : IComparable<Range<T>>, IEquatable<Range<T>>
         => left is null
             ? right is null
             : left.CompareTo(right) >= 0;
+
+    // Private methods
+    private void Initialize(T from, T to, bool validate)
+    {
+        From = from;
+        To = to;
+        if (validate)
+        {
+            Validate();
+        }
+    }
 }
