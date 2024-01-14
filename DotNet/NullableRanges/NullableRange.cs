@@ -50,7 +50,7 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable
 
     // Methods
     public bool IsValid()
-        => Comparer<T?>.Default.Compare(From, To) <= 0;
+        => !From.HasValue || !To.HasValue || Comparer<T>.Default.Compare(From.Value, To.Value) <= 0;
 
     /// <param name="description">
     ///     If not null, will be added to the beginning of the error message.<br/>
@@ -93,6 +93,10 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable
             return fromDiff;
         }
         int toDiff = comparer.Compare(To, other.To);
+        if (!To.HasValue || !other.To.HasValue)
+        {
+            toDiff = -toDiff;
+        }
         return toDiff;
     }
 
