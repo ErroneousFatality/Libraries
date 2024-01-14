@@ -3,26 +3,26 @@
 namespace AndrejKrizan.ElasticSearch.Queries;
 public static class BoolQueryDescriptorExtensions
 {
-    public static BoolQueryDescriptor<TRecord> ConditionalMust<TRecord, T>(this BoolQueryDescriptor<TRecord> boolQuery,
-        ICollection<T>? arguments,
-        Func<ICollection<T>, Action<QueryDescriptor<TRecord>>> createConfigurator
+    public static BoolQueryDescriptor<TRecord> ConditionalMust<TRecord, TArgument>(this BoolQueryDescriptor<TRecord> source,
+        ICollection<TArgument>? arguments,
+        Func<ICollection<TArgument>, Action<QueryDescriptor<TRecord>>> createConfigure
     )
         => arguments == null || arguments.Count < 1
-        ? boolQuery
-        : boolQuery.Must(createConfigurator(arguments));
+        ? source
+        : source.Must(createConfigure(arguments));
 
-    public static BoolQueryDescriptor<TRecord> ConditionalMust<TRecord>(this BoolQueryDescriptor<TRecord> boolQuery, 
-        ICollection<Query>? conditions
+    public static BoolQueryDescriptor<TRecord> ConditionalMust<TRecord>(this BoolQueryDescriptor<TRecord> source,
+        ICollection<Query>? queries
     )
-        => conditions == null || conditions.Count < 1
-        ? boolQuery
-        : boolQuery.Must(conditions);
+        => queries == null || queries.Count < 1
+        ? source
+        : source.Must(queries);
 
-    public static BoolQueryDescriptor<TRecord> ConditionalMust<TRecord, T>(this BoolQueryDescriptor<TRecord> boolQuery,
-        ICollection<T>? arguments,
-        Func<ICollection<T>, QueryDescriptor<TRecord>> createDescriptor
+    public static BoolQueryDescriptor<TRecord> ConditionalMust<TRecord, TArgument>(this BoolQueryDescriptor<TRecord> source,
+        ICollection<TArgument>? arguments,
+        Func<ICollection<TArgument>, QueryDescriptor<TRecord>> createDescriptor
     )
         => arguments == null || arguments.Count < 1
-        ? boolQuery
-        : boolQuery.Must(createDescriptor(arguments));
+        ? source
+        : source.Must(createDescriptor(arguments));
 }

@@ -13,7 +13,7 @@ public static class FieldsExtensions
         Field[] array = fields.Select(field => new Field(field)).ToArray();
         Fields _fields = source.And(array);
         return _fields;
-    } 
+    }
 
     public static Fields And<TOwner, TRecord>(this Fields source,
         Expression<Func<TOwner, TRecord>> record,

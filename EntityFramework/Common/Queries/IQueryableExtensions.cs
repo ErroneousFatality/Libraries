@@ -3,8 +3,8 @@ using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
 using AndrejKrizan.DotNet.Collections;
+using AndrejKrizan.DotNet.Functional;
 using AndrejKrizan.DotNet.Lambdas;
-using AndrejKrizan.DotNet.Nullables;
 using AndrejKrizan.DotNet.Ordering;
 using AndrejKrizan.DotNet.Pagination;
 using AndrejKrizan.DotNet.Strings;
@@ -16,48 +16,47 @@ namespace AndrejKrizan.EntityFramework.Common.Queries;
 public static class IQueryableExtensions
 {
     #region ConditionalWhere
-    public static IQueryable<TEntity> ConditionalWhere<TEntity>(this IQueryable<TEntity> query,
-        bool condition, Expression<Func<TEntity, bool>> predicate
+    /// <summary>Will apply the predicate filter if the condition is true.</summary>
+    public static IQueryable<TEntity> ConditionalWhere<TEntity>(this IQueryable<TEntity> source,
+        bool condition, 
+        Expression<Func<TEntity, bool>> predicate
     )
-    {
-        if (!condition)
-            return query;
-        return query.Where(predicate);
-    }
+        => source.ConditionallyApply(
+            condition,
+            (IQueryable<TEntity> query) => query.Where(predicate)
+        );
 
-    public static IQueryable<TEntity> ConditionalWhere<TEntity, T>(this IQueryable<TEntity> source,
-        T? nullable, Func<T, Expression<Func<TEntity, bool>>> predicateBuilder
+    /// <summary>Will apply the predicate filter if the argument is not null nor an empty collection.</summary>
+    public static IQueryable<TEntity> ConditionalWhere<TEntity, TArgument>(this IQueryable<TEntity> source,
+        TArgument? argument, 
+        Func<TArgument, Expression<Func<TEntity, bool>>> createPredicate
     )
-        where T : struct
-    {
-        if (!nullable.TryGetValue(out T value))
-            return source;
-        Expression<Func<TEntity, bool>> predicate = predicateBuilder(value);
-        IQueryable<TEntity> query = source.Where(predicate);
-        return query;
-    }
+        where TArgument : struct
+        => source.ConditionallyApply(
+            argument,
+            (TArgument argument, IQueryable<TEntity> query) => query.Where(createPredicate(argument))
+        );
 
-    public static IQueryable<TEntity> ConditionalWhere<TEntity, T>(this IQueryable<TEntity> source,
-         T? nullable, Func<T, Expression<Func<TEntity, bool>>> predicateBuilder
+    /// <summary>Will apply the predicate filter if the argument is not null nor an empty collection.</summary>
+    public static IQueryable<TEntity> ConditionalWhere<TEntity, TArgument>(this IQueryable<TEntity> source,
+         TArgument? argument, 
+         Func<TArgument, Expression<Func<TEntity, bool>>> createPredicate
     )
-         where T : class
-    {
-        if (!nullable.TryGetValue(out T? value))
-            return source;
-        Expression<Func<TEntity, bool>> predicate = predicateBuilder(value);
-        IQueryable<TEntity> query = source.Where(predicate);
-        return query;
-    }
+         where TArgument : class
+        => source.ConditionallyApply(
+            argument,
+            (TArgument argument, IQueryable<TEntity> query) => query.Where(createPredicate(argument))
+        );
 
-    public static IQueryable<TEntity> ConditionalWhere<TEntity, T>(this IQueryable<TEntity> source,
-         IEnumerable<T>? enumerable, Func<IEnumerable<T>, Expression<Func<TEntity, bool>>> predicateBuilder
+    /// <summary>Will apply the predicate filter if the arguments enumerable is not null nor empty.</summary>
+    public static IQueryable<TEntity> ConditionalWhere<TEntity, TArgument>(this IQueryable<TEntity> source,
+         IEnumerable<TArgument>? arguments, 
+         Func<IEnumerable<TArgument>, Expression<Func<TEntity, bool>>> createPredicate
     )
-    {
-        if (enumerable == null || !enumerable.Any())
-            return source;
-        Expression<Func<TEntity, bool>> predicate = predicateBuilder(enumerable);
-        return source.Where(predicate);
-    }
+        => source.ConditionallyApply(
+            arguments,
+            (IEnumerable<TArgument> argument, IQueryable<TEntity> query) => query.Where(createPredicate(argument))
+        );
     #endregion
 
     public static IQueryable<TEntity> WhereAny<TEntity, TArgument>(this IQueryable<TEntity> source,
