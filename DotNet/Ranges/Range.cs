@@ -54,7 +54,7 @@ public sealed class Range<T> : IComparable<Range<T>>, IEquatable<Range<T>>
 
     // Methods
     public bool IsValid()
-        => Comparer<T>.Default.Compare(From, To) > 0;
+        => Comparer<T>.Default.Compare(From, To) <= 0;
 
     /// <param name="description">
     ///     If not null, will be added to the beginning of the error message.<br/>
