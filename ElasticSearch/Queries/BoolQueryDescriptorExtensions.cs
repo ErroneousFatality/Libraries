@@ -4,8 +4,8 @@ namespace AndrejKrizan.ElasticSearch.Queries;
 public static class BoolQueryDescriptorExtensions
 {
     public static BoolQueryDescriptor<TRecord> ConditionalMust<TRecord, T>(this BoolQueryDescriptor<TRecord> boolQuery,
-        IReadOnlyCollection<T>? arguments,
-        Func<IReadOnlyCollection<T>, Action<QueryDescriptor<TRecord>>> createConfigurator
+        ICollection<T>? arguments,
+        Func<ICollection<T>, Action<QueryDescriptor<TRecord>>> createConfigurator
     )
         => arguments == null || arguments.Count < 1
         ? boolQuery
@@ -19,8 +19,8 @@ public static class BoolQueryDescriptorExtensions
         : boolQuery.Must(conditions);
 
     public static BoolQueryDescriptor<TRecord> ConditionalMust<TRecord, T>(this BoolQueryDescriptor<TRecord> boolQuery,
-        IReadOnlyCollection<T>? arguments,
-        Func<IReadOnlyCollection<T>, QueryDescriptor<TRecord>> createDescriptor
+        ICollection<T>? arguments,
+        Func<ICollection<T>, QueryDescriptor<TRecord>> createDescriptor
     )
         => arguments == null || arguments.Count < 1
         ? boolQuery
