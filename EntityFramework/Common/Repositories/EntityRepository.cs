@@ -2,11 +2,12 @@
 using System.Linq.Expressions;
 
 using AndrejKrizan.DotNet.Entities;
+using AndrejKrizan.DotNet.Repositories;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace AndrejKrizan.EntityFramework.Common.Repositories;
-public class EntityRepository<TEntity, TId> : KeyRepository<TEntity, TId>
+public class EntityRepository<TEntity, TId> : KeyRepository<TEntity, TId>, IEntityRepository<TEntity, TId> 
     where TEntity : Entity<TId>
     where TId : notnull
 {

@@ -2,6 +2,9 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
+using AndrejKrizan.DotNet.NullableRanges;
+using AndrejKrizan.DotNet.Nullables;
+
 namespace AndrejKrizan.DotNet.Ranges;
 
 public sealed class Range<T> : IComparable<Range<T>>, IEquatable<Range<T>>
@@ -80,6 +83,13 @@ public sealed class Range<T> : IComparable<Range<T>>, IEquatable<Range<T>>
     public bool Contains(T value)
         => Comparer<T>.Default.Compare(value, From) >= 0
         && Comparer<T>.Default.Compare(value, To) <= 0;
+
+    public bool Contains(Range<T> range)
+        => Contains(range.From) && Contains(range.To);
+
+    public bool Contains(NullableRange<T> range)
+        => range.From.TryGetValue(out T from) && Contains(from)
+        && range.To.TryGetValue(out T to) && Contains(to);
 
     public int CompareTo(Range<T>? other)
     {

@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 
 using AndrejKrizan.DotNet.Lambdas.Properties;
+using AndrejKrizan.DotNet.Repositories;
 using AndrejKrizan.DotNet.Utilities;
 using AndrejKrizan.EntityFramework.Common.Queries;
 

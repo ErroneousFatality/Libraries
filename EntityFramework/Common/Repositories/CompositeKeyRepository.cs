@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 
 using AndrejKrizan.DotNet.CompositeKeys;
+using AndrejKrizan.DotNet.Repositories;
 using AndrejKrizan.DotNet.Utilities;
 using AndrejKrizan.EntityFramework.Common.Queries;
 

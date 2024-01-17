@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 
-namespace AndrejKrizan.EntityFramework.Common.Repositories;
-public interface IKeyRepository<TEntity, TKey>
+namespace AndrejKrizan.DotNet.Repositories;
+public interface IKeyRepository<TEntity, TKey> : IRepository<TEntity>
     where TEntity : class
 {
     Task<bool> ExistsAsync(TKey key, CancellationToken cancellationToken = default);

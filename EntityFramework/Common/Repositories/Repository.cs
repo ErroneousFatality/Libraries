@@ -1,12 +1,13 @@
 ﻿using System.Collections.Immutable;
 
+using AndrejKrizan.DotNet.Repositories;
 using AndrejKrizan.EntityFramework.Common.Queries;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace AndrejKrizan.EntityFramework.Common.Repositories;
 
-public class Repository<TEntity>
+public class Repository<TEntity> : IRepository<TEntity> 
     where TEntity : class
 {
     // Properties
@@ -24,9 +25,9 @@ public class Repository<TEntity>
     public void Insert(TEntity entity)
         => DbSet.Add(entity);
 
-    public void Insert(IEnumerable<TEntity> entities)
+    public void InsertMany(IEnumerable<TEntity> entities)
         => DbSet.AddRange(entities);
-    public void Insert(params TEntity[] entities)
+    public void InsertMany(params TEntity[] entities)
         => DbSet.AddRange(entities);
 
     public async Task<ImmutableArray<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)

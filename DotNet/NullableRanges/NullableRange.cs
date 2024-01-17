@@ -1,6 +1,9 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
+using AndrejKrizan.DotNet.Nullables;
+using AndrejKrizan.DotNet.Ranges;
+
 namespace AndrejKrizan.DotNet.NullableRanges;
 
 public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable<NullableRange<T>>
@@ -79,6 +82,13 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable
     public bool Contains(T value)
         => (!From.HasValue || Comparer<T>.Default.Compare(value, From.Value) >= 0)
         && (!To.HasValue || Comparer<T>.Default.Compare(value, To.Value) <= 0);
+
+    public bool Contains(Range<T> range)
+        => Contains(range.From) && Contains(range.To);
+
+    public bool Contains(NullableRange<T> range)
+        => (range.From.TryGetValue(out T from) ? Contains(from) : !From.HasValue)
+        && (range.To.TryGetValue(out T to) ? Contains(to) : !To.HasValue);
 
     public int CompareTo(NullableRange<T>? other)
     {
