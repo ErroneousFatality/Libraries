@@ -13,4 +13,6 @@ public interface IRepository<TEntity>
     void Delete(TEntity entity);
     void DeleteMany(IEnumerable<TEntity> entities);
     void DeleteMany(params TEntity[] entities);
+
+    void Untrack(TEntity entity);
 }

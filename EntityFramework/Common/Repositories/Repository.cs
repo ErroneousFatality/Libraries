@@ -4,10 +4,11 @@ using AndrejKrizan.DotNet.Repositories;
 using AndrejKrizan.EntityFramework.Common.Queries;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace AndrejKrizan.EntityFramework.Common.Repositories;
 
-public class Repository<TEntity> : IRepository<TEntity> 
+public class Repository<TEntity> : IRepository<TEntity>
     where TEntity : class
 {
     // Properties
@@ -41,4 +42,11 @@ public class Repository<TEntity> : IRepository<TEntity>
 
     public void DeleteMany(params TEntity[] entities)
         => DbSet.RemoveRange(entities);
+
+    public void Untrack(TEntity entity)
+    {
+        EntityEntry entityEntry = DbContext.ChangeTracker.Entries().FirstOrDefault(entry => entry.Entity == entity)
+            ?? throw new ArgumentException("The entity is not being tracked.", nameof(entity));
+        entityEntry.State = EntityState.Detached;
+    }
 }

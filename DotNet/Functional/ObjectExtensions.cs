@@ -20,7 +20,7 @@ public static class ObjectExtensions
 
     #region ConditionallyDo
     /// <summary>Will perform the action if the condition is true.</summary>
-    public static T ConditionallyDo<T>(this T source, 
+    public static T ConditionallyDo<T>(this T source,
         bool condition, Action<T> action
     )
     {

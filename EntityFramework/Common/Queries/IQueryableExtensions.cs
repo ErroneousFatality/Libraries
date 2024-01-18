@@ -18,7 +18,7 @@ public static class IQueryableExtensions
     #region ConditionalWhere
     /// <summary>Will apply the predicate filter if the condition is true.</summary>
     public static IQueryable<TEntity> ConditionalWhere<TEntity>(this IQueryable<TEntity> source,
-        bool condition, 
+        bool condition,
         Expression<Func<TEntity, bool>> predicate
     )
         => source.ConditionallyApply(
@@ -28,7 +28,7 @@ public static class IQueryableExtensions
 
     /// <summary>Will apply the predicate filter if the argument is not null nor an empty collection.</summary>
     public static IQueryable<TEntity> ConditionalWhere<TEntity, TArgument>(this IQueryable<TEntity> source,
-        TArgument? argument, 
+        TArgument? argument,
         Func<TArgument, Expression<Func<TEntity, bool>>> createPredicate
     )
         where TArgument : struct
@@ -39,7 +39,7 @@ public static class IQueryableExtensions
 
     /// <summary>Will apply the predicate filter if the argument is not null nor an empty collection.</summary>
     public static IQueryable<TEntity> ConditionalWhere<TEntity, TArgument>(this IQueryable<TEntity> source,
-         TArgument? argument, 
+         TArgument? argument,
          Func<TArgument, Expression<Func<TEntity, bool>>> createPredicate
     )
          where TArgument : class
@@ -50,7 +50,7 @@ public static class IQueryableExtensions
 
     /// <summary>Will apply the predicate filter if the arguments enumerable is not null nor empty.</summary>
     public static IQueryable<TEntity> ConditionalWhere<TEntity, TArgument>(this IQueryable<TEntity> source,
-         IEnumerable<TArgument>? arguments, 
+         IEnumerable<TArgument>? arguments,
          Func<IEnumerable<TArgument>, Expression<Func<TEntity, bool>>> createPredicate
     )
         => source.ConditionallyApply(

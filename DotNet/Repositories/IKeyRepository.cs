@@ -17,4 +17,6 @@ public interface IKeyRepository<TEntity, TKey> : IRepository<TEntity>
 
     void DeleteMany(IEnumerable<TKey> keys);
     void DeleteMany(params TKey[] keys);
+
+    void Untrack(TKey key);
 }

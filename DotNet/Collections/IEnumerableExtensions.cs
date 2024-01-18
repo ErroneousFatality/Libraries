@@ -129,9 +129,16 @@ public static class IEnumerableExtensions
         => source.GetDuplicateSet(EqualityComparer<T>.Default);
 
     public static HashSet<T> GetDuplicateSet<T>(this IEnumerable<T> source, IEqualityComparer<T> equalityComparer)
+        => source.GetDuplicateSet(equalityComparer, out _);
+
+
+    public static HashSet<T> GetDuplicateSet<T>(this IEnumerable<T> source, out HashSet<T> uniqueSet)
+        => source.GetDuplicateSet(EqualityComparer<T>.Default, out uniqueSet);
+
+    public static HashSet<T> GetDuplicateSet<T>(this IEnumerable<T> source, IEqualityComparer<T> equalityComparer, out HashSet<T> uniqueSet)
     {
         bool hasCount = source.TryGetNonEnumeratedCount(out int count);
-        HashSet<T> set = hasCount
+        uniqueSet = hasCount
             ? new(count, equalityComparer)
             : new(equalityComparer);
         HashSet<T> duplicateSet = hasCount
@@ -139,7 +146,7 @@ public static class IEnumerableExtensions
             : new(equalityComparer);
         foreach (T item in source)
         {
-            if (!set.Add(item))
+            if (!uniqueSet.Add(item))
             {
                 duplicateSet.Add(item);
             }

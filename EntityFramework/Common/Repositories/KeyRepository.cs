@@ -8,6 +8,7 @@ using AndrejKrizan.DotNet.Utilities;
 using AndrejKrizan.EntityFramework.Common.Queries;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace AndrejKrizan.EntityFramework.Common.Repositories;
 
@@ -108,6 +109,13 @@ public abstract class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRe
         }
         Delete(key);
         return true;
+    }
+
+    public void Untrack(TKey key)
+    {
+        EntityEntry<TEntity>? entry = DbSet.Local.FindEntry(key)
+            ?? throw new ArgumentException($"There is no tracked entity with key = {key}.", nameof(key));
+        entry.State = EntityState.Detached;
     }
 
     // Protected methods
