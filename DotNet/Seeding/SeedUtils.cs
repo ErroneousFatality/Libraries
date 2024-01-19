@@ -70,6 +70,7 @@ public static class SeedUtils
         }
 
         Dictionary<TKey, TEntity> existingEntitiesDict = existingEntities.ToDictionary(keyProperty.EntitySelector, keyProperty.EqualityComparer);
+        List<TEntity> updatedEntities = new(seeds.Count);
         List<TEntity> newEntities = new(seeds.Count);
         foreach (TSeed seed in seeds)
         {
@@ -79,6 +80,7 @@ public static class SeedUtils
                 try
                 {
                     update(entity, seed);
+                    updatedEntities.Add(entity);
                 }
                 catch (Exception exception)
                 {
@@ -106,7 +108,7 @@ public static class SeedUtils
         repository.InsertMany(newEntities);
         await unitOfWork.SaveChangesAndCommitTransactionAsync(cancellationToken);
 
-        ImmutableDictionary<TKey, TEntity> entities = existingEntities.Concat(newEntities)
+        ImmutableDictionary<TKey, TEntity> entities = updatedEntities.Concat(newEntities)
             .OrderBy(keyProperty.EntitySelector, keyProperty.Comparer)
             .ToImmutableDictionary(keyProperty.EntitySelector, keyProperty.EqualityComparer);
 
