@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 
+using AndrejKrizan.DotNet.AsyncActions;
 using AndrejKrizan.DotNet.Collections;
 using AndrejKrizan.DotNet.Repositories;
 using AndrejKrizan.DotNet.Seeding.Properties.Keys;
@@ -20,6 +21,7 @@ public static class SeedUtils
         Action<TEntity, TSeed> update, Func<TSeed, TEntity> create,
         IEnumerable<ISeedUniqueProperty<TEntity, TSeed>>? uniqueProperties = null,
         IEnumerable<ISeedReferenceProperty<TEntity, TSeed>>? referenceProperties = null,
+        AsyncAction? postprocessAsync = null,
         CancellationToken cancellationToken = default
     )
         where TEntity : class
@@ -34,6 +36,7 @@ public static class SeedUtils
             update, create,
             uniqueProperties,
             referenceProperties,
+            postprocessAsync,
             cancellationToken
         );
         return result;
@@ -48,6 +51,7 @@ public static class SeedUtils
         Action<TEntity, TSeed> update, Func<TSeed, TEntity> create,
         IEnumerable<ISeedUniqueProperty<TEntity, TSeed>>? uniqueProperties = null,
         IEnumerable<ISeedReferenceProperty<TEntity, TSeed>>? existingProperties = null,
+        AsyncAction? postprocessAsync = null,
         CancellationToken cancellationToken = default
     )
         where TEntity : class
@@ -64,7 +68,8 @@ public static class SeedUtils
             getManyAsync,  untrack, insertMany,
             update, create, 
             _uniqueProperties, 
-            _existingProperties, 
+            _existingProperties,
+            postprocessAsync,
             cancellationToken
         );
         return result;
@@ -80,6 +85,7 @@ public static class SeedUtils
         Action<TEntity, TSeed> update, Func<TSeed, TEntity> create,
         ImmutableArray<ISeedUniqueProperty<TEntity, TSeed>> uniqueProperties,
         ImmutableArray<ISeedReferenceProperty<TEntity, TSeed>> referenceProperties,
+        AsyncAction? postprocessAsync = null,
         CancellationToken cancellationToken = default
     )
         where TEntity : class
@@ -145,7 +151,12 @@ public static class SeedUtils
         }
 
         insertMany(newEntities);
-        await unitOfWork.SaveChangesAndCommitTransactionAsync(cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        if (postprocessAsync != null)
+        {
+            await postprocessAsync(cancellationToken);
+        }
+        await unitOfWork.CommitTransactionAsync(cancellationToken);
 
         ImmutableDictionary<TKey, TEntity> entities = updatedEntities.Concat(newEntities)
             .OrderBy(keyProperty.EntitySelector, keyProperty.Comparer)

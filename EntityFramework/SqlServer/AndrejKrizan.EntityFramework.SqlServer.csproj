@@ -7,7 +7,7 @@
 		<Authors>ErroneousFatality</Authors>
 		<RepositoryUrl>https://github.com/ErroneousFatality/Libraries/tree/main/EntityFramework/SqlServer</RepositoryUrl>
 		<PackageOutputPath>..\..\Nugets</PackageOutputPath>
-		<Version>7.4.6</Version>
+		<Version>7.4.7</Version>
 		<SignAssembly>True</SignAssembly>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
