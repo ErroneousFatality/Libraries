@@ -2,7 +2,6 @@
 
 using AndrejKrizan.DotNet.Collections;
 using AndrejKrizan.DotNet.Repositories;
-using AndrejKrizan.DotNet.Seeding.Properties;
 using AndrejKrizan.DotNet.Seeding.Properties.Keys;
 using AndrejKrizan.DotNet.Seeding.Properties.References;
 using AndrejKrizan.DotNet.Seeding.Properties.Uniques;
@@ -16,11 +15,11 @@ public static class SeedUtils
     public static async Task<SeedResult<TEntity, TKey>> SeedManyAsync<TEntity, TSeed, TKey>(
         string description,
         IEnumerable<TSeed> seeds,
-        SeedProperty<TEntity, TSeed, TKey> keyProperty,
+        SeedKey<TEntity, TSeed, TKey> keyProperty,
         IUnitOfWork unitOfWork, IKeyRepository<TEntity, TKey> repository,
         Action<TEntity, TSeed> update, Func<TSeed, TEntity> create,
-        IEnumerable<ISeedReferenceProperty<TEntity, TSeed>>? uniqueProperties = null,
-        IEnumerable<ISeedReferenceProperty<TEntity, TSeed>>? existingProperties = null,
+        IEnumerable<ISeedUniqueProperty<TEntity, TSeed>>? uniqueProperties = null,
+        IEnumerable<ISeedReferenceProperty<TEntity, TSeed>>? referenceProperties = null,
         CancellationToken cancellationToken = default
     )
         where TEntity : class
@@ -34,7 +33,7 @@ public static class SeedUtils
             repository.GetManyAsync, repository.Untrack, repository.InsertMany,
             update, create,
             uniqueProperties,
-            existingProperties,
+            referenceProperties,
             cancellationToken
         );
         return result;
@@ -43,11 +42,11 @@ public static class SeedUtils
     public static async Task<SeedResult<TEntity, TKey>> SeedManyAsync<TEntity, TSeed, TKey>(
         string description,
         IEnumerable<TSeed> seeds,
-        SeedProperty<TEntity, TSeed, TKey> keyProperty,
+        SeedKey<TEntity, TSeed, TKey> keyProperty,
         IUnitOfWork unitOfWork,
         GetManyAsync<TEntity, TKey> getManyAsync, Action<TEntity> untrack, Action<IEnumerable<TEntity>> insertMany,
         Action<TEntity, TSeed> update, Func<TSeed, TEntity> create,
-        IEnumerable<ISeedReferenceProperty<TEntity, TSeed>>? uniqueProperties = null,
+        IEnumerable<ISeedUniqueProperty<TEntity, TSeed>>? uniqueProperties = null,
         IEnumerable<ISeedReferenceProperty<TEntity, TSeed>>? existingProperties = null,
         CancellationToken cancellationToken = default
     )
@@ -55,9 +54,9 @@ public static class SeedUtils
         where TKey : notnull
     {
         List<TSeed> _seeds = new(seeds);
-        ImmutableArray<ISeedReferenceProperty<TEntity, TSeed>> _uniqueProperties = uniqueProperties == null ? [] : uniqueProperties.ToImmutableArray();
+        ImmutableArray<ISeedUniqueProperty<TEntity, TSeed>> _uniqueProperties = uniqueProperties == null ? [] : uniqueProperties.ToImmutableArray();
         ImmutableArray<ISeedReferenceProperty<TEntity, TSeed>> _existingProperties = existingProperties == null ? [] : existingProperties.ToImmutableArray();
-        SeedResult<TEntity, TKey> result = await SeedManyAsync(
+        SeedResult<TEntity, TKey> result = await SeedManyImplAsync(
             description, 
             _seeds, 
             keyProperty, 
@@ -72,7 +71,7 @@ public static class SeedUtils
     }
 
     public delegate Task<ImmutableArray<TEntity>> GetManyAsync<TEntity, TKey>(IEnumerable<TKey> keys, CancellationToken cancellationToken = default);
-    private static async Task<SeedResult<TEntity, TKey>> SeedManyAsync<TEntity, TSeed, TKey>(
+    private static async Task<SeedResult<TEntity, TKey>> SeedManyImplAsync<TEntity, TSeed, TKey>(
         string description,
         List<TSeed> seeds,
         SeedKey<TEntity, TSeed, TKey> keyProperty,
