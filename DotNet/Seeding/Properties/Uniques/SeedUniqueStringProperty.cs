@@ -1,7 +1,5 @@
-﻿using AndrejKrizan.DotNet.Seeding.Properties.References;
-
-namespace AndrejKrizan.DotNet.Seeding.Properties.Uniques;
-public sealed class SeedUniqueStringProperty<TSeed, TEntity> : SeedReferenceProperty<TSeed, TEntity, string>
+﻿namespace AndrejKrizan.DotNet.Seeding.Properties.Uniques;
+public sealed class SeedUniqueStringProperty<TSeed, TEntity> : SeedUniqueProperty<TSeed, TEntity, string>
 {
     // Constructors
     public SeedUniqueStringProperty(
