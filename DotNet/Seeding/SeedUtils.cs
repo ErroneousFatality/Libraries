@@ -26,18 +26,58 @@ public static class SeedUtils
         where TEntity : class
         where TKey : notnull
     {
-        List<TSeed> _seeds = new(seeds);
-        ImmutableArray<ISeedReferenceProperty<TEntity, TSeed>> _uniqueProperties = uniqueProperties == null ? [] : uniqueProperties.ToImmutableArray();
-        ImmutableArray<ISeedReferenceProperty<TEntity, TSeed>> _existingProperties = existingProperties == null ? [] : existingProperties.ToImmutableArray();
-        SeedResult<TEntity, TKey> result = await SeedManyAsync(description, _seeds, keyProperty, unitOfWork, repository, update, create, _uniqueProperties, _existingProperties, cancellationToken);
+        SeedResult<TEntity, TKey> result = await SeedManyAsync(
+            description,
+            seeds,
+            keyProperty,
+            unitOfWork,
+            repository.GetManyAsync, repository.Untrack, repository.InsertMany,
+            update, create,
+            uniqueProperties,
+            existingProperties,
+            cancellationToken
+        );
         return result;
     }
 
+    public static async Task<SeedResult<TEntity, TKey>> SeedManyAsync<TEntity, TSeed, TKey>(
+        string description,
+        IEnumerable<TSeed> seeds,
+        SeedProperty<TEntity, TSeed, TKey> keyProperty,
+        IUnitOfWork unitOfWork,
+        GetManyAsync<TEntity, TKey> getManyAsync, Action<TEntity> untrack, Action<IEnumerable<TEntity>> insertMany,
+        Action<TEntity, TSeed> update, Func<TSeed, TEntity> create,
+        IEnumerable<ISeedReferenceProperty<TEntity, TSeed>>? uniqueProperties = null,
+        IEnumerable<ISeedReferenceProperty<TEntity, TSeed>>? existingProperties = null,
+        CancellationToken cancellationToken = default
+    )
+        where TEntity : class
+        where TKey : notnull
+    {
+        List<TSeed> _seeds = new(seeds);
+        ImmutableArray<ISeedReferenceProperty<TEntity, TSeed>> _uniqueProperties = uniqueProperties == null ? [] : uniqueProperties.ToImmutableArray();
+        ImmutableArray<ISeedReferenceProperty<TEntity, TSeed>> _existingProperties = existingProperties == null ? [] : existingProperties.ToImmutableArray();
+        SeedResult<TEntity, TKey> result = await SeedManyAsync(
+            description, 
+            _seeds, 
+            keyProperty, 
+            unitOfWork,
+            getManyAsync,  untrack, insertMany,
+            update, create, 
+            _uniqueProperties, 
+            _existingProperties, 
+            cancellationToken
+        );
+        return result;
+    }
+
+    public delegate Task<ImmutableArray<TEntity>> GetManyAsync<TEntity, TKey>(IEnumerable<TKey> keys, CancellationToken cancellationToken = default);
     private static async Task<SeedResult<TEntity, TKey>> SeedManyAsync<TEntity, TSeed, TKey>(
         string description,
         List<TSeed> seeds,
         SeedKey<TEntity, TSeed, TKey> keyProperty,
-        IUnitOfWork unitOfWork, IKeyRepository<TEntity, TKey> repository,
+        IUnitOfWork unitOfWork,
+        GetManyAsync<TEntity, TKey> getManyAsync, Action<TEntity> untrack, Action<IEnumerable<TEntity>> insertMany,
         Action<TEntity, TSeed> update, Func<TSeed, TEntity> create,
         ImmutableArray<ISeedUniqueProperty<TEntity, TSeed>> uniqueProperties,
         ImmutableArray<ISeedReferenceProperty<TEntity, TSeed>> referenceProperties,
@@ -57,7 +97,7 @@ public static class SeedUtils
         await unitOfWork.StartTransactionAsync(cancellationToken);
 
         IEnumerable<TKey> keys = seeds.Select(keyProperty.SeedSelector);
-        ImmutableArray<TEntity> existingEntities = await repository.GetManyAsync(keys, cancellationToken);
+        IReadOnlyCollection<TEntity> existingEntities = await getManyAsync(keys, cancellationToken);
 
         foreach (ISeedUniqueProperty<TEntity, TSeed> uniqueProperty in uniqueProperties)
         {
@@ -85,7 +125,7 @@ public static class SeedUtils
                 catch (Exception exception)
                 {
                     errors.Add($"Failed to update {description} (Key = \'{key}\'): {exception.Message}.");
-                    repository.Untrack(entity);
+                    untrack(entity);
                     continue;
                 }
             }
@@ -105,7 +145,7 @@ public static class SeedUtils
 
         }
 
-        repository.InsertMany(newEntities);
+        insertMany(newEntities);
         await unitOfWork.SaveChangesAndCommitTransactionAsync(cancellationToken);
 
         ImmutableDictionary<TKey, TEntity> entities = updatedEntities.Concat(newEntities)
