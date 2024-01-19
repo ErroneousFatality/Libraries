@@ -8,8 +8,7 @@ namespace AndrejKrizan.ElasticSearch.FieldTools;
 public static class FieldUtils
 {
     // Methods
-    public static Fields Create<TRecord>(IEnumerable<Expression<Func<TRecord, object>>> fields)
-        where TRecord : class
+    public static Fields Create(IEnumerable<LambdaExpression> fields)
     {
         if (!fields.Any())
         {
@@ -20,13 +19,10 @@ public static class FieldUtils
         return _fields;
     }
 
-    public static Fields Create<TOwner, TRecord>(
-        Expression<Func<TOwner, TRecord>> record,
-        IEnumerable<Expression<Func<TRecord, object>>> recordFields
-    )
+    public static Fields Create<TOwner, TRecord>(Expression<Func<TOwner, TRecord>> record, IEnumerable<LambdaExpression> recordFields)
         where TOwner : class
     {
-        IEnumerable<Expression<Func<TOwner, object>>> fields = record.Explode(recordFields);
+        IEnumerable<LambdaExpression> fields = record.Explode(recordFields);
         Fields _fields = Create(fields);
         return _fields;
     }
