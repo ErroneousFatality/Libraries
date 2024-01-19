@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 
-using AndrejKrizan.DotNet.AsyncActions;
 using AndrejKrizan.DotNet.Collections;
 using AndrejKrizan.DotNet.Repositories;
 using AndrejKrizan.DotNet.Seeding.Properties.Keys;
@@ -12,8 +11,12 @@ using AndrejKrizan.DotNet.UnitsOfWork;
 namespace AndrejKrizan.DotNet.Seeding;
 public static class SeedUtils
 {
+    // Definitions
+    public delegate Task<ImmutableArray<TEntity>> GetManyAsync<TEntity, TKey>(IEnumerable<TKey> keys, CancellationToken cancellationToken = default);
+    public delegate Task PostprocessAsync<TEntity>(ImmutableArray<TEntity> entities, CancellationToken cancellationToken = default);
+
     // Methods
-    public static async Task<SeedResult<TEntity, TKey>> SeedManyAsync<TEntity, TSeed, TKey>(
+    public static async Task<SeedResult<TEntity>> SeedManyAsync<TEntity, TSeed, TKey>(
         string description,
         IEnumerable<TSeed> seeds,
         SeedKey<TEntity, TSeed, TKey> keyProperty,
@@ -21,13 +24,13 @@ public static class SeedUtils
         Action<TEntity, TSeed> update, Func<TSeed, TEntity> create,
         IEnumerable<ISeedUniqueProperty<TEntity, TSeed>>? uniqueProperties = null,
         IEnumerable<ISeedReferenceProperty<TEntity, TSeed>>? referenceProperties = null,
-        AsyncAction? postprocessAsync = null,
+        PostprocessAsync<TEntity>? postprocessAsync = null,
         CancellationToken cancellationToken = default
     )
         where TEntity : class
         where TKey : notnull
     {
-        SeedResult<TEntity, TKey> result = await SeedManyAsync(
+        SeedResult<TEntity> result = await SeedManyAsync(
             description,
             seeds,
             keyProperty,
@@ -42,7 +45,7 @@ public static class SeedUtils
         return result;
     }
 
-    public static async Task<SeedResult<TEntity, TKey>> SeedManyAsync<TEntity, TSeed, TKey>(
+    public static async Task<SeedResult<TEntity>> SeedManyAsync<TEntity, TSeed, TKey>(
         string description,
         IEnumerable<TSeed> seeds,
         SeedKey<TEntity, TSeed, TKey> keyProperty,
@@ -51,7 +54,7 @@ public static class SeedUtils
         Action<TEntity, TSeed> update, Func<TSeed, TEntity> create,
         IEnumerable<ISeedUniqueProperty<TEntity, TSeed>>? uniqueProperties = null,
         IEnumerable<ISeedReferenceProperty<TEntity, TSeed>>? existingProperties = null,
-        AsyncAction? postprocessAsync = null,
+        PostprocessAsync<TEntity>? postprocessAsync = null,
         CancellationToken cancellationToken = default
     )
         where TEntity : class
@@ -60,7 +63,7 @@ public static class SeedUtils
         List<TSeed> _seeds = new(seeds);
         ImmutableArray<ISeedUniqueProperty<TEntity, TSeed>> _uniqueProperties = uniqueProperties == null ? [] : uniqueProperties.ToImmutableArray();
         ImmutableArray<ISeedReferenceProperty<TEntity, TSeed>> _existingProperties = existingProperties == null ? [] : existingProperties.ToImmutableArray();
-        SeedResult<TEntity, TKey> result = await SeedManyImplAsync(
+        SeedResult<TEntity> result = await SeedManyImplAsync(
             description, 
             _seeds, 
             keyProperty, 
@@ -75,8 +78,7 @@ public static class SeedUtils
         return result;
     }
 
-    public delegate Task<ImmutableArray<TEntity>> GetManyAsync<TEntity, TKey>(IEnumerable<TKey> keys, CancellationToken cancellationToken = default);
-    private static async Task<SeedResult<TEntity, TKey>> SeedManyImplAsync<TEntity, TSeed, TKey>(
+    private static async Task<SeedResult<TEntity>> SeedManyImplAsync<TEntity, TSeed, TKey>(
         string description,
         List<TSeed> seeds,
         SeedKey<TEntity, TSeed, TKey> keyProperty,
@@ -85,7 +87,7 @@ public static class SeedUtils
         Action<TEntity, TSeed> update, Func<TSeed, TEntity> create,
         ImmutableArray<ISeedUniqueProperty<TEntity, TSeed>> uniqueProperties,
         ImmutableArray<ISeedReferenceProperty<TEntity, TSeed>> referenceProperties,
-        AsyncAction? postprocessAsync = null,
+        PostprocessAsync<TEntity>? postprocessAsync = null,
         CancellationToken cancellationToken = default
     )
         where TEntity : class
@@ -152,17 +154,19 @@ public static class SeedUtils
 
         insertMany(newEntities);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        ImmutableArray<TEntity> entities = updatedEntities.Concat(newEntities)
+            .OrderBy(keyProperty.EntitySelector, keyProperty.Comparer)
+            .ToImmutableArray();
+
         if (postprocessAsync != null)
         {
-            await postprocessAsync(cancellationToken);
+            await postprocessAsync(entities, cancellationToken);
         }
+
         await unitOfWork.CommitTransactionAsync(cancellationToken);
 
-        ImmutableDictionary<TKey, TEntity> entities = updatedEntities.Concat(newEntities)
-            .OrderBy(keyProperty.EntitySelector, keyProperty.Comparer)
-            .ToImmutableDictionary(keyProperty.EntitySelector, keyProperty.EqualityComparer);
-
-        return new SeedResult<TEntity, TKey>
+        return new SeedResult<TEntity>
         {
             Entities = entities,
             Errors = errors.ToImmutableArray()

@@ -1,9 +1,8 @@
 ﻿using System.Collections.Immutable;
 
 namespace AndrejKrizan.DotNet.Seeding;
-public readonly struct SeedResult<TEntity, TKey>
-    where TKey : notnull
+public readonly struct SeedResult<TEntity>
 {
     public required readonly ImmutableArray<string> Errors { get; init; }
-    public required readonly ImmutableDictionary<TKey, TEntity> Entities { get; init; }
+    public required readonly ImmutableArray<TEntity> Entities { get; init; }
 }
