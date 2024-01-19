@@ -13,7 +13,7 @@ public static class IEnumerableExtensions
     {
         if (!arguments.Any())
         {
-            return _ => true;
+            return _ => false;
         }
         ImmutableArray<Expression<Func<T, bool>>> predicates = arguments.Convert(argument => predicateBuilder(argument));
         ParameterExpression parameter = predicates[0].Parameters[0];
@@ -34,13 +34,13 @@ public static class IEnumerableExtensions
     }
 
     public static IEnumerable<T> WhereAny<T, TArgument>(this IEnumerable<T> source,
-        IEnumerable<TArgument>? arguments,
+        IEnumerable<TArgument> arguments,
         Func<TArgument, Expression<Func<T, bool>>> predicateBuilder
     )
     {
-        if (arguments == null || !arguments.Any())
+        if (!arguments.Any())
         {
-            return source;
+            return ImmutableArray<T>.Empty;
         }
         Func<T, bool> any = arguments.ToAnyFunc(predicateBuilder);
         IEnumerable<T> whereAny = source.Where(any);
@@ -76,11 +76,11 @@ public static class IEnumerableExtensions
     }
 
     public static IEnumerable<T> WhereEvery<T, TArgument>(this IEnumerable<T> source,
-        IEnumerable<TArgument>? arguments,
+        IEnumerable<TArgument> arguments,
         Func<TArgument, Expression<Func<T, bool>>> predicateBuilder
     )
     {
-        if (arguments == null || !arguments.Any())
+        if (!arguments.Any())
         {
             return source;
         }

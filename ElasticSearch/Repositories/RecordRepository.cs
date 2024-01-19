@@ -75,6 +75,10 @@ public abstract class RecordRepository<TRecord, TId> : RecordRepository, IRecord
 
     public async Task<ImmutableDictionary<TId, TRecord>> GetManyAsync(IEnumerable<TId> ids, CancellationToken cancellationToken = default)
     {
+        if (!ids.Any())
+        {
+            return ImmutableDictionary<TId, TRecord>.Empty;
+        }
         Ids _ids = CreateIds(ids);
         MultiGetResponse<TRecord> response = await Client.MultiGetAsync<TRecord>(
             new MultiGetRequest
@@ -104,7 +108,9 @@ public abstract class RecordRepository<TRecord, TId> : RecordRepository, IRecord
             .Select(pair => pair!.Value)
             .ToImmutableDictionary();
         if (errorMessages.Count > 0)
+        {
             throw new Exception("Elastic search response has errors:\n" + errorMessages.StringJoin(separator: Environment.NewLine));
+        }
         return recordDictionary;
     }
 

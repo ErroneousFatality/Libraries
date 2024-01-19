@@ -80,10 +80,17 @@ public abstract class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRe
     }
 
     public async Task<ImmutableArray<TKey>> GetKeysAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
-        => await DbSet
+    {
+        if (!keys.Any())
+        {
+            return [];
+        }
+        ImmutableArray<TKey> _keys = await DbSet
             .Select(KeyProperty.Lambda)
             .Where(key => keys.Contains(key))
             .ToImmutableArrayAsync(cancellationToken);
+        return _keys;
+    }
 
     public void Delete(TKey key)
     {
@@ -96,6 +103,10 @@ public abstract class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRe
 
     public void DeleteMany(IEnumerable<TKey> keys)
     {
+        if (!keys.Any())
+        {
+            return;
+        }
         IEnumerable<TEntity> mockEntities = keys.Select(MockEntity);
         DbSet.RemoveRange(mockEntities);
     }

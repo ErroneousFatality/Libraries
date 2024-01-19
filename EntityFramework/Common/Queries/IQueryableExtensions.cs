@@ -55,36 +55,56 @@ public static class IQueryableExtensions
     )
         => source.ConditionallyApply(
             arguments,
-            (IEnumerable<TArgument> argument, IQueryable<TEntity> query) => query.Where(createPredicate(argument))
+            (IEnumerable<TArgument> arguments, IQueryable<TEntity> query) => query.Where(createPredicate(arguments))
         );
     #endregion
 
+    #region WhereAny
     public static IQueryable<TEntity> WhereAny<TEntity, TArgument>(this IQueryable<TEntity> source,
-        IEnumerable<TArgument>? arguments,
-        Func<TArgument, Expression<Func<TEntity, bool>>> predicateBuilder
+        IEnumerable<TArgument> arguments,
+        Func<TArgument, Expression<Func<TEntity, bool>>> createPredicate
     )
     {
-        if (arguments == null || !arguments.Any())
-            return source;
-        Expression<Func<TEntity, bool>> any = arguments.ToAnyLambda(predicateBuilder);
+        Expression<Func<TEntity, bool>> any = arguments.ToAnyLambda(createPredicate);
         IQueryable<TEntity> query = source.Where(any);
         return query;
     }
 
+    /// <summary>Will apply the predicate filter if the arguments enumerable is not null nor empty.</summary>
+    public static IQueryable<TEntity> ConditionalWhereAny<TEntity, TArgument>(this IQueryable<TEntity> source,
+         IEnumerable<TArgument>? arguments,
+         Func<TArgument, Expression<Func<TEntity, bool>>> createPredicate
+    )
+        => source.ConditionallyApply(
+            arguments,
+            (IEnumerable<TArgument> _arguments, IQueryable<TEntity> query) => query.WhereAny(_arguments, createPredicate)
+        );
+    #endregion
+
+    #region WhereEvery
     public static IQueryable<TEntity> WhereEvery<TEntity, TArgument>(this IQueryable<TEntity> source,
-        IEnumerable<TArgument>? arguments,
-        Func<TArgument, Expression<Func<TEntity, bool>>> predicateBuilder
+        IEnumerable<TArgument> arguments,
+        Func<TArgument, Expression<Func<TEntity, bool>>> createPredicate
     )
     {
-        if (arguments == null || !arguments.Any())
-            return source;
-        Expression<Func<TEntity, bool>> every = arguments.ToEveryLambda(predicateBuilder);
+        Expression<Func<TEntity, bool>> every = arguments.ToEveryLambda(createPredicate);
         IQueryable<TEntity> query = source.Where(every);
         return query;
     }
 
+    /// <summary>Will apply the predicate filter if the arguments enumerable is not null nor empty.</summary>
+    public static IQueryable<TEntity> ConditionalWhereEvery<TEntity, TArgument>(this IQueryable<TEntity> source,
+         IEnumerable<TArgument>? arguments,
+         Func<TArgument, Expression<Func<TEntity, bool>>> createPredicate
+    )
+        => source.ConditionallyApply(
+            arguments,
+            (IEnumerable<TArgument> _arguments, IQueryable<TEntity> query) => query.WhereEvery(_arguments, createPredicate)
+        );
+    #endregion
+
     public static IQueryable<TEntity> WhereAnyPhrase<TEntity>(this IQueryable<TEntity> source,
-        string? text,
+        string text,
         Func<string, Expression<Func<TEntity, bool>>> predicateBuilder,
         char wordSeparator = ' ',
         char phraseSeparator = '"',
@@ -92,7 +112,9 @@ public static class IQueryableExtensions
     )
     {
         if (string.IsNullOrEmpty(text))
+        {
             return source;
+        }
         IEnumerable<string> phrases = text.SplitToPhraseEnumerable(wordSeparator, phraseSeparator, splitOptions);
         IQueryable<TEntity> query = source.WhereAny(phrases, predicateBuilder);
         return query;

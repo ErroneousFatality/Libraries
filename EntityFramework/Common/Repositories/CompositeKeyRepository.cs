@@ -32,28 +32,57 @@ public abstract class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity
 
 
     public async Task<ImmutableArray<TEntity>> GetManyAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
-    => await DbSet
+    {
+        if (!keys.Any())
+        {
+            return [];
+        }
+        ImmutableArray<TEntity> entities = await DbSet
             .WhereAny(keys, key => key.ToEntityPredicate())
             .ToImmutableArrayAsync(cancellationToken);
+        return entities;
+    }
+        
 
     public async Task<ImmutableArray<TEntity>> GetManyAsync(IEnumerable<TKey> keys, int chunkSize, CancellationToken cancellationToken = default)
-        => await DbSet.WhereAnyAsync(keys, chunkSize, key => key.ToEntityPredicate(), cancellationToken);
+    {
+        if (!keys.Any())
+        {
+            return [];
+        }
+        ImmutableArray<TEntity> entities = await DbSet.WhereAnyAsync(keys, chunkSize, key => key.ToEntityPredicate(), cancellationToken);
+        return entities;
+    }
 
 
     public async Task<ImmutableArray<TKey>> GetKeysAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
-        => await DbSet
+    {
+        if (!keys.Any())
+        {
+            return [];
+        }
+        ImmutableArray<TKey> _keys = await DbSet
             .WhereAny(keys, key => key.ToEntityPredicate())
             .Select(TKey.Selector)
             .ToImmutableArrayAsync(cancellationToken);
+        return _keys;
+    }
 
 
 
     public async Task<ImmutableArray<TKey>> GetKeysAsync(IEnumerable<TKey> keys, int chunkSize, CancellationToken cancellationToken = default)
-        => await DbSet.WhereAnyAsync(keys, chunkSize,
+    {
+        if (!keys.Any())
+        {
+            return [];
+        }
+        ImmutableArray<TKey> _keys = await DbSet.WhereAnyAsync(keys, chunkSize,
                 key => key.ToEntityPredicate(),
                 query => query.Select(TKey.Selector),
                 cancellationToken
             );
+        return _keys;
+    }
 
     public void Delete(TKey key)
     {
@@ -67,6 +96,10 @@ public abstract class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity
 
     public void DeleteMany(IEnumerable<TKey> keys)
     {
+        if (!keys.Any())
+        {
+            return;
+        }
         IEnumerable<TEntity> mockEntities = keys.Select(MockEntity);
         DbSet.RemoveRange(mockEntities);
     }
