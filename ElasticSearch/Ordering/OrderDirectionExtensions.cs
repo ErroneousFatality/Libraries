@@ -1,6 +1,7 @@
 ﻿using AndrejKrizan.DotNet.Ordering;
 
 using Elastic.Clients.Elasticsearch;
+using Elastic.Clients.Elasticsearch.Mapping;
 
 namespace AndrejKrizan.ElasticSearch.Ordering;
 
@@ -14,6 +15,16 @@ public static class OrderDirectionExtensions
             _ => throw new ArgumentOutOfRangeException(nameof(orderDirection), "Unknown order direction."),
         };
 
-    public static FieldSort ToFieldSort(this OrderDirection orderDirection)
-        => new() { Order = orderDirection.ToSortOrder(), Missing = "_last" };
+    public static FieldSort ToFieldSort(this OrderDirection orderDirection,
+        SortMode? mode = null,
+        string? missing = "_last",
+        FieldType? unmappedType = FieldType.Long
+    )
+        => new()
+        {
+            Order = orderDirection.ToSortOrder(),
+            Mode = mode,
+            UnmappedType = unmappedType,
+            Missing = missing ?? (FieldValue?)null,
+        };
 }
