@@ -7,7 +7,7 @@
 		<Authors>ErroneousFatality</Authors>
 		<RepositoryUrl>https://github.com/ErroneousFatality/Libraries/tree/main/DotNet</RepositoryUrl>
 		<PackageOutputPath>..\Nugets</PackageOutputPath>
-		<Version>7.4.9</Version>
+		<Version>7.4.10</Version>
 		<SignAssembly>True</SignAssembly>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
@@ -15,7 +15,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
 	</ItemGroup>
 
 </Project>
