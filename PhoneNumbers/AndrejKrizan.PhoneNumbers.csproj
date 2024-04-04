@@ -7,13 +7,13 @@
 		<Authors>ErroneousFatality</Authors>
 		<RepositoryUrl>https://github.com/ErroneousFatality/Libraries/tree/main/PhoneNumber</RepositoryUrl>
 		<PackageOutputPath>..\Nugets</PackageOutputPath>
-		<Version>7.4.10</Version>
+		<Version>8.0.0</Version>
 		<SignAssembly>True</SignAssembly>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="libphonenumber-csharp" Version="8.13.32" />
+		<PackageReference Include="libphonenumber-csharp" Version="8.13.33" />
 	</ItemGroup>
 
 </Project>

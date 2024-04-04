@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Mime;
 
-using AndrejKrizan.DotNet.Identities;
+using AndrejKrizan.DotNet.Authorization;
 
 using Microsoft.AspNetCore.Http;
 
@@ -14,7 +14,7 @@ internal static class Utils
         {
             ArgumentException => HttpStatusCode.BadRequest,
             InvalidOperationException => HttpStatusCode.Forbidden,
-            IdentityException => HttpStatusCode.Unauthorized,
+            AuthorizationException => HttpStatusCode.Unauthorized,
             _ => HttpStatusCode.InternalServerError
         };
 
