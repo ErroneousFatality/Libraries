@@ -93,6 +93,15 @@ public static class SeedUtils
         where TEntity : class
         where TKey : notnull
     {
+        if (seeds.Count == 0)
+        {
+            return new SeedResult<TEntity>
+            {
+                Entities = [],
+                Errors = []
+            };
+        }
+
         List<string> errors = new(seeds.Count);
 
         keyProperty.RemoveAndLogSeedsWithDuplicateKeys(seeds, errors, description);

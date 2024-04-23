@@ -1,6 +1,6 @@
-﻿namespace AndrejKrizan.DotNet.Authorization;
+﻿namespace AndrejKrizan.DotNet.Exceptions;
 
-public class AuthorizationException : Exception
+public class AuthorizationException : InvalidOperationException
 {
     // Constructors
 

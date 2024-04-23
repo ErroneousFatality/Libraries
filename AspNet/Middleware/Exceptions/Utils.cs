@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Mime;
 
-using AndrejKrizan.DotNet.Authorization;
+using AndrejKrizan.DotNet.Exceptions;
 
 using Microsoft.AspNetCore.Http;
 
@@ -12,9 +12,10 @@ internal static class Utils
     internal static HttpStatusCode ExceptionToStatusCode(Exception exception)
         => exception switch
         {
+            NotFoundException => HttpStatusCode.NotFound,
             ArgumentException => HttpStatusCode.BadRequest,
-            InvalidOperationException => HttpStatusCode.Forbidden,
             AuthorizationException => HttpStatusCode.Unauthorized,
+            InvalidOperationException => HttpStatusCode.Forbidden,
             _ => HttpStatusCode.InternalServerError
         };
 

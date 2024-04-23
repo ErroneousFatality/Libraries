@@ -14,7 +14,7 @@ public static class FieldUtils
         {
             throw new ArgumentException("Fields must have at least one field.", nameof(fields));
         }
-        Fields _fields = new Field(fields.First());
+        Fields _fields = new Field(fields.First()).ToFields();
         _fields = _fields.And(fields.Skip(1));
         return _fields;
     }
