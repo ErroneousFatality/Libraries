@@ -26,6 +26,15 @@ public static class IQueryableExtensions
             (IQueryable<TEntity> query) => query.Where(predicate)
         );
 
+    public static IQueryable<TEntity> ConditionalWhere<TEntity>(this IQueryable<TEntity> source,
+        string? argument,
+        Func<string, Expression<Func<TEntity, bool>>> createPredicate
+    )
+        => source.ConditionallyApply(
+            argument,
+            (string argument, IQueryable<TEntity> query) => query.Where(createPredicate(argument))
+        );
+
     /// <summary>Will apply the predicate filter if the argument is not null nor an empty collection.</summary>
     public static IQueryable<TEntity> ConditionalWhere<TEntity, TArgument>(this IQueryable<TEntity> source,
         TArgument? argument,

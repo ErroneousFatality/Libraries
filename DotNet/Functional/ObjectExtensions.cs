@@ -115,6 +115,19 @@ public static class ObjectExtensions
         return result;
     }
 
+    /// <summary>Will apply the transformation if the string argument is not null, empty nor whitespace.</summary>
+    public static T ConditionallyApply<T>(this T source,
+        string? argument, Func<string, T, T> transform
+    )
+    {
+        if (string.IsNullOrWhiteSpace(argument))
+        {
+            return source;
+        }
+        T result = transform(argument, source);
+        return result;
+    }
+
     /// <summary>Will apply the transformation if the arguments enumerable is not null nor empty.</summary>
     public static T ConditionallyApply<T, TArgument>(this T source,
         IEnumerable<TArgument>? arguments, Func<IEnumerable<TArgument>, T, T> transform
