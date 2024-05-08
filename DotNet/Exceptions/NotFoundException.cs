@@ -1,11 +1,10 @@
 ﻿namespace AndrejKrizan.DotNet.Exceptions;
-public class NotFoundException : ArgumentException
+public class NotFoundException : Exception
 {
     // Constructors
     public NotFoundException(
-        string? paramName = null, 
         string? message = null, 
         Exception? innerException = null
     )
-        : base(message, paramName, innerException) { }
+        : base(message, innerException) { }
 }
