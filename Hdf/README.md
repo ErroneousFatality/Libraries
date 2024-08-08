@@ -1,5 +1,5 @@
 # Hdf
-[![latest version](https://img.shields.io/nuget/v/AndrejKrizan.DotNet)](https://www.nuget.org/packages/AndrejKrizan.DotNet)
+[![latest version](https://img.shields.io/nuget/v/AndrejKrizan.Hdf)](https://www.nuget.org/packages/AndrejKrizan.Hdf)
 
 ## Example
 ```cs
