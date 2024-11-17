@@ -131,7 +131,7 @@ public sealed class Range<T> : IComparable<Range<T>>, IEquatable<Range<T>>
     public static implicit operator (T From, T To)(Range<T> range) => (range.From, range.To);
 
     public static implicit operator Range<T>(T[] array) => new Range<T>(array);
-    public static implicit operator T[](Range<T> range) => new T[] { range.From, range.To };
+    public static implicit operator T[](Range<T> range) => [range.From, range.To];
 
     public static implicit operator Range<T>(ImmutableArray<T> array) => new Range<T>(array);
     public static implicit operator ImmutableArray<T>(Range<T> range) => ImmutableArray.Create(range.From, range.To);

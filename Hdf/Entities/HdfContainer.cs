@@ -196,7 +196,7 @@ public abstract class HdfContainer : HdfAttributableObject
     )
         where T : notnull
     {
-        ulong[] dimensions = new ulong[] { (ulong)collection.Count() };
+        ulong[] dimensions = [(ulong)collection.Count()];
         HdfDataset<T> dataset = CreateChild(pathName, constructorConstructor(dimensions));
         dataset.Write(collection);
         if (dispose)
@@ -215,7 +215,7 @@ public abstract class HdfContainer : HdfAttributableObject
         where T : notnull
         where TRow : IEnumerable<T>
     {
-        ulong[] dimensions = new ulong[] { (ulong)matrix.Count(), (ulong)(matrix.FirstOrDefault()?.Count() ?? 0) };
+        ulong[] dimensions = [(ulong)matrix.Count(), (ulong)(matrix.FirstOrDefault()?.Count() ?? 0)];
         HdfDataset<T> dataset = CreateChild(pathName, constructorConstructor(dimensions));
         dataset.Write(matrix);
         if (dispose)

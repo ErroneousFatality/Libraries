@@ -134,7 +134,7 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable
     public static implicit operator (T? From, T? To)(NullableRange<T> range) => (range.From, range.To);
 
     public static implicit operator NullableRange<T>(T?[] array) => new NullableRange<T>(array);
-    public static implicit operator T?[](NullableRange<T> range) => new T?[] { range.From, range.To };
+    public static implicit operator T?[](NullableRange<T> range) => [range.From, range.To];
 
     public static implicit operator NullableRange<T>(ImmutableArray<T?> array) => new NullableRange<T>(array);
     public static implicit operator ImmutableArray<T?>(NullableRange<T> range) => ImmutableArray.Create(range.From, range.To);
