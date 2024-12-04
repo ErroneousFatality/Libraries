@@ -49,7 +49,7 @@ public abstract class SeedProperty<TEntity, TSeed, TProperty>
         if (duplicates.Count > 0)
         {
             bool quote = typeof(TProperty).Equals(typeof(string));
-            log.Add($"There {entityDescription} seeds contain some duplicate {Description} values: {duplicates.StringJoin(quote: quote)}.");
+            log.Add($"The {entityDescription} seeds contain some duplicate {Description} values: {duplicates.StringJoin(quote: quote)}.");
         }
     }
 }
