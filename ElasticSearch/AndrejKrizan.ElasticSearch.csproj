@@ -7,13 +7,13 @@
 		<Authors>ErroneousFatality</Authors>
 		<RepositoryUrl>https://github.com/ErroneousFatality/Libraries/tree/main/ElasticSearch</RepositoryUrl>
 		<PackageOutputPath>..\Nugets</PackageOutputPath>
-		<Version>9.0.6</Version>
+		<Version>9.0.7</Version>
 		<SignAssembly>True</SignAssembly>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Elastic.Clients.Elasticsearch" Version="8.17.1" />
+    <PackageReference Include="Elastic.Clients.Elasticsearch" Version="8.17.3" />
   </ItemGroup>
 
   <ItemGroup>

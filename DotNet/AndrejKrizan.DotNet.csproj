@@ -7,7 +7,7 @@
 		<Authors>ErroneousFatality</Authors>
 		<RepositoryUrl>https://github.com/ErroneousFatality/Libraries/tree/main/DotNet</RepositoryUrl>
 		<PackageOutputPath>..\Nugets</PackageOutputPath>
-		<Version>9.0.6</Version>
+		<Version>9.0.7</Version>
 		<SignAssembly>True</SignAssembly>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
