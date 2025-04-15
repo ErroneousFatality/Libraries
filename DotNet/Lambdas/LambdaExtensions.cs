@@ -48,6 +48,8 @@ public static class LambdaExtensions
     #endregion
 
     #region Extend
+
+    /// <exception cref="ArgumentException"></exception>
     public static LambdaExpression Extend(this LambdaExpression source,
         LambdaExpression extension
     )
@@ -66,6 +68,7 @@ public static class LambdaExtensions
         return lambda;
     }
 
+    /// <exception cref="ArgumentException"></exception>
     public static Expression<Func<TSource, TResult>> Extend<TSource, T, TResult>(this Expression<Func<TSource, T>> source,
         Expression<Func<T, TResult>> extension
     )

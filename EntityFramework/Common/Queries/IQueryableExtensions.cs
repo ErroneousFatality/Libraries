@@ -262,6 +262,67 @@ public static class IQueryableExtensions
         return page;
     }
 
+    #region MinOrDefaultAsync
+    /// <returns>A task whose result contains the minimum value in the sequence or the <paramref name="defaultValue"/> if the sequence is empty.</returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    public static async Task<TValue> MinOrDefaultAsync<TValue>(
+        this IQueryable<TValue> source,
+        TValue defaultValue = default,
+        CancellationToken cancellationToken = default
+    )
+        where TValue : struct
+    {
+        TValue minValue = await source.MinAsync((TValue value) => (TValue?)value, cancellationToken) ?? defaultValue;
+        return minValue;
+    }
+
+    /// <returns>A task whose result contains the minimum value in the sequence or the <paramref name="defaultValue"/> if the sequence is empty.</returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    public static async Task<TValue> MinOrDefaultAsync<TSource, TValue>(
+        this IQueryable<TSource> source,
+        Expression<Func<TSource, TValue>> selector,
+        TValue defaultValue = default,
+        CancellationToken cancellationToken = default
+    )
+        where TValue: struct
+    {
+        Expression<Func<TSource, TValue?>> nullableSelector = selector.Extend((TValue result) => (TValue?)result);
+        TValue minValue = await source.MinAsync(nullableSelector, cancellationToken) ?? defaultValue;
+        return minValue;
+    }
+    #endregion
+
+    #region MaxOrDefaultAsync
+    /// <returns>A task whose result contains the maximum value in the sequence or the <paramref name="defaultValue"/> if the sequence is empty.</returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    public static async Task<TValue> MaxOrDefaultAsync<TValue>(
+        this IQueryable<TValue> source,
+        TValue defaultValue = default,
+        CancellationToken cancellationToken = default
+    )
+        where TValue : struct
+    {
+        TValue maxValue = await source.MaxAsync((TValue value) => (TValue?)value, cancellationToken) ?? defaultValue;
+        return maxValue;
+    }
+
+    /// <returns>A task whose result contains the maximum value in the sequence or the <paramref name="defaultValue"/> if the sequence is empty.</returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    public static async Task<TValue> MaxOrDefaultAsync<TSource, TValue>(
+        this IQueryable<TSource> source,
+        Expression<Func<TSource, TValue>> selector,
+        TValue defaultValue = default,
+        CancellationToken cancellationToken = default
+    )
+        where TValue: struct
+    {
+        Expression<Func<TSource, TValue?>> nullableSelector = selector.Extend((TValue result) => (TValue?)result);
+        TValue maxValue = await source.MaxAsync(nullableSelector, cancellationToken) ?? defaultValue;
+        return maxValue;
+    }
+    #endregion
+
+
     #region WhereAnyAsync
     public static async Task<ImmutableArray<TEntity>> WhereAnyAsync<TEntity, TData>(this IQueryable<TEntity> query,
         IEnumerable<TData> dataSource,

@@ -244,6 +244,23 @@ public static class IEnumerableExtensions
         => source.ContentEquals(target, EqualityComparer<T>.Default);
     #endregion
 
+    #region MinOrDefault
+    /// <returns>The minimum value in the sequence or the <paramref name="defaultValue"/> if the sequence is empty.</returns>
+    public static TValue MinOrDefault<TValue>(this IEnumerable<TValue> source, IComparer<TValue> comparer, TValue defaultValue = default)
+        where TValue: struct
+    {
+        TValue min = source.Any()
+            ? source.Min(comparer)
+            : defaultValue;
+        return min;
+    }
+
+    /// <returns>The minimum value in the sequence or the <paramref name="defaultValue"/> if the sequence is empty.</returns>
+    public static TValue MinOrDefault<TValue>(this IEnumerable<TValue> source, TValue defaultValue = default)
+        where TValue : struct
+        => source.MinOrDefault(Comparer<TValue>.Default, defaultValue);
+    #endregion
+
     #region MinBy
     public static T MinBy<T, TValue>(this IEnumerable<T> source, Func<T, TValue> valueSelector, out TValue minValue, IComparer<TValue> comparer)
     {
@@ -275,6 +292,23 @@ public static class IEnumerableExtensions
     }
     public static T? MinByOrDefault<T, TValue>(this IEnumerable<T> source, Func<T, TValue> valueSelector, out TValue? minValue)
         => source.MinByOrDefault(valueSelector, out minValue, Comparer<TValue>.Default);
+    #endregion
+
+    #region MaxOrDefault
+    /// <returns>The maximum value in the sequence or the <paramref name="defaultValue"/> if the sequence is empty.</returns>
+    public static TValue MaxOrDefault<TValue>(this IEnumerable<TValue> source, IComparer<TValue> comparer, TValue defaultValue = default)
+        where TValue : struct
+    {
+        TValue max = source.Any()
+            ? source.Max(comparer)
+            : defaultValue;
+        return max;
+    }
+
+    /// <returns>The maximum value in the sequence or the <paramref name="defaultValue"/> if the sequence is empty.</returns>
+    public static TValue MaxOrDefault<TValue>(this IEnumerable<TValue> source, TValue defaultValue = default)
+        where TValue : struct
+        => source.MaxOrDefault(Comparer<TValue>.Default, defaultValue);
     #endregion
 
     #region MaxBy
