@@ -16,7 +16,12 @@ public static class SortOptionsDescriptorExtensions
         string? missing = "_last",
         FieldType? unmappedType = FieldType.Long
     )
-        => sort.Field(selector, direction.ToFieldSort(mode, missing, unmappedType));
+    {
+        Field field = selector;
+        FieldSort fieldSort = direction.ToFieldSort(field, mode, missing, unmappedType);
+        SortOptionsDescriptor<T> sortOptionsDescriptor = sort.Field(fieldSort);
+        return sortOptionsDescriptor;
+    }
 
     public static SortOptionsDescriptor<T> Score<T>(this SortOptionsDescriptor<T> sort,
         SortOrder? order = null

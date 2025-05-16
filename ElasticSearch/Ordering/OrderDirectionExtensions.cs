@@ -16,12 +16,14 @@ public static class OrderDirectionExtensions
         };
 
     public static FieldSort ToFieldSort(this OrderDirection orderDirection,
+        Field field,
         SortMode? mode = null,
         string? missing = "_last",
         FieldType? unmappedType = FieldType.Long
     )
         => new()
         {
+            Field = field,
             Order = orderDirection.ToSortOrder(),
             Mode = mode,
             UnmappedType = unmappedType,

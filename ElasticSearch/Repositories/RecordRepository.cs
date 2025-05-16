@@ -93,13 +93,15 @@ public abstract class RecordRepository<TRecord, TId> : RecordRepository, IRecord
         ImmutableDictionary<TId, TRecord> recordDictionary = response.Docs
             .Select(response
                 => response.Match<KeyValuePair<TId, TRecord>?>(
-                    result => result.Found
+                    result => result != null && result.Found
                         ? new KeyValuePair<TId, TRecord>(Utils.ConvertTo<TId>(result.Id), result.Source!)
                         : null,
                     error =>
                     {
-                        if (error.Error.Reason != null)
+                        if (error?.Error.Reason != null)
+                        {
                             errorMessages.Add(error.Error.Reason);
+                        }
                         return null;
                     }
                 )
