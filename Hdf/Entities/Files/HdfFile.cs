@@ -51,4 +51,57 @@ public class HdfFile : HdfContainer
 
     protected override int CloseInternal()
         => H5F.close(Id);
+
+    // Static factory methods
+    public static HdfFile Create(string filePath, bool dispose = false, params HdfAttributeDto[] attributes)
+    {
+        HdfFile hdfFile = new(filePath, FileAccessType.Create, attributes);
+        IDisposable disposable = hdfFile.Create();
+        if (dispose)
+        {
+            disposable.Dispose();
+        }
+        return hdfFile;
+    }
+    public static HdfFile Create(string filePath, params HdfAttributeDto[] attributes)
+        => Create(filePath, dispose: false, attributes);
+
+    public static HdfFile OpenOrCreate(string filePath, bool dispose = false, params HdfAttributeDto[] attributes)
+    {
+        HdfFile hdfFile = new(filePath, FileAccessType.Create, attributes);
+        IDisposable disposable = hdfFile.OpenOrCreate();
+        if (dispose)
+        {
+            disposable.Dispose();
+        }
+        return hdfFile;
+    }
+    public static HdfFile OpenOrCreate(string filePath, params HdfAttributeDto[] attributes)
+        => OpenOrCreate(filePath, dispose: false, attributes);
+
+    public static HdfFile OpenWrite(string filePath, bool dispose = false, params HdfAttributeDto[] attributes)
+    {
+        HdfFile hdfFile = new(filePath, FileAccessType.Write, attributes);
+        IDisposable disposable = hdfFile.Open();
+        if (dispose)
+        {
+            disposable.Dispose();
+        }
+        return hdfFile;
+    }
+    public static HdfFile OpenWrite(string filePath, params HdfAttributeDto[] attributes)
+        => OpenWrite(filePath, dispose: false, attributes);
+
+    public static HdfFile OpenRead(string filePath, bool dispose = false, params HdfAttributeDto[] attributes)
+    {
+        HdfFile hdfFile = new(filePath, FileAccessType.Read, attributes);
+        IDisposable disposable = hdfFile.Open();
+        if (dispose)
+        {
+            disposable.Dispose();
+        }
+        return hdfFile;
+    }
+    public static HdfFile OpenRead(string filePath, params HdfAttributeDto[] attributes)
+        => OpenRead(filePath, dispose: false, attributes);
 }

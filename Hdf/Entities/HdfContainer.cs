@@ -8,13 +8,14 @@ namespace AndrejKrizan.Hdf.Entities;
 public abstract class HdfContainer : HdfAttributableObject
 {
     // Properties
-    public Dictionary<string, HdfObject> Children { get; }
+    public IReadOnlyDictionary<string, HdfObject> Children => _children.AsReadOnly();
+    private readonly Dictionary<string, HdfObject> _children;
 
     // Constructors
     protected HdfContainer(HdfContainer? parent, string name, params HdfAttributeDto[] attributes)
         : base(parent, name, attributes)
     {
-        Children = new Dictionary<string, HdfObject>();
+        _children = [];
     }
 
     // Methods
@@ -23,25 +24,25 @@ public abstract class HdfContainer : HdfAttributableObject
 
     #region DateTime Datasets
 
-    public HdfDataset<DateTime> CreateDataset(string pathName, DateTime value, bool dispose = true, params HdfAttributeDto[] attributes)
+    public HdfDataset<DateTime> CreateDateTimeDataset(string pathName, DateTime value, bool dispose = true, params HdfAttributeDto[] attributes)
         => CreateDataset(
             pathName,
             CreateDateTimeConstructor(attributes),
             value,
             dispose
         );
-    public HdfDataset<DateTime> CreateDataset(string pathName, DateTime value, params HdfAttributeDto[] attributes)
-        => CreateDataset(pathName, value, dispose: true, attributes);
+    public HdfDataset<DateTime> CreateDateTimeDataset(string pathName, DateTime value, params HdfAttributeDto[] attributes)
+        => CreateDateTimeDataset(pathName, value, dispose: true, attributes);
 
-    public HdfDataset<DateTime> CreateDataset(string pathName, IEnumerable<DateTime> collection, bool dispose = true, params HdfAttributeDto[] attributes)
+    public HdfDataset<DateTime> CreateDateTimeDataset(string pathName, IEnumerable<DateTime> collection, bool dispose = true, params HdfAttributeDto[] attributes)
         => CreateDataset(
             pathName,
             CreateDateTimeConstructor(attributes),
             collection,
             dispose
         );
-    public HdfDataset<DateTime> CreateDataset(string pathName, IEnumerable<DateTime> collection, params HdfAttributeDto[] attributes)
-        => CreateDataset(pathName, collection, dispose: true, attributes);
+    public HdfDataset<DateTime> CreateDateTimeDataset(string pathName, IEnumerable<DateTime> collection, params HdfAttributeDto[] attributes)
+        => CreateDateTimeDataset(pathName, collection, dispose: true, attributes);
 
     public HdfDataset<DateTime> CreateDateTimeDataset<TRow>(string pathName, IEnumerable<TRow> matrix, bool dispose = true, params HdfAttributeDto[] attributes)
         where TRow : IEnumerable<DateTime>
@@ -64,25 +65,25 @@ public abstract class HdfContainer : HdfAttributableObject
 
     #region String Datasets
 
-    public HdfDataset<string> CreateDataset(string pathName, string value, bool dispose = true, params HdfAttributeDto[] attributes)
+    public HdfDataset<string> CreateStringDataset(string pathName, string value, bool dispose = true, params HdfAttributeDto[] attributes)
         => CreateDataset(
             pathName,
             CreateStringConstructor(attributes),
             value,
             dispose
         );
-    public HdfDataset<string> CreateDataset(string pathName, string value, params HdfAttributeDto[] attributes)
-        => CreateDataset(pathName, value, dispose: true, attributes);
+    public HdfDataset<string> CreateStringDataset(string pathName, string value, params HdfAttributeDto[] attributes)
+        => CreateStringDataset(pathName, value, dispose: true, attributes);
 
-    public HdfDataset<string> CreateDataset(string pathName, IEnumerable<string> collection, bool dispose = true, params HdfAttributeDto[] attributes)
+    public HdfDataset<string> CreateStringDataset(string pathName, IEnumerable<string> collection, bool dispose = true, params HdfAttributeDto[] attributes)
         => CreateDataset(
             pathName,
             CreateStringConstructor(attributes),
             collection,
             dispose
         );
-    public HdfDataset<string> CreateDataset(string pathName, IEnumerable<string> collection, params HdfAttributeDto[] attributes)
-        => CreateDataset(pathName, collection, dispose: true, attributes);
+    public HdfDataset<string> CreateStringDataset(string pathName, IEnumerable<string> collection, params HdfAttributeDto[] attributes)
+        => CreateStringDataset(pathName, collection, dispose: true, attributes);
 
     public HdfDataset<string> CreateStringDataset<TRow>(string pathName, IEnumerable<TRow> matrix, bool dispose = true, params HdfAttributeDto[] attributes)
         where TRow : IEnumerable<string>
@@ -239,7 +240,7 @@ public abstract class HdfContainer : HdfAttributableObject
         else
         {
             group = new HdfGroup(this, name);
-            Children.Add(name, group);
+            _children.Add(name, group);
         }
         return group;
     }
@@ -266,7 +267,7 @@ public abstract class HdfContainer : HdfAttributableObject
         {
             child.Create();
         }
-        container.Children.Add(childName, child);
+        container._children.Add(childName, child);
 
         return child;
     }
