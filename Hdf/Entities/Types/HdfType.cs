@@ -1,4 +1,4 @@
-﻿using AndrejKrizan.DotNet.Pointables;
+﻿using AndrejKrizan.DotNet.Allocations;
 using AndrejKrizan.Hdf.Entities.Objects;
 
 using HDF.PInvoke;
@@ -15,26 +15,26 @@ public class HdfType<T> : HdfObject, IHdfType<T>
     public override string Describe()
         => $"{typeof(T)}";
 
-    public Pointable CreatePointable(T value)
+    public Allocation Allocate(T value)
     {
         byte[] bytes = ConvertToBytes(value);
-        Pointable pointable = new(bytes);
-        return pointable;
+        Allocation valueAllocation = new(bytes);
+        return valueAllocation;
     }
 
-    public Pointable CreatePointable(IEnumerable<T> collection)
+    public Allocation Allocate(IEnumerable<T> collection)
     {
         byte[] bytes = collection.SelectMany(ConvertToBytes).ToArray();
-        Pointable pointable = new(bytes);
-        return pointable;
+        Allocation collectionAllocation = new(bytes);
+        return collectionAllocation;
     }
 
-    public Pointable CreatePointable<TRow>(IEnumerable<TRow> matrix)
+    public Allocation Allocate<TRow>(IEnumerable<TRow> matrix)
         where TRow : IEnumerable<T>
     {
         byte[] bytes = matrix.SelectMany(row => row.SelectMany(ConvertToBytes)).ToArray();
-        Pointable pointable = new(bytes);
-        return pointable;
+        Allocation matrixAllocation = new(bytes);
+        return matrixAllocation;
     }
 
     // Protected methods

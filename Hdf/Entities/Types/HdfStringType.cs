@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-using AndrejKrizan.DotNet.Pointables;
+using AndrejKrizan.DotNet.Allocations;
 using AndrejKrizan.Hdf.Entities.Objects;
 using AndrejKrizan.Hdf.Extensions;
 
@@ -17,26 +17,26 @@ public class HdfStringType : HdfObject, IHdfType<string>
     public override string Describe()
         => $"string";
 
-    public Pointable CreatePointable(string value)
+    public Allocation Allocate(string value)
     {
-        Pointable pointable = CreatePointableInternal(value);
-        PointableArray pointableArray = new(pointable);
-        return pointableArray;
+        Allocation allocation = AllocateInternal(value);
+        AllocationArray allocationArray = new(allocation);
+        return allocationArray;
     }
 
-    public Pointable CreatePointable(IEnumerable<string> collection)
+    public Allocation Allocate(IEnumerable<string> collection)
     {
-        IEnumerable<Pointable> pointables = collection.Select(CreatePointableInternal);
-        PointableArray pointableArray = new(pointables);
-        return pointableArray;
+        IEnumerable<Allocation> allocations = collection.Select(AllocateInternal);
+        AllocationArray allocationArray = new(allocations);
+        return allocationArray;
     }
 
-    public Pointable CreatePointable<TRow>(IEnumerable<TRow> matrix)
+    public Allocation Allocate<TRow>(IEnumerable<TRow> matrix)
         where TRow : IEnumerable<string>
     {
-        IEnumerable<Pointable> pointableArrays = matrix.Select(row => CreatePointable(row));
-        PointableArray pointableMatrix = new(pointableArrays);
-        return pointableMatrix;
+        IEnumerable<Allocation> allocationArrays = matrix.Select(row => Allocate(row));
+        AllocationArray allocationMatrix = new(allocationArrays);
+        return allocationMatrix;
     }
 
     // Protected methods
@@ -58,11 +58,11 @@ public class HdfStringType : HdfObject, IHdfType<string>
         => H5T.close(Id);
 
     // Private methods
-    private static Pointable CreatePointableInternal(string value)
+    private static Allocation AllocateInternal(string value)
     {
         byte[] bytes = ConvertToBytes(value);
-        Pointable pointable = new(bytes);
-        return pointable;
+        Allocation allocation = new(bytes);
+        return allocation;
     }
 
     private static byte[] ConvertToBytes(string value)

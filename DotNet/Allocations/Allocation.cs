@@ -1,8 +1,8 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace AndrejKrizan.DotNet.Pointables;
+namespace AndrejKrizan.DotNet.Allocations;
 
-public class Pointable : IDisposable
+public class Allocation : IDisposable
 {
     // Properties
     private GCHandle Handle { get; set; }
@@ -12,13 +12,13 @@ public class Pointable : IDisposable
         => Handle.AddrOfPinnedObject();
 
     // Constructors
-    public Pointable(object data)
-        => SetHandle(data);
+    public Allocation(object data)
+        => Allocate(data);
 
-    protected Pointable() { }
+    protected Allocation() { }
 
     // Finalizers
-    ~Pointable()
+    ~Allocation()
         => Dispose();
 
     // Methods
@@ -28,6 +28,6 @@ public class Pointable : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    protected void SetHandle(object data)
+    protected void Allocate(object data)
         => Handle = GCHandle.Alloc(data, GCHandleType.Pinned);
 }

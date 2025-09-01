@@ -1,4 +1,4 @@
-﻿using AndrejKrizan.Hdf.Entities.AttributableObjects.Dtos;
+﻿using AndrejKrizan.Hdf.Entities.AttributableObjects;
 
 using HDF.PInvoke;
 

@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-using AndrejKrizan.DotNet.Pointables;
+using AndrejKrizan.DotNet.Allocations;
 
 namespace AndrejKrizan.Hdf.Entities.Types;
 
@@ -13,15 +13,15 @@ public class HdfDateTimeType : HdfStringType, IHdfType<DateTime>
     public override string Describe()
         => "datetime string";
 
-    public Pointable CreatePointable(DateTime value)
-        => base.CreatePointable(value: Stringify(value));
+    public Allocation Allocate(DateTime value)
+        => base.Allocate(value: Stringify(value));
 
-    public Pointable CreatePointable(IEnumerable<DateTime> collection)
-        => base.CreatePointable(collection: collection.Select(Stringify));
+    public Allocation Allocate(IEnumerable<DateTime> collection)
+        => base.Allocate(collection: collection.Select(Stringify));
 
-    public new Pointable CreatePointable<TRow>(IEnumerable<TRow> matrix)
+    public new Allocation Allocate<TRow>(IEnumerable<TRow> matrix)
         where TRow : IEnumerable<DateTime>
-        => base.CreatePointable(matrix: matrix.Select(row => row.Select(Stringify)));
+        => base.Allocate(matrix: matrix.Select(row => row.Select(Stringify)));
 
     // Static methods
     public static string Stringify(DateTime value)

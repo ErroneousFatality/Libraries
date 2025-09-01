@@ -1,6 +1,6 @@
-﻿using AndrejKrizan.Hdf.Entities.Types;
+﻿using System.Xml.Linq;
 
-namespace AndrejKrizan.Hdf.Entities.AttributableObjects.Dtos;
+namespace AndrejKrizan.Hdf.Entities.AttributableObjects;
 
 public abstract class HdfAttributeDto
 {
@@ -56,43 +56,5 @@ public class HdfAttributeDto<T> : HdfAttributeDto
 
     // Methods
     override internal HdfAttribute CreateAndWriteToAttribute(HdfAttributableObject parent, bool dispose = true)
-    {
-        HdfAttribute attribute;
-        Type type = typeof(T);
-        if (type == typeof(string))
-        {
-            attribute = CreateAndWriteToStringAttribute(parent, dispose);
-        }
-        else if (type == typeof(DateTime))
-        {
-            attribute = CreateAndWriteToDateTimeAttribute(parent, dispose);
-        }
-        else
-        {
-            attribute = CreateAndWriteToGenericAttribute(parent, dispose);
-        }
-        return attribute;
-    }
-
-    // Private methods
-    private HdfAttribute<string> CreateAndWriteToStringAttribute(HdfAttributableObject parent, bool dispose)
-    {
-        HdfAttribute<string> attribute = new(parent, Name, new HdfStringType());
-        attribute.CreateAndWriteTo((string)(object)Value, dispose);
-        return attribute;
-    }
-
-    private HdfAttribute<DateTime> CreateAndWriteToDateTimeAttribute(HdfAttributableObject parent, bool dispose)
-    {
-        HdfAttribute<DateTime> attribute = new(parent, Name, new HdfDateTimeType());
-        attribute.CreateAndWriteTo((DateTime)(object)Value, dispose);
-        return attribute;
-    }
-
-    private HdfAttribute<T> CreateAndWriteToGenericAttribute(HdfAttributableObject parent, bool dispose)
-    {
-        HdfAttribute<T> attribute = new(parent, Name);
-        attribute.CreateAndWriteTo(Value, dispose);
-        return attribute;
-    }
+        => HdfAttribute<T>.CreateAndWriteTo(parent, Name, Value, dispose);
 }

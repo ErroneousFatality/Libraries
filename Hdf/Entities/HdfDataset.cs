@@ -1,7 +1,5 @@
-﻿using AndrejKrizan.DotNet.Pointables;
+﻿using AndrejKrizan.DotNet.Allocations;
 using AndrejKrizan.Hdf.Entities.AttributableObjects;
-using AndrejKrizan.Hdf.Entities.AttributableObjects.Dtos;
-using AndrejKrizan.Hdf.Entities.Objects;
 using AndrejKrizan.Hdf.Entities.Types;
 using AndrejKrizan.Hdf.Extensions;
 
@@ -17,19 +15,19 @@ public class HdfDataset<T> : HdfAttributableObject
     public HdfDataSpace DataSpace { get; }
 
     // Constructors
-    public HdfDataset(HdfObject parent, string name, IHdfType<T> type, ulong[] dimensions, params HdfAttributeDto[] attributes)
+    public HdfDataset(HdfContainer parent, string name, IHdfType<T> type, ulong[] dimensions, params HdfAttributeDto[] attributes)
         : base(parent, name, attributes)
     {
         Type = type;
         DataSpace = new(dimensions);
     }
-    public HdfDataset(HdfObject parent, string name, IHdfType<T> type, params HdfAttributeDto[] attributes)
-        : this(parent, name, type, [], attributes) { }
+    public HdfDataset(HdfContainer parent, string name, IHdfType<T> type, params HdfAttributeDto[] attributes)
+        : this(parent, name, type, dimensions: [], attributes) { }
 
-    public HdfDataset(HdfObject parent, string name, ulong[] dimensions, params HdfAttributeDto[] attributes)
-        : this(parent, name, new HdfType<T>(), dimensions, attributes) { }
-    public HdfDataset(HdfObject parent, string name, params HdfAttributeDto[] attributes)
-        : this(parent, name, new HdfType<T>(), [], attributes) { }
+    public HdfDataset(HdfContainer parent, string name, ulong[] dimensions, params HdfAttributeDto[] attributes)
+        : this(parent, name, type: HdfTypeFactory.Create<T>(), dimensions, attributes) { }
+    public HdfDataset(HdfContainer parent, string name, params HdfAttributeDto[] attributes)
+        : this(parent, name, type: HdfTypeFactory.Create<T>(), dimensions: [], attributes) { }
 
     // Methods
     public override string Describe()
@@ -38,18 +36,18 @@ public class HdfDataset<T> : HdfAttributableObject
     public void Write(T value)
     {
         DataSpace.Validate(value: value);
-        using (Pointable pointable = Type.CreatePointable(value))
+        using (Allocation valueAllocation = Type.Allocate(value))
         {
-            Write(pointable);
+            Write(valueAllocation);
         }
     }
 
     public void Write(IEnumerable<T> collection)
     {
         DataSpace.Validate(collection: collection);
-        using (Pointable pointableArray = Type.CreatePointable(collection))
+        using (Allocation collectionAllocation = Type.Allocate(collection))
         {
-            Write(pointableArray);
+            Write(collectionAllocation);
         }
     }
 
@@ -57,9 +55,9 @@ public class HdfDataset<T> : HdfAttributableObject
         where TRow : IEnumerable<T>
     {
         DataSpace.Validate<T, TRow>(matrix: matrix);
-        using (Pointable pointableMatrix = Type.CreatePointable(matrix))
+        using (Allocation matrixAllocation = Type.Allocate(matrix))
         {
-            Write(pointableMatrix);
+            Write(matrixAllocation);
         }
     }
 
@@ -79,7 +77,7 @@ public class HdfDataset<T> : HdfAttributableObject
     protected override int CloseInternal()
         => H5D.close(Id);
 
-    protected void Write(Pointable pointable)
+    protected void Write(Allocation allocation)
     {
         using (Type.Open())
         using (DataSpace.Open())
@@ -90,7 +88,7 @@ public class HdfDataset<T> : HdfAttributableObject
                 mem_space_id: DataSpace.Id,
                 file_space_id: H5S.ALL,
                 plist_id: H5P.DEFAULT,
-                buf: pointable.Pointer
+                buf: allocation.Pointer
             ).ValidateHdfResponse(() => $"write to {DescriptionWithPathName}");
         }
     }

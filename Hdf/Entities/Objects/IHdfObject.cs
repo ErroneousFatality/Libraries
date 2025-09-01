@@ -3,7 +3,7 @@
 public interface IHdfObject : IDisposable
 {
     // Properties
-    HdfObject? Parent { get; }
+    IHdfObject? Parent { get; }
     string? Name { get; }
     long Id { get; }
     bool IsCreated { get; }

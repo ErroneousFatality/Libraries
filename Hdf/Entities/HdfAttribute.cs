@@ -1,4 +1,4 @@
-﻿using AndrejKrizan.DotNet.Pointables;
+﻿using AndrejKrizan.DotNet.Allocations;
 using AndrejKrizan.Hdf.Entities.AttributableObjects;
 using AndrejKrizan.Hdf.Entities.Objects;
 using AndrejKrizan.Hdf.Entities.Types;
@@ -37,7 +37,7 @@ public class HdfAttribute<T> : HdfAttribute
         DataSpace = new(dimensions);
     }
     public HdfAttribute(HdfAttributableObject parent, string name, params ulong[] dimensions)
-        : this(parent, name, new HdfType<T>(), dimensions) { }
+        : this(parent, name, type: HdfTypeFactory.Create<T>(), dimensions) { }
 
     // Methods
     public override string Describe()
@@ -46,18 +46,18 @@ public class HdfAttribute<T> : HdfAttribute
     public void Write(T value)
     {
         DataSpace.Validate(value: value);
-        using (Pointable pointable = Type.CreatePointable(value))
+        using (Allocation valueAllocation = Type.Allocate(value))
         {
-            Write(pointable);
+            Write(valueAllocation);
         }
     }
 
     public void Write(IEnumerable<T> collection)
     {
         DataSpace.Validate(collection: collection);
-        using (Pointable pointableArray = Type.CreatePointable(collection))
+        using (Allocation collectionAllocation = Type.Allocate(collection))
         {
-            Write(pointableArray);
+            Write(collectionAllocation);
         }
     }
 
@@ -65,9 +65,9 @@ public class HdfAttribute<T> : HdfAttribute
         where TRow : IEnumerable<T>
     {
         DataSpace.Validate<T, TRow>(matrix: matrix);
-        using (Pointable pointableMatrix = Type.CreatePointable(matrix))
+        using (Allocation matrixAllocation = Type.Allocate(matrix))
         {
-            Write(pointableMatrix);
+            Write(matrixAllocation);
         }
     }
 
@@ -90,15 +90,23 @@ public class HdfAttribute<T> : HdfAttribute
         }
     }
 
-    protected void Write(Pointable pointable)
+    protected void Write(Allocation allocation)
     {
         using (Type.OpenOrCreate())
         {
             H5A.write(
                 attr_id: Id,
                 mem_type_id: Type.Id,
-                buf: pointable.Pointer
+                buf: allocation.Pointer
             ).ValidateHdfResponse(() => $"write to {DescriptionWithPathName}");
         }
+    }
+
+    // Static helper methods
+    internal static HdfAttribute<T> CreateAndWriteTo(HdfAttributableObject parent, string name, T value, bool dispose = true)
+    {
+        HdfAttribute<T> attribute = new(parent, name);
+        attribute.CreateAndWriteTo(value, dispose);
+        return attribute;
     }
 }

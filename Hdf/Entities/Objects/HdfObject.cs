@@ -6,6 +6,8 @@ public abstract class HdfObject : IHdfObject
 {
     // Properties
     public HdfObject? Parent { get; }
+    IHdfObject? IHdfObject.Parent => Parent;
+
     public string? Name { get; }
 
     public long Id => _id ?? throw new InvalidOperationException($"The {DescriptionWithPathName} is closed.");
@@ -17,8 +19,14 @@ public abstract class HdfObject : IHdfObject
     public bool IsCreated { get; private set; }
 
     // Computed properties
-    public virtual string? PathName => $"{(Parent == null ? string.Empty : $"{Parent.PathName}/")}{Name}";
-    public string DescriptionWithPathName => $"{Describe()}{(string.IsNullOrEmpty(PathName) ? string.Empty : $" at \"{PathName}\"")}";
+    public virtual string? PathName => Parent != null && Name != null
+        ? $"{Parent.PathName}{PathSeparator}{Name}"
+        : null;
+
+    public string DescriptionWithPathName => string.IsNullOrWhiteSpace(PathName)
+        ? Describe()
+        : $"{Describe()} at \"{PathName}\"";
+
 
     // Constructors
     protected HdfObject(HdfObject? parent = null, string? name = null)
@@ -92,6 +100,9 @@ public abstract class HdfObject : IHdfObject
         }
         return disposable;
     }
+
+    // Constants
+    public const char PathSeparator = '/';
 
     // Protected methods
     protected abstract long CreateInternal();

@@ -1,4 +1,5 @@
-﻿using AndrejKrizan.Hdf.Entities.AttributableObjects.Dtos;
+﻿using AndrejKrizan.Hdf.Entities.AttributableObjects;
+using AndrejKrizan.Hdf.Entities.Objects;
 
 using HDF.PInvoke;
 
@@ -11,7 +12,7 @@ public class HdfFile : HdfContainer
     public FileAccessType Access { get; }
 
     // Computed properties
-    public override string? PathName => null;
+    public override string? PathName => string.Empty;
 
     // Constructors
     public HdfFile(string filePath, FileAccessType access, params HdfAttributeDto[] attributes)
@@ -66,19 +67,6 @@ public class HdfFile : HdfContainer
     public static HdfFile Create(string filePath, params HdfAttributeDto[] attributes)
         => Create(filePath, dispose: false, attributes);
 
-    public static HdfFile OpenOrCreate(string filePath, bool dispose = false, params HdfAttributeDto[] attributes)
-    {
-        HdfFile hdfFile = new(filePath, FileAccessType.Create, attributes);
-        IDisposable disposable = hdfFile.OpenOrCreate();
-        if (dispose)
-        {
-            disposable.Dispose();
-        }
-        return hdfFile;
-    }
-    public static HdfFile OpenOrCreate(string filePath, params HdfAttributeDto[] attributes)
-        => OpenOrCreate(filePath, dispose: false, attributes);
-
     public static HdfFile OpenWrite(string filePath, bool dispose = false, params HdfAttributeDto[] attributes)
     {
         HdfFile hdfFile = new(filePath, FileAccessType.Write, attributes);
@@ -92,9 +80,9 @@ public class HdfFile : HdfContainer
     public static HdfFile OpenWrite(string filePath, params HdfAttributeDto[] attributes)
         => OpenWrite(filePath, dispose: false, attributes);
 
-    public static HdfFile OpenRead(string filePath, bool dispose = false, params HdfAttributeDto[] attributes)
+    public static HdfFile OpenRead(string filePath, bool dispose = false)
     {
-        HdfFile hdfFile = new(filePath, FileAccessType.Read, attributes);
+        HdfFile hdfFile = new(filePath, FileAccessType.Read);
         IDisposable disposable = hdfFile.Open();
         if (dispose)
         {
@@ -102,6 +90,6 @@ public class HdfFile : HdfContainer
         }
         return hdfFile;
     }
-    public static HdfFile OpenRead(string filePath, params HdfAttributeDto[] attributes)
-        => OpenRead(filePath, dispose: false, attributes);
+    public static HdfFile OpenRead(string filePath)
+        => OpenRead(filePath, dispose: false);
 }
