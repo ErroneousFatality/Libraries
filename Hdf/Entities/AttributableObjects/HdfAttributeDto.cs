@@ -1,6 +1,4 @@
-﻿using System.Xml.Linq;
-
-namespace AndrejKrizan.Hdf.Entities.AttributableObjects;
+﻿namespace AndrejKrizan.Hdf.Entities.AttributableObjects;
 
 public abstract class HdfAttributeDto
 {
@@ -57,4 +55,8 @@ public class HdfAttributeDto<T> : HdfAttributeDto
     // Methods
     override internal HdfAttribute CreateAndWriteToAttribute(HdfAttributableObject parent, bool dispose = true)
         => HdfAttribute<T>.CreateAndWriteTo(parent, Name, Value, dispose);
+
+    // Converters
+    public static implicit operator HdfAttributeDto<T>((string Name, T Value) attribute)
+        => new(attribute.Name, attribute.Value);
 }
