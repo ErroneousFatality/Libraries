@@ -33,9 +33,9 @@ public class HdfStringType : HdfObject, IHdfType<string>
 
     public Allocation Allocate(IEnumerable<IEnumerable<string>> matrix)
     {
-        IEnumerable<Allocation> allocationArrays = matrix.Select(row => Allocate(collection: row));
-        AllocationArray allocationMatrix = new(allocationArrays);
-        return allocationMatrix;
+        IEnumerable<Allocation> allocations = matrix.SelectMany(row => row.Select(AllocateInternal));
+        AllocationArray allocationArray = new(allocations);
+        return allocationArray;
     }
     public Allocation Allocate<TRow>(IEnumerable<TRow> matrix)
         where TRow : IEnumerable<string>

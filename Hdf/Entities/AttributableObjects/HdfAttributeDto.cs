@@ -21,6 +21,7 @@ public abstract class HdfAttributeDto
         Type type = attribute.Value.GetType();
         HdfAttributeDto attributeDTO = type switch
         {
+            Type _type when _type == typeof(bool) => new HdfAttributeDto<bool>(attribute.Name, (bool)attribute.Value),
             Type _type when _type == typeof(byte) => new HdfAttributeDto<byte>(attribute.Name, (byte)attribute.Value),
             Type _type when _type == typeof(short) => new HdfAttributeDto<short>(attribute.Name, (short)attribute.Value),
             Type _type when _type == typeof(ushort) => new HdfAttributeDto<ushort>(attribute.Name, (ushort)attribute.Value),
