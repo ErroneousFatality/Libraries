@@ -46,7 +46,7 @@ public class HdfAttribute<T> : HdfAttribute
     public void Write(T value)
     {
         DataSpace.Validate(value: value);
-        using (Allocation valueAllocation = Type.Allocate(value))
+        using (Allocation valueAllocation = Type.Allocate(value: value))
         {
             Write(valueAllocation);
         }
@@ -55,30 +55,35 @@ public class HdfAttribute<T> : HdfAttribute
     public void Write(IEnumerable<T> collection)
     {
         DataSpace.Validate(collection: collection);
-        using (Allocation collectionAllocation = Type.Allocate(collection))
+        using (Allocation collectionAllocation = Type.Allocate(collection: collection))
         {
             Write(collectionAllocation);
         }
     }
 
-    public void Write<TRow>(IEnumerable<TRow> matrix)
-        where TRow : IEnumerable<T>
+    public void Write(IEnumerable<IEnumerable<T>> matrix)
     {
-        DataSpace.Validate<T, TRow>(matrix: matrix);
-        using (Allocation matrixAllocation = Type.Allocate(matrix))
+        DataSpace.Validate(matrix: matrix);
+        using (Allocation matrixAllocation = Type.Allocate(matrix: matrix))
         {
             Write(matrixAllocation);
         }
     }
+    public void Write<TRow>(IEnumerable<TRow> matrix)
+        where TRow : IEnumerable<T>
+        => Write(matrix: matrix.Cast<IEnumerable<T>>());
 
     public IDisposable CreateAndWriteTo(T value, bool dispose = true)
-        => CreateAndDo(() => Write(value), dispose);
+        => CreateAndDo(() => Write(value: value), dispose);
 
-    public IDisposable CreateAndWriteTo(IReadOnlyCollection<T> collection, bool dispose = true)
-        => CreateAndDo(() => Write(collection), dispose);
+    public IDisposable CreateAndWriteTo(IEnumerable<T> collection, bool dispose = true)
+        => CreateAndDo(() => Write(collection: collection), dispose);
 
-    public IDisposable CreateAndWriteTo(IReadOnlyCollection<IReadOnlyCollection<T>> matrix, bool dispose = true)
-        => CreateAndDo(() => Write(matrix), dispose);
+    public IDisposable CreateAndWriteTo(IEnumerable<IEnumerable<T>> matrix, bool dispose = true)
+        => CreateAndDo(() => Write(matrix: matrix), dispose);
+    public IDisposable CreateAndWriteTo<TRow>(IEnumerable<TRow> matrix, bool dispose = true)
+        where TRow : IEnumerable<T>
+        => CreateAndWriteTo(matrix: matrix.Cast<IEnumerable<T>>(), dispose);
 
     // Protected methods
     protected override long CreateInternal()

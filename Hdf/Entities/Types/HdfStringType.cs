@@ -31,13 +31,15 @@ public class HdfStringType : HdfObject, IHdfType<string>
         return allocationArray;
     }
 
-    public Allocation Allocate<TRow>(IEnumerable<TRow> matrix)
-        where TRow : IEnumerable<string>
+    public Allocation Allocate(IEnumerable<IEnumerable<string>> matrix)
     {
-        IEnumerable<Allocation> allocationArrays = matrix.Select(row => Allocate(row));
+        IEnumerable<Allocation> allocationArrays = matrix.Select(row => Allocate(collection: row));
         AllocationArray allocationMatrix = new(allocationArrays);
         return allocationMatrix;
     }
+    public Allocation Allocate<TRow>(IEnumerable<TRow> matrix)
+        where TRow : IEnumerable<string>
+        => Allocate(matrix: matrix.Cast<IEnumerable<string>>());
 
     // Protected methods
     protected override long CreateInternal()

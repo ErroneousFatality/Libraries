@@ -29,13 +29,15 @@ public class HdfType<T> : HdfObject, IHdfType<T>
         return collectionAllocation;
     }
 
-    public Allocation Allocate<TRow>(IEnumerable<TRow> matrix)
-        where TRow : IEnumerable<T>
+    public Allocation Allocate(IEnumerable<IEnumerable<T>> matrix)
     {
         byte[] bytes = matrix.SelectMany(row => row.SelectMany(ConvertToBytes)).ToArray();
         Allocation matrixAllocation = new(bytes);
         return matrixAllocation;
     }
+    public Allocation Allocate<TRow>(IEnumerable<TRow> matrix)
+        where TRow : IEnumerable<T>
+        => Allocate(matrix: matrix.Cast<IEnumerable<T>>());
 
     // Protected methods
     protected override long CreateInternal()

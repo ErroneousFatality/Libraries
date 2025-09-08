@@ -25,7 +25,7 @@ public abstract class HdfContainer : HdfAttributableObject
     {
         ulong[] dimensions = [];
         HdfDataset<T> dataset = CreateChild(pathName, CreateConstructor<T>(dimensions, attributes));
-        dataset.Write(value);
+        dataset.Write(value: value);
         if (dispose)
         {
             dataset.Dispose();
@@ -34,15 +34,14 @@ public abstract class HdfContainer : HdfAttributableObject
     }
     public HdfDataset<T> CreateDataset<T>(string pathName, T value, params HdfAttributeDto[] attributes)
         where T : notnull
-        => CreateDataset(pathName, value, dispose: true, attributes);
-
+        => CreateDataset(pathName, value: value, dispose: true, attributes);
 
     public HdfDataset<T> CreateDataset<T>(string pathName, IEnumerable<T> collection, bool dispose = true, params HdfAttributeDto[] attributes)
         where T : notnull
     {
         ulong[] dimensions = [(ulong)collection.Count()];
         HdfDataset<T> dataset = CreateChild(pathName, CreateConstructor<T>(dimensions, attributes));
-        dataset.Write(collection);
+        dataset.Write(collection: collection);
         if (dispose)
         {
             dataset.Dispose();
@@ -50,27 +49,35 @@ public abstract class HdfContainer : HdfAttributableObject
         return dataset;
     }
     public HdfDataset<T> CreateDataset<T>(string pathName, IEnumerable<T> collection, params HdfAttributeDto[] attributes)
-        where T : notnull
-        => CreateDataset(pathName, collection, dispose: true, attributes);
+    where T : notnull
+        => CreateDataset(pathName, collection: collection, dispose: true, attributes);
 
 
-    public HdfDataset<T> CreateDataset<T, TRow>(string pathName, IEnumerable<TRow> matrix, bool dispose = true, params HdfAttributeDto[] attributes)
+    public HdfDataset<T> CreateDataset<T>(string pathName, IEnumerable<IEnumerable<T>> matrix, bool dispose = true, params HdfAttributeDto[] attributes)
         where T : notnull
-        where TRow : IEnumerable<T>
     {
         ulong[] dimensions = [(ulong)matrix.Count(), (ulong)(matrix.FirstOrDefault()?.Count() ?? 0)];
         HdfDataset<T> dataset = CreateChild(pathName, CreateConstructor<T>(dimensions, attributes));
-        dataset.Write(matrix);
+        dataset.Write(matrix: matrix);
         if (dispose)
         {
             dataset.Dispose();
         }
         return dataset;
     }
+    public HdfDataset<T> CreateDataset<T>(string pathName, IEnumerable<IEnumerable<T>> matrix, params HdfAttributeDto[] attributes)
+        where T : notnull
+        => CreateDataset(pathName, matrix: matrix, dispose: true, attributes);
+
+    public HdfDataset<T> CreateDataset<T, TRow>(string pathName, IEnumerable<TRow> matrix, bool dispose = true, params HdfAttributeDto[] attributes)
+        where T : notnull
+        where TRow : IEnumerable<T>
+        => CreateDataset(pathName, matrix: matrix.Cast<IEnumerable<T>>(), dispose, attributes);
     public HdfDataset<T> CreateDataset<T, TRow>(string pathName, IEnumerable<TRow> matrix, params HdfAttributeDto[] attributes)
         where T : notnull
         where TRow : IEnumerable<T>
-        => CreateDataset<T, TRow>(pathName, matrix, dispose: true, attributes);
+        => CreateDataset<T, TRow>(pathName, matrix: matrix, dispose: true, attributes);
+
 
     private static Func<HdfContainer, string, HdfDataset<T>> CreateConstructor<T>(ulong[] dimensions, HdfAttributeDto[] attributes)
         where T : notnull

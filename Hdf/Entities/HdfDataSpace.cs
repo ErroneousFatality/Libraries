@@ -38,6 +38,7 @@ public class HdfDataSpace : HdfObject
 #pragma warning restore IDE0060 // Remove unused parameter
 
     public void Validate<T>(IEnumerable<T> collection)
+        where T : notnull
     {
         if (Dimensions.Length != 1)
         {
@@ -50,8 +51,8 @@ public class HdfDataSpace : HdfObject
         }
     }
 
-    public void Validate<T, TRow>(IEnumerable<TRow> matrix)
-        where TRow : IEnumerable<T>
+    public void Validate<T>(IEnumerable<IEnumerable<T>> matrix)
+        where T : notnull
     {
         if (Dimensions.Length != 2)
         {
@@ -68,6 +69,10 @@ public class HdfDataSpace : HdfObject
             throw new ArgumentException($"The size of the matrix ({height}, {width}) does not match the dimensions ({Dimensions.StringJoin()}) of the dataset.");
         }
     }
+    public void Validate<T, TRow>(IEnumerable<TRow> matrix)
+        where T : notnull
+        where TRow : IEnumerable<T>
+        => Validate(matrix.Cast<IEnumerable<T>>());
 
     // Protected methods
     protected override long CreateInternal()

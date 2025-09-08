@@ -19,9 +19,11 @@ public class HdfDateTimeType : HdfStringType, IHdfType<DateTime>
     public Allocation Allocate(IEnumerable<DateTime> collection)
         => base.Allocate(collection: collection.Select(Stringify));
 
+    public Allocation Allocate(IEnumerable<IEnumerable<DateTime>> matrix)
+        => base.Allocate(matrix: matrix.Select(row => row.Select(Stringify)));
     public new Allocation Allocate<TRow>(IEnumerable<TRow> matrix)
         where TRow : IEnumerable<DateTime>
-        => base.Allocate(matrix: matrix.Select(row => row.Select(Stringify)));
+        => Allocate(matrix: matrix.Cast<IEnumerable<DateTime>>());
 
     // Static methods
     public static string Stringify(DateTime value)

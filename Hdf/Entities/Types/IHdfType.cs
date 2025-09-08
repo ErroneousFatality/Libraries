@@ -7,7 +7,11 @@ public interface IHdfType<T> : IHdfObject
     where T : notnull
 {
     // Methods
+
     Allocation Allocate(T value);
+
     Allocation Allocate(IEnumerable<T> collection);
+
+    Allocation Allocate(IEnumerable<IEnumerable<T>> matrix);
     Allocation Allocate<TRow>(IEnumerable<TRow> matrix) where TRow : IEnumerable<T>;
 }
