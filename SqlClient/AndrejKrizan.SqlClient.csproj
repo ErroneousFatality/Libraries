@@ -7,14 +7,14 @@
 		<Authors>AndrejKrizan</Authors>
 		<RepositoryUrl>https://github.com/ErroneousFatality/Libraries/tree/main/SqlClient</RepositoryUrl>
 		<PackageOutputPath>..\Nugets</PackageOutputPath>
-		<Version>9.4.1</Version>
+		<Version>9.4.2</Version>
 		<SignAssembly>True</SignAssembly>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.2" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.10" />
 	</ItemGroup>
 
 </Project>
