@@ -15,6 +15,13 @@ public static class HttpClientExtensions
         return responseResult;
     }
 
+    public static async Task<ResponseResult<TResponse>> TryPostJsonAsync<TResponse>(this HttpClient httpClient, string? uri, CancellationToken cancellationToken = default)
+    {
+        HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(uri, content: null, cancellationToken);
+        ResponseResult<TResponse> responseResult = await httpResponseMessage.GetJsonResultAsync<TResponse>(cancellationToken);
+        return responseResult;
+    }
+
     public static async Task<ResponseResult> TryPostJsonAsync<TRequest>(this HttpClient httpClient, string? uri, TRequest request, CancellationToken cancellationToken = default)
     {
         HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync(uri, request, cancellationToken);
@@ -30,11 +37,21 @@ public static class HttpClientExtensions
     }
 
 
+
     /// <exception cref="HttpRequestException"></exception>
     public static async Task PostJsonAsync(this HttpClient httpClient, string? uri, CancellationToken cancellationToken = default)
     {
         ResponseResult responseResult = await httpClient.TryPostJsonAsync(uri, cancellationToken);
         responseResult.EnsureIsSuccessful();
+    }
+
+    /// <exception cref="HttpRequestException"></exception>
+    public static async Task<TResponse> PostJsonAsync<TResponse>(this HttpClient httpClient, string? uri, CancellationToken cancellationToken = default)
+    {
+        ResponseResult<TResponse> responseResult = await httpClient.TryPostJsonAsync<TResponse>(uri, cancellationToken);
+        responseResult.EnsureIsSuccessful();
+        TResponse response = responseResult.Content!;
+        return response;
     }
 
     /// <exception cref="HttpRequestException"></exception>
@@ -84,6 +101,13 @@ public static class HttpClientExtensions
         return responseResult;
     }
 
+    public static async Task<ResponseResult<TResponse>> TryPutJsonAsync<TResponse>(this HttpClient httpClient, string? uri, CancellationToken cancellationToken = default)
+    {
+        HttpResponseMessage httpResponseMessage = await httpClient.PutAsync(uri, content: null, cancellationToken);
+        ResponseResult<TResponse> responseResult = await httpResponseMessage.GetJsonResultAsync<TResponse>(cancellationToken);
+        return responseResult;
+    }
+
     public static async Task<ResponseResult> TryPutJsonAsync<TRequest>(this HttpClient httpClient, string? uri, TRequest request, CancellationToken cancellationToken = default)
     {
         HttpResponseMessage httpResponseMessage = await httpClient.PutAsJsonAsync(uri, request, cancellationToken);
@@ -99,11 +123,21 @@ public static class HttpClientExtensions
     }
 
 
+
     /// <exception cref="HttpRequestException"></exception>
     public static async Task PutJsonAsync(this HttpClient httpClient, string? uri, CancellationToken cancellationToken = default)
     {
         ResponseResult responseResult = await httpClient.TryPutJsonAsync(uri, cancellationToken);
         responseResult.EnsureIsSuccessful();
+    }
+
+    /// <exception cref="HttpRequestException"></exception>
+    public static async Task<TResponse> PustJsonAsync<TResponse>(this HttpClient httpClient, string? uri, CancellationToken cancellationToken = default)
+    {
+        ResponseResult<TResponse> responseResult = await httpClient.TryPutJsonAsync<TResponse>(uri, cancellationToken);
+        responseResult.EnsureIsSuccessful();
+        TResponse response = responseResult.Content!;
+        return response;
     }
 
     /// <exception cref="HttpRequestException"></exception>
