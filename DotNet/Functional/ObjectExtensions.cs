@@ -19,6 +19,26 @@ public static class ObjectExtensions
         => transform(source);
 
     #region ConditionallyDo
+    public static T? ConditionallyDo<T>(this T? source, Action<T> action)
+        where T: struct
+    {
+        if (source.TryGetValue(out T value) && (value is not ICollection collection || collection.Count > 0))
+        {
+            action(value);
+        }
+        return source;
+    }
+
+    public static T? ConditionallyDo<T>(this T? source, Action<T> action)
+        where T : class
+    {
+        if (source != null && (source is not ICollection collection || collection.Count > 0))
+        {
+            action(source);
+        }
+        return source;
+    }
+
     /// <summary>Will perform the action if the condition is true.</summary>
     public static T ConditionallyDo<T>(this T source,
         bool condition, Action<T> action
