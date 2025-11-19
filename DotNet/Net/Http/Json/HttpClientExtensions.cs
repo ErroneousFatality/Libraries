@@ -10,29 +10,41 @@ public static class HttpClientExtensions
 
     public static async Task<ResponseResult> TryPostJsonAsync(this HttpClient httpClient, string? uri, CancellationToken cancellationToken = default)
     {
-        HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(uri, content: null, cancellationToken);
-        ResponseResult responseResult = await httpResponseMessage.GetJsonResultAsync(cancellationToken);
+        ResponseResult responseResult;
+        using (HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(uri, content: null, cancellationToken))
+        {
+            responseResult = await httpResponseMessage.GetJsonResultAsync(cancellationToken);
+        }
         return responseResult;
     }
 
     public static async Task<ResponseResult<TResponse>> TryPostJsonAsync<TResponse>(this HttpClient httpClient, string? uri, CancellationToken cancellationToken = default)
     {
-        HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(uri, content: null, cancellationToken);
-        ResponseResult<TResponse> responseResult = await httpResponseMessage.GetJsonResultAsync<TResponse>(cancellationToken);
+        ResponseResult<TResponse> responseResult;
+        using (HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(uri, content: null, cancellationToken))
+        {
+            responseResult = await httpResponseMessage.GetJsonResultAsync<TResponse>(cancellationToken);
+        }
         return responseResult;
     }
 
     public static async Task<ResponseResult> TryPostJsonAsync<TRequest>(this HttpClient httpClient, string? uri, TRequest request, CancellationToken cancellationToken = default)
     {
-        HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync(uri, request, cancellationToken);
-        ResponseResult responseResult = await httpResponseMessage.GetJsonResultAsync(cancellationToken);
+        ResponseResult responseResult;
+        using (HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync(uri, request, cancellationToken))
+        {
+            responseResult = await httpResponseMessage.GetJsonResultAsync(cancellationToken);
+        }
         return responseResult;
     }
 
     public static async Task<ResponseResult<TResponse>> TryPostJsonAsync<TRequest, TResponse>(this HttpClient httpClient, string? uri, TRequest request, CancellationToken cancellationToken = default)
     {
-        HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync(uri, request, cancellationToken);
-        ResponseResult<TResponse> responseResult = await httpResponseMessage.GetJsonResultAsync<TResponse>(cancellationToken);
+        ResponseResult<TResponse> responseResult;
+        using (HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync(uri, request, cancellationToken))
+        {
+            responseResult = await httpResponseMessage.GetJsonResultAsync<TResponse>(cancellationToken);
+        }
         return responseResult;
     }
 
@@ -76,8 +88,11 @@ public static class HttpClientExtensions
 
     public static async Task<ResponseResult<TResponse>> TryGetJsonAsync<TResponse>(this HttpClient httpClient, string? uri, CancellationToken cancellationToken = default)
     {
-        HttpResponseMessage httpResponseMessage = await httpClient.GetAsync(uri, cancellationToken);
-        ResponseResult<TResponse> responseResult = await httpResponseMessage.GetJsonResultAsync<TResponse>(cancellationToken);
+        ResponseResult<TResponse> responseResult;
+        using (HttpResponseMessage httpResponseMessage = await httpClient.GetAsync(uri, cancellationToken))
+        {
+            responseResult = await httpResponseMessage.GetJsonResultAsync<TResponse>(cancellationToken);
+        }
         return responseResult;
     }
 
@@ -96,29 +111,41 @@ public static class HttpClientExtensions
 
     public static async Task<ResponseResult> TryPutJsonAsync(this HttpClient httpClient, string? uri, CancellationToken cancellationToken = default)
     {
-        HttpResponseMessage httpResponseMessage = await httpClient.PutAsync(uri, content: null, cancellationToken);
-        ResponseResult responseResult = await httpResponseMessage.GetJsonResultAsync(cancellationToken);
+        ResponseResult responseResult;
+        using (HttpResponseMessage httpResponseMessage = await httpClient.PutAsync(uri, content: null, cancellationToken))
+        {
+            responseResult = await httpResponseMessage.GetJsonResultAsync(cancellationToken);
+        }
         return responseResult;
     }
 
     public static async Task<ResponseResult<TResponse>> TryPutJsonAsync<TResponse>(this HttpClient httpClient, string? uri, CancellationToken cancellationToken = default)
     {
-        HttpResponseMessage httpResponseMessage = await httpClient.PutAsync(uri, content: null, cancellationToken);
-        ResponseResult<TResponse> responseResult = await httpResponseMessage.GetJsonResultAsync<TResponse>(cancellationToken);
+        ResponseResult<TResponse> responseResult;
+        using (HttpResponseMessage httpResponseMessage = await httpClient.PutAsync(uri, content: null, cancellationToken))
+        {
+            responseResult = await httpResponseMessage.GetJsonResultAsync<TResponse>(cancellationToken);
+        }
         return responseResult;
     }
 
     public static async Task<ResponseResult> TryPutJsonAsync<TRequest>(this HttpClient httpClient, string? uri, TRequest request, CancellationToken cancellationToken = default)
     {
-        HttpResponseMessage httpResponseMessage = await httpClient.PutAsJsonAsync(uri, request, cancellationToken);
-        ResponseResult responseResult = await httpResponseMessage.GetJsonResultAsync(cancellationToken);
+        ResponseResult responseResult;
+        using (HttpResponseMessage httpResponseMessage = await httpClient.PutAsJsonAsync(uri, request, cancellationToken))
+        {
+            responseResult = await httpResponseMessage.GetJsonResultAsync(cancellationToken);
+        }
         return responseResult;
     }
 
     public static async Task<ResponseResult<TResponse>> TryPutJsonAsync<TRequest, TResponse>(this HttpClient httpClient, string? uri, TRequest request, CancellationToken cancellationToken = default)
     {
-        HttpResponseMessage httpResponseMessage = await httpClient.PutAsJsonAsync(uri, request, cancellationToken);
-        ResponseResult<TResponse> responseResult = await httpResponseMessage.GetJsonResultAsync<TResponse>(cancellationToken);
+        ResponseResult<TResponse> responseResult;
+        using (HttpResponseMessage httpResponseMessage = await httpClient.PutAsJsonAsync(uri, request, cancellationToken))
+        {
+            responseResult = await httpResponseMessage.GetJsonResultAsync<TResponse>(cancellationToken);
+        }
         return responseResult;
     }
 
@@ -161,15 +188,21 @@ public static class HttpClientExtensions
     #region Delete
     public static async Task<ResponseResult> TryDeleteJsonAsync(this HttpClient httpClient, string? uri, CancellationToken cancellationToken = default)
     {
-        HttpResponseMessage httpResponseMessage = await httpClient.DeleteAsync(uri, cancellationToken);
-        ResponseResult responseResult = await httpResponseMessage.GetJsonResultAsync(cancellationToken);
+        ResponseResult responseResult;
+        using (HttpResponseMessage httpResponseMessage = await httpClient.DeleteAsync(uri, cancellationToken))
+        {
+            responseResult = await httpResponseMessage.GetJsonResultAsync(cancellationToken);
+        }
         return responseResult;
     }
 
     public static async Task<ResponseResult<TResponse>> TryDeleteJsonAsync<TResponse>(this HttpClient httpClient, string? uri, CancellationToken cancellationToken = default)
     {
-        HttpResponseMessage httpResponseMessage = await httpClient.DeleteAsync(uri, cancellationToken);
-        ResponseResult<TResponse> responseResult = await httpResponseMessage.GetJsonResultAsync<TResponse>(cancellationToken);
+        ResponseResult<TResponse> responseResult;
+        using (HttpResponseMessage httpResponseMessage = await httpClient.DeleteAsync(uri, cancellationToken))
+        {
+            responseResult = await httpResponseMessage.GetJsonResultAsync<TResponse>(cancellationToken);
+        }
         return responseResult;
     }
 
