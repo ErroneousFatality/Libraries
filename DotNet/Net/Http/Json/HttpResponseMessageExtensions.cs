@@ -7,36 +7,56 @@ namespace AndrejKrizan.DotNet.Net.Http.Json;
 
 public static class HttpResponseMessageExtensions
 {
-    public static async Task<ResponseResult> GetJsonResultAsync(this HttpResponseMessage response, CancellationToken cancellationToken = default)
+    extension(HttpResponseMessage Response)
     {
-        ResponseResult result;
-        if (response.IsSuccessStatusCode)
+        public async Task<ResponseResult> GetJsonResultAsync(CancellationToken cancellationToken = default)
         {
-            result = ResponseResult.CreateSuccessful(response.StatusCode);
+            ResponseResult result;
+            if (Response.IsSuccessStatusCode)
+            {
+                result = ResponseResult.CreateSuccessful(Response.StatusCode);
+            }
+            else
+            {
+                ErrorResponse error = (await Response.Content.ReadFromJsonAsync<ErrorResponse>(cancellationToken))!;
+                result = ResponseResult.CreateErroneous(error, Response.StatusCode);
+            }
+            return result;
         }
-        else
-        {
-            ErrorResponse error = (await response.Content.ReadFromJsonAsync<ErrorResponse>(cancellationToken))!;
-            result = ResponseResult.CreateErroneous(error, response.StatusCode);
-        }
-        return result;
-    }
 
-    public static async Task<ResponseResult<TContent>> GetJsonResultAsync<TContent>(this HttpResponseMessage response, CancellationToken cancellationToken = default)
-    {
-        ResponseResult<TContent> result;
-        if (response.IsSuccessStatusCode)
+        public async Task<ResponseResult<TContent>> GetJsonResultAsync<TContent>(CancellationToken cancellationToken = default)
         {
-            TContent? content = response.StatusCode == HttpStatusCode.NoContent
-                ? default
-                : (await response.Content.ReadFromJsonAsync<TContent>(cancellationToken))!;
-            result = ResponseResult<TContent>.CreateSuccessful(content, response.StatusCode);
+            ResponseResult<TContent> result;
+            if (Response.IsSuccessStatusCode)
+            {
+                TContent? content = Response.StatusCode == HttpStatusCode.NoContent
+                    ? default
+                    : (await Response.Content.ReadFromJsonAsync<TContent>(cancellationToken))!;
+                result = ResponseResult<TContent>.CreateSuccessful(content, Response.StatusCode);
+            }
+            else
+            {
+                ErrorResponse error = (await Response.Content.ReadFromJsonAsync<ErrorResponse>(cancellationToken))!;
+                result = ResponseResult<TContent>.CreateErroneous(error, Response.StatusCode);
+            }
+            return result;
         }
-        else
+
+
+        /// <exception cref="HttpRequestException"></exception>
+        public async Task<TContent> GetJsonContentAsync<TContent>(CancellationToken cancellationToken = default)
         {
-            ErrorResponse error = (await response.Content.ReadFromJsonAsync<ErrorResponse>(cancellationToken))!;
-            result = ResponseResult<TContent>.CreateErroneous(error, response.StatusCode);
+            ResponseResult<TContent> result = await Response.GetJsonResultAsync<TContent>(cancellationToken);
+            result.EnsureIsSuccessful();
+            TContent content = result.Content!;
+            return content;
         }
-        return result;
+
+        /// <exception cref="HttpRequestException"></exception>
+        public async Task EnsureIsSuccessfulAsync(CancellationToken cancellationToken = default)
+        {
+            ResponseResult result = await Response.GetJsonResultAsync(cancellationToken);
+            result.EnsureIsSuccessful();
+        }
     }
 }
