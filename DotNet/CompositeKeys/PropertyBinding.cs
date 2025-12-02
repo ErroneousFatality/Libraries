@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using AndrejKrizan.DotNet.Lambdas.Properties;
 
 namespace AndrejKrizan.DotNet.CompositeKeys;
-internal readonly struct PropertyBinding
+public readonly struct PropertyBinding
 {
     // Properties
     public readonly required PropertyLambda EntityProperty { get; init; }
