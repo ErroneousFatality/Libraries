@@ -1,4 +1,4 @@
-﻿namespace AndrejKrizan.DotNet.NullableRanges;
+﻿namespace AndrejKrizan.DotNet.Ranges.Nullable;
 public static class NullableRangeExtensions
 {
     #region GetDelta

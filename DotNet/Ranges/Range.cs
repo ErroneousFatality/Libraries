@@ -2,8 +2,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
-using AndrejKrizan.DotNet.NullableRanges;
 using AndrejKrizan.DotNet.Nullables;
+using AndrejKrizan.DotNet.Ranges.Nullable;
 
 namespace AndrejKrizan.DotNet.Ranges;
 
@@ -23,6 +23,7 @@ public sealed class Range<T> : IComparable<Range<T>>, IEquatable<Range<T>>
     /// <param name="from">Inclusive.</param>
     /// <param name="to">Inclusive.</param>
     /// <param name="validate">Should throw an <see cref="ArgumentException"/> if <paramref name="from"/> is greater <paramref name="to"/>?</param>
+    [JsonConstructor]
     [SetsRequiredMembers]
     public Range(T from, T to, bool validate = true)
     {
@@ -34,13 +35,6 @@ public sealed class Range<T> : IComparable<Range<T>>, IEquatable<Range<T>>
         }
     }
 
-    /// <param name="from">Inclusive.</param>
-    /// <param name="to">Inclusive.</param>
-    [JsonConstructor]
-    [SetsRequiredMembers]
-    public Range(T from, T to)
-        : this(from, to, validate: true) { }
-
     /// <param name="list">A list with two elements</param>
     /// <param name="validate">Should throw an <see cref="ArgumentException"/> if first element is greater than the second?</param>
     [SetsRequiredMembers]
@@ -49,7 +43,7 @@ public sealed class Range<T> : IComparable<Range<T>>, IEquatable<Range<T>>
     {
         if (list.Count != 2)
         {
-            throw new ArgumentException($"The range can only be created from a {nameof(IReadOnlyList<T>)} which has exactly two elements.", nameof(list));
+            throw new ArgumentException($"The range can only be created from a {nameof(IReadOnlyList<>)} which has exactly two elements.", nameof(list));
         }
     }
 
@@ -127,17 +121,17 @@ public sealed class Range<T> : IComparable<Range<T>>, IEquatable<Range<T>>
 
     // Implicit conversions
 
-    public static implicit operator Range<T>((T From, T To) pair) => new Range<T>(pair.From, pair.To);
+    public static implicit operator Range<T>((T From, T To) pair) => new(pair.From, pair.To);
     public static implicit operator (T From, T To)(Range<T> range) => (range.From, range.To);
 
-    public static implicit operator Range<T>(T[] array) => new Range<T>(array);
+    public static implicit operator Range<T>(T[] array) => new(array);
     public static implicit operator T[](Range<T> range) => [range.From, range.To];
 
-    public static implicit operator Range<T>(ImmutableArray<T> array) => new Range<T>(array);
-    public static implicit operator ImmutableArray<T>(Range<T> range) => ImmutableArray.Create(range.From, range.To);
+    public static implicit operator Range<T>(ImmutableArray<T> array) => new(array);
+    public static implicit operator ImmutableArray<T>(Range<T> range) => [range.From, range.To];
 
-    public static implicit operator Range<T>(List<T> list) => new Range<T>(list);
-    public static implicit operator List<T>(Range<T> range) => new List<T>(2) { range.From, range.To };
+    public static implicit operator Range<T>(List<T> list) => new(list);
+    public static implicit operator List<T>(Range<T> range) => [range.From, range.To];
 
     // Comparisons
 

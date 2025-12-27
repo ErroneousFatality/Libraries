@@ -2,9 +2,8 @@
 using System.Text.Json.Serialization;
 
 using AndrejKrizan.DotNet.Nullables;
-using AndrejKrizan.DotNet.Ranges;
 
-namespace AndrejKrizan.DotNet.NullableRanges;
+namespace AndrejKrizan.DotNet.Ranges.Nullable;
 
 public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable<NullableRange<T>>
     where T : struct
@@ -22,6 +21,7 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable
     /// <param name="from">Inclusive.</param>
     /// <param name="to">Inclusive.</param>
     /// <param name="validate">Should throw an <see cref="ArgumentException"/> if <paramref name="from"/> is greater <paramref name="to"/>?</param>
+    [JsonConstructor]
     public NullableRange(T? from = null, T? to = null, bool validate = true)
     {
         From = from;
@@ -32,12 +32,6 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable
         }
     }
 
-    /// <param name="from">Inclusive.</param>
-    /// <param name="to">Inclusive.</param>
-    [JsonConstructor]
-    public NullableRange(T? from = null, T? to = null)
-        : this(from, to, validate: true) { }
-
     /// <param name="list">A list with two elements</param>
     /// <param name="validate">Should throw an <see cref="ArgumentException"/> if first element is greater than the second?</param>
     public NullableRange(IReadOnlyList<T?> list, bool validate = true)
@@ -45,7 +39,7 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable
     {
         if (list.Count != 2)
         {
-            throw new ArgumentException($"The range can only be created from a {nameof(IReadOnlyList<T?>)} which has exactly two elements.", nameof(list));
+            throw new ArgumentException($"The range can only be created from a {nameof(IReadOnlyList<>)} which has exactly two elements.", nameof(list));
         }
     }
 
@@ -130,17 +124,17 @@ public sealed class NullableRange<T> : IComparable<NullableRange<T>>, IEquatable
 
     // Implicit conversions
 
-    public static implicit operator NullableRange<T>((T? From, T? To) pair) => new NullableRange<T>(pair.From, pair.To);
+    public static implicit operator NullableRange<T>((T? From, T? To) pair) => new(pair.From, pair.To);
     public static implicit operator (T? From, T? To)(NullableRange<T> range) => (range.From, range.To);
 
-    public static implicit operator NullableRange<T>(T?[] array) => new NullableRange<T>(array);
+    public static implicit operator NullableRange<T>(T?[] array) => new(array);
     public static implicit operator T?[](NullableRange<T> range) => [range.From, range.To];
 
-    public static implicit operator NullableRange<T>(ImmutableArray<T?> array) => new NullableRange<T>(array);
-    public static implicit operator ImmutableArray<T?>(NullableRange<T> range) => ImmutableArray.Create(range.From, range.To);
+    public static implicit operator NullableRange<T>(ImmutableArray<T?> array) => new(array);
+    public static implicit operator ImmutableArray<T?>(NullableRange<T> range) => [range.From, range.To];
 
-    public static implicit operator NullableRange<T>(List<T?> list) => new NullableRange<T>(list);
-    public static implicit operator List<T?>(NullableRange<T> range) => new List<T?>(2) { range.From, range.To };
+    public static implicit operator NullableRange<T>(List<T?> list) => new(list);
+    public static implicit operator List<T?>(NullableRange<T> range) => [range.From, range.To];
 
     // Comparisons
 
