@@ -241,3 +241,12 @@ dotnet_diagnostic.CS1573.severity = none
 
 # CS1591: Missing XML comment for publicly visible type or member
 dotnet_diagnostic.CS1591.severity = none
+
+# IDE0350: Use implicitly typed lambda
+dotnet_diagnostic.IDE0350.severity = none
+
+# IDE0063: Use simple 'using' statement
+dotnet_diagnostic.IDE0063.severity = none
+
+# IDE0305: Simplify collection initialization
+dotnet_diagnostic.IDE0305.severity = none

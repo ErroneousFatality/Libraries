@@ -6,159 +6,131 @@ namespace AndrejKrizan.DotNet.Functional;
 
 public static class ObjectExtensions
 {
-    public static T Do<T>(this T source, Action<T> action)
+    extension<T> (T? source)
     {
-        action(source);
-        return source;
+
     }
 
-    public static T Apply<T>(this T source, Func<T, T> transform)
-        => transform(source);
-
-    public static TResult Transform<T, TResult>(this T source, Func<T, TResult> transform)
-        => transform(source);
-
-    #region ConditionallyDo
-    public static T? ConditionallyDo<T>(this T? source, Action<T> action)
-        where T: struct
+    extension<T> (T source)
     {
-        if (source.TryGetValue(out T value) && (value is not ICollection collection || collection.Count > 0))
-        {
-            action(value);
-        }
-        return source;
-    }
-
-    public static T? ConditionallyDo<T>(this T? source, Action<T> action)
-        where T : class
-    {
-        if (source != null && (source is not ICollection collection || collection.Count > 0))
+        public T Do(Action<T> action)
         {
             action(source);
-        }
-        return source;
-    }
-
-    /// <summary>Will perform the action if the condition is true.</summary>
-    public static T ConditionallyDo<T>(this T source,
-        bool condition, Action<T> action
-    )
-    {
-        if (condition)
-        {
-            action(source);
-        }
-        return source;
-    }
-
-    /// <summary>Will perform the action if the argument is not null nor an empty collection.</summary>
-    public static T ConditionallyDo<T, TArgument>(this T source,
-        TArgument? argument, Action<TArgument, T> action
-    )
-        where TArgument : struct
-    {
-        if (!argument.TryGetValue(out TArgument _argument) || (_argument is ICollection collection && collection.Count < 1))
-        {
             return source;
         }
-        action(_argument, source);
-        return source;
-    }
 
-    /// <summary>Will perform the action if the argument is not null nor an empty collection.</summary>
-    public static T ConditionallyDo<T, TArgument>(this T source,
-        TArgument? argument, Action<TArgument, T> action
-    )
-         where TArgument : class
-    {
-        if (argument == null || (argument is ICollection collection && collection.Count < 1))
+        public T Apply(Func<T, T> transform)
+            => transform(source);
+
+        public TResult Transform<TResult>(Func<T, TResult> transform)
+            => transform(source);
+
+
+        #region ConditionallyDo
+
+        /// <summary>Will perform the action if the condition is true.</summary>
+        public T ConditionallyDo(bool condition, Action<T> action)
         {
+            if (condition)
+            {
+                action(source);
+            }
             return source;
         }
-        action(argument, source);
-        return source;
-    }
 
-    /// <summary>Will perform the action if the arguments enumerable is not null nor empty.</summary>
-    public static T ConditionallyDo<T, TArgument>(this T source,
-        IEnumerable<TArgument>? arguments, Action<IEnumerable<TArgument>, T> action
-    )
-    {
-        if (arguments == null || !arguments.Any())
+        /// <summary>Will perform the action if the argument is not null nor an empty collection.</summary>
+        public T ConditionallyDo<TArgument>(TArgument? argument, Action<TArgument, T> action)
+            where TArgument : struct
         {
+            if (!argument.TryGetValue(out TArgument _argument) || (_argument is ICollection collection && collection.Count < 1))
+            {
+                return source;
+            }
+            action(_argument, source);
             return source;
         }
-        action(arguments, source);
-        return source;
-    }
-    #endregion
 
-    #region ConditionallyApply
-    /// <summary>Will apply the transformation if the condition is true.</summary>
-    public static T ConditionallyApply<T>(this T source,
-        bool condition, Func<T, T> transform
-    )
-    {
-        if (!condition)
+        /// <summary>Will perform the action if the argument is not null nor an empty collection.</summary>
+        public T ConditionallyDo<TArgument>(TArgument? argument, Action<TArgument, T> action)
+             where TArgument : class
         {
+            if (argument == null || (argument is ICollection collection && collection.Count < 1))
+            {
+                return source;
+            }
+            action(argument, source);
             return source;
         }
-        T result = transform(source);
-        return result;
-    }
 
-    /// <summary>Will apply the transformation if the argument is not null nor an empty collection.</summary>
-    public static T ConditionallyApply<T, TArgument>(this T source,
-        TArgument? argument, Func<TArgument, T, T> transform
-    )
-        where TArgument : struct
-    {
-        if (!argument.TryGetValue(out TArgument _argument) || (_argument is ICollection collection && collection.Count < 1))
+        /// <summary>Will perform the action if the arguments enumerable is not null nor empty.</summary>
+        public T ConditionallyDo<TArgument>(IEnumerable<TArgument>? arguments, Action<IEnumerable<TArgument>, T> action)
         {
+            if (arguments == null || !arguments.Any())
+            {
+                return source;
+            }
+            action(arguments, source);
             return source;
         }
-        T result = transform(_argument, source);
-        return result;
-    }
+        #endregion
 
-    /// <summary>Will apply the transformation if the argument is not null nor an empty collection.</summary>
-    public static T ConditionallyApply<T, TArgument>(this T source,
-        TArgument? argument, Func<TArgument, T, T> transform
-    )
-         where TArgument : class
-    {
-        if (argument == null || (argument is ICollection collection && collection.Count < 1))
+        #region ConditionallyApply
+        /// <summary>Will apply the transformation if the condition is true.</summary>
+        public T ConditionallyApply(bool condition, Func<T, T> transform)
         {
-            return source;
+            if (!condition)
+            {
+                return source;
+            }
+            T result = transform(source);
+            return result;
         }
-        T result = transform(argument, source);
-        return result;
-    }
 
-    /// <summary>Will apply the transformation if the string argument is not null, empty nor whitespace.</summary>
-    public static T ConditionallyApply<T>(this T source,
-        string? argument, Func<string, T, T> transform
-    )
-    {
-        if (string.IsNullOrWhiteSpace(argument))
+        /// <summary>Will apply the transformation if the argument is not null nor an empty collection.</summary>
+        public T ConditionallyApply<TArgument>(TArgument? argument, Func<TArgument, T, T> transform)
+            where TArgument : struct
         {
-            return source;
+            if (!argument.TryGetValue(out TArgument _argument) || (_argument is ICollection collection && collection.Count < 1))
+            {
+                return source;
+            }
+            T result = transform(_argument, source);
+            return result;
         }
-        T result = transform(argument, source);
-        return result;
-    }
 
-    /// <summary>Will apply the transformation if the arguments enumerable is not null nor empty.</summary>
-    public static T ConditionallyApply<T, TArgument>(this T source,
-        IEnumerable<TArgument>? arguments, Func<IEnumerable<TArgument>, T, T> transform
-    )
-    {
-        if (arguments == null || !arguments.Any())
+        /// <summary>Will apply the transformation if the argument is not null nor an empty collection.</summary>
+        public T ConditionallyApply<TArgument>(TArgument? argument, Func<TArgument, T, T> transform)
+             where TArgument : class
         {
-            return source;
+            if (argument == null || (argument is ICollection collection && collection.Count < 1))
+            {
+                return source;
+            }
+            T result = transform(argument, source);
+            return result;
         }
-        T result = transform(arguments, source);
-        return result;
+
+        /// <summary>Will apply the transformation if the string argument is not null, empty nor whitespace.</summary>
+        public T ConditionallyApply(string? str, Func<string, T, T> transform)
+        {
+            if (string.IsNullOrWhiteSpace(str))
+            {
+                return source;
+            }
+            T result = transform(str, source);
+            return result;
+        }
+
+        /// <summary>Will apply the transformation if the arguments enumerable is not null nor empty.</summary>
+        public T ConditionallyApply<TArgument>(IEnumerable<TArgument>? arguments, Func<IEnumerable<TArgument>, T, T> transform)
+        {
+            if (arguments == null || !arguments.Any())
+            {
+                return source;
+            }
+            T result = transform(arguments, source);
+            return result;
+        }
+        #endregion
     }
-    #endregion
 }
