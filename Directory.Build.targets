@@ -1,0 +1,15 @@
+<Project>
+  <Target Name="EnforceStrictPackageRanges" BeforeTargets="CollectPackageReferences">
+    <ItemGroup>
+      <PackageReference Update="@(PackageReference)" Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(Version)', '^\d+\.\d+\.\d+$'))">
+        <Major>$([System.Text.RegularExpressions.Regex]::Replace('%(Version)', '^(\d+)\.(\d+)\.(\d+)$', '$1'))</Major>
+        <Minor>$([System.Text.RegularExpressions.Regex]::Replace('%(Version)', '^(\d+)\.(\d+)\.(\d+)$', '$2'))</Minor>
+        <Patch>$([System.Text.RegularExpressions.Regex]::Replace('%(Version)', '^(\d+)\.(\d+)\.(\d+)$', '$3'))</Patch>
+      </PackageReference>
+
+      <PackageReference Update="@(PackageReference)" Condition="'%(Minor)' != ''">
+        <Version>[%(Major).%(Minor).%(Patch), %(Major).$([MSBuild]::Add(%(Minor), 1)).0)</Version>
+      </PackageReference>
+    </ItemGroup>
+  </Target>
+</Project>
