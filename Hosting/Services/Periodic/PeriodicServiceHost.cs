@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AndrejKrizan.Hosting.Services.Periodic;
 
-public class PeriodicServiceHost<TService> : BackgroundService
+public sealed class PeriodicServiceHost<TService> : BackgroundService
     where TService : IService
 {
     // Fields

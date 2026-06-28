@@ -8,44 +8,27 @@ namespace AndrejKrizan.ElasticSearch.Extensions;
 
 public static class ElasticsearchResponseExtensions
 {
-    extension(ElasticsearchResponse response)
+    public static void Validate(this ElasticsearchResponse response, ILogger logger)
     {
-        /// <summary>Throws an exception if the response is not valid, preserving the Elasticsearch server and api call errors if they're present.</summary>
-        /// <exception cref="Exception"></exception>
-        public void Validate()
+        if (response.ElasticsearchWarnings.Any())
         {
-            if (response.IsValidResponse)
-            {
-                return;
-            }
-
-            ElasticsearchServerError? serverError = response.ElasticsearchServerError;
-            Exception? apiException = response.ApiCallDetails.OriginalException;
-            if (serverError != null)
-            {
-                throw new Exception(serverError.ToString(), apiException);
-            }
-            if (apiException != null)
-            {
-                throw apiException;
-            }
-            throw new Exception("Unknown Elasticsearch error.");
+            logger.LogWarning("Elasticsearch response containts warnings:\n{warnings}", response.ElasticsearchWarnings.StringJoin(separator: "\n"));
+        }
+        if (response.IsValidResponse)
+        {
+            return;
         }
 
-        /// <summary>
-        ///     Throws an exception if the response is not valid, preserving the Elasticsearch server and api call errors if they're present.
-        ///     <br/>
-        ///     Also logs any Elasticsearch warnings to the logger.
-        /// </summary>
-        /// <exception cref="Exception"></exception>
-        public void Validate(ILogger logger)
+        ElasticsearchServerError? serverError = response.ElasticsearchServerError;
+        Exception? apiException = response.ApiCallDetails.OriginalException;
+        if (serverError != null)
         {
-            if (response.ElasticsearchWarnings.Any())
-            {
-                logger.LogWarning("Elasticsearch response contains warnings:\n{warnings}", response.ElasticsearchWarnings.StringJoin(separator: "\n"));
-            }
-            response.Validate();
+            throw new Exception(serverError.ToString(), apiException);
         }
+        if (apiException != null)
+        {
+            throw apiException;
+        }
+        throw new Exception("Unknown Elasticsearch error.");
     }
-    
 }

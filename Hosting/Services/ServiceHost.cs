@@ -3,7 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace AndrejKrizan.Hosting.Services;
-public class ServiceHost<TService> : BackgroundService
+public sealed class ServiceHost<TService> : BackgroundService
     where TService: IService
 {
     // Fields
