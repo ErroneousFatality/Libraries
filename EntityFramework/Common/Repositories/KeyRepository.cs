@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
+using AndrejKrizan.DotNet.Collections;
 using AndrejKrizan.DotNet.Lambdas.Properties;
 using AndrejKrizan.DotNet.Repositories;
 using AndrejKrizan.DotNet.Utilities;
@@ -9,7 +10,6 @@ using AndrejKrizan.EntityFramework.Common.Queries;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace AndrejKrizan.EntityFramework.Common.Repositories;
 
@@ -40,41 +40,8 @@ public abstract class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRe
         where TCollection: IReadOnlyCollection<TKey>
     {
         if (keys.Count == 0) { return []; }
-
-        MethodCallExpression _keysContainKey;
-        if (keys is ImmutableArray<TKey> immutableKeys)
-        {
-            MethodInfo contains = typeof(ImmutableArray<TKey>)
-                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                .Single(method
-                    => method.Name == nameof(ImmutableArray<>.Contains)
-                    && method.GetParameters().Length == 1
-                );
-            _keysContainKey = Expression.Call(
-                instance: Expression.Constant(immutableKeys),
-                method: contains,
-                arguments: [KeyProperty.Expression]
-            );
-        }
-        else
-        {
-            MethodInfo contains = typeof(Enumerable)
-                .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .Single(method
-                    => method.Name == nameof(Enumerable.Contains)
-                    && method.GetParameters().Length == 2
-                )
-                .MakeGenericMethod(typeof(TKey));
-            _keysContainKey = Expression.Call(
-                instance: null,
-                method: contains,
-                arguments: [Expression.Constant(keys), KeyProperty.Expression]
-            );
-        }
-        Expression<Func<TEntity, bool>> keysContainKey = Expression.Lambda<Func<TEntity, bool>>(_keysContainKey, KeyProperty.Parameter);
-
         ImmutableArray<TEntity> entities = await DbSet
-            .Where(keysContainKey)
+            .Where(KeyIsIn(keys))
             .ToImmutableArrayAsync(keys.Count, cancellationToken);
         return entities;
     }
@@ -102,14 +69,49 @@ public abstract class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRe
                     : await GetKeysAsync(keys.ToImmutableArray(), cancellationToken);
 
 
+    /// <returns>Whether the key was found and deleted.</returns>
+    public async Task<bool> DeleteAsync(TKey key, CancellationToken cancellationToken = default)
+    {
+        int deletedCount = await DbSet
+            .Where(KeyProperty.ToEqualsLambda<TEntity>(key))
+            .ExecuteDeleteAsync(cancellationToken);
+        return deletedCount > 0;
+    }
+
+    /// <returns>Whether the entity was found and deleted by its key.</returns>
+    public async Task<bool> DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
+    {
+        TKey key = KeyProperty.GetValue(entity);
+        int deletedCount = await DbSet
+            .Where(KeyProperty.ToEqualsLambda<TEntity>(key))
+            .ExecuteDeleteAsync(cancellationToken);
+        return deletedCount > 0;
+    }
+
+    /// <returns>The number of keys found and deleted.</returns>
+    public async Task<int> DeleteManyAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
+    {
+        int deletedCount = await DbSet
+            .Where(KeyIsIn(keys))
+            .ExecuteDeleteAsync(cancellationToken);
+        return deletedCount;
+    }
+
+    /// <returns>The number of keys found and deleted.</returns>
+    public async Task<int> DeleteManyAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+    {
+        ImmutableArray<TKey> keys = entities.Convert(KeyProperty.GetValue);
+        int deletedCount = await DbSet
+            .Where(KeyIsIn(keys))
+            .ExecuteDeleteAsync(cancellationToken);
+        return deletedCount;
+    }
+
     public void Delete(TKey key)
     {
         TEntity mockEntity = MockEntity(key);
         DbSet.Remove(mockEntity);
     }
-
-    public void DeleteMany(params TKey[] keys)
-        => DeleteMany((IEnumerable<TKey>)keys);
 
     public void DeleteMany(IEnumerable<TKey> keys)
     {
@@ -121,23 +123,21 @@ public abstract class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRe
         DbSet.RemoveRange(mockEntities);
     }
 
-    /// <returns>whether key was found in the database before being deleted</returns>
-    public async Task<bool> TryDeleteAsync(TKey key, CancellationToken cancellationToken = default)
-    {
-        if (!await ExistsAsync(key, cancellationToken))
-        {
-            return false;
-        }
-        Delete(key);
-        return true;
-    }
-
     public void Untrack(TKey key)
     {
         EntityEntry<TEntity>? entry = DbSet.Local.FindEntry(key)
             ?? throw new ArgumentException($"There is no tracked entity with key = {key}.", nameof(key));
         entry.State = EntityState.Detached;
     }
+
+    /// <returns>whether key was found in the database before being deleted</returns>
+    [Obsolete(message: $"Use the {nameof(DeleteAsync)} method instead.", error: true)]
+    public Task<bool> TryDeleteAsync(TKey key, CancellationToken cancellationToken = default)
+        => DeleteAsync(key, cancellationToken);
+
+    [Obsolete(message: $"Use the {nameof(DeleteMany)} with an inline initialized collection instead. E.g.: [1, 2, 3]", error: true)]
+    public void DeleteMany(params TKey[] keys)
+        => DeleteMany((IEnumerable<TKey>)keys);
 
     // Protected methods
     protected virtual TEntity MockEntity(TKey key)
@@ -146,5 +146,42 @@ public abstract class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRe
         KeyProperty.SetValue(entity, key);
         DbSet.Attach(entity);
         return entity;
+    }
+
+    protected Expression<Func<TEntity, bool>> KeyIsIn<TKeyCollection>(TKeyCollection keys)
+        where TKeyCollection: IEnumerable<TKey>
+    {
+        MethodCallExpression keysContainKey;
+        if (keys is ImmutableArray<TKey> immutableKeys)
+        {
+            MethodInfo contains = typeof(ImmutableArray<TKey>)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Single(method
+                    => method.Name == nameof(ImmutableArray<>.Contains)
+                    && method.GetParameters().Length == 1
+                );
+            keysContainKey = Expression.Call(
+                instance: Expression.Constant(immutableKeys),
+                method: contains,
+                arguments: [KeyProperty.Expression]
+            );
+        }
+        else
+        {
+            MethodInfo contains = typeof(Enumerable)
+                .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Single(method
+                    => method.Name == nameof(Enumerable.Contains)
+                    && method.GetParameters().Length == 2
+                )
+                .MakeGenericMethod(typeof(TKey));
+            keysContainKey = Expression.Call(
+                instance: null,
+                method: contains,
+                arguments: [Expression.Constant(keys), KeyProperty.Expression]
+            );
+        }
+        Expression<Func<TEntity, bool>> keyIsInKeys = Expression.Lambda<Func<TEntity, bool>>(keysContainKey, KeyProperty.Parameter);
+        return keyIsInKeys;
     }
 }

@@ -14,6 +14,9 @@ public abstract class CompositeKey<TEntity, TSelf>
 
     public static readonly ImmutableArray<PropertyBinding> PropertyBindings;
 
+    // Static properties
+    public static Func<TEntity, TSelf> Create => field ??= TSelf.Selector.Compile();
+
     // Static constructor
 
     static CompositeKey()
@@ -71,7 +74,7 @@ public abstract class CompositeKey<TEntity, TSelf>
     {
         foreach (PropertyBinding propertyBinding in PropertyBindings)
         {
-            object? value = propertyBinding.KeyProperty.PropertyInfo.GetValue(this);
+            object? value = propertyBinding.KeyProperty.GetValue(this);
             propertyBinding.EntityProperty.SetValue(entity, value);
         }
     }

@@ -7,6 +7,7 @@ public static class ImmutableArrayBuilderExtensions
     /// If possible, uses <see cref="ImmutableArray{T}.Builder.MoveToImmutable"/>, 
     /// otherwise uses <see cref="ImmutableArray{T}.Builder.ToImmutable"/>.
     /// </summary>
+    [Obsolete(message: $"Use {nameof(ImmutableArray<>.Builder.DrainToImmutable)}.", error: true)]
     public static ImmutableArray<T> GetImmutableArray<T>(this ImmutableArray<T>.Builder builder)
         => builder.Count == builder.Capacity
             ? builder.MoveToImmutable()

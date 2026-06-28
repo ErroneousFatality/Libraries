@@ -12,7 +12,9 @@ public interface IRepository<TEntity>
 
     void Delete(TEntity entity);
     void DeleteMany(IEnumerable<TEntity> entities);
-    void DeleteMany(params TEntity[] entities);
 
     void Untrack(TEntity entity);
+
+    [Obsolete(message: $"Use the {nameof(DeleteMany)} with an inline initialized collection instead. E.g.: [1, 2, 3]", error: true)]
+    void DeleteMany(params TEntity[] entities);
 }

@@ -16,6 +16,12 @@ public class PropertyLambda<T, TProperty> : PropertyLambda
         : base(lambda, propertyInfo) { }
 
     // Methods
+    public TProperty GetValue(T source)
+    {
+        TProperty value = (TProperty)PropertyInfo.GetValue(source)!;
+        return value;
+    }
+
     public override PropertyLambda<T, TProperty> ReplaceParameter(ParameterExpression parameter)
     {
         Expression<Func<T, TProperty>> lambda = Lambda.ReplaceParameter(parameter);

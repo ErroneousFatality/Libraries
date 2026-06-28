@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 
+using AndrejKrizan.DotNet.Collections;
 using AndrejKrizan.DotNet.CompositeKeys;
 using AndrejKrizan.DotNet.Repositories;
 using AndrejKrizan.DotNet.Utilities;
@@ -96,15 +97,44 @@ public abstract class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity
             : keys is IReadOnlyCollection<TKey> collection ? await GetKeysAsync(collection, chunkSize, cancellationToken)
                 : await GetKeysAsync(keys.ToImmutableArray(), chunkSize, cancellationToken);
 
+
+    /// <returns>Whether the key was found and deleted.</returns>
+    public async Task<bool> DeleteAsync(TKey key, CancellationToken cancellationToken = default)
+    {
+        int deletedCount = await DbSet
+            .Where(key.ToEntityHasKeyPredicate())
+            .ExecuteDeleteAsync(cancellationToken);
+        return deletedCount > 0;
+    }
+
+    /// <returns>Whether the entity was found and deleted by its key.</returns>
+    public async Task<bool> DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
+    {
+        TKey key = CompositeKey<TEntity, TKey>.Create(entity);
+        return await DeleteAsync(key, cancellationToken);
+    }
+
+    /// <returns>The number of keys found and deleted.</returns>
+    public async Task<int> DeleteManyAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
+    {
+        int deletedCount = await DbSet
+            .WhereAny(keys, key => key.ToEntityHasKeyPredicate())
+            .ExecuteDeleteAsync(cancellationToken);
+        return deletedCount;
+    }
+
+    /// <returns>The number of keys found and deleted.</returns>
+    public async Task<int> DeleteManyAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+    {
+        ImmutableArray<TKey> keys = entities.Convert(CompositeKey<TEntity, TKey>.Create);
+        return await DeleteManyAsync(keys, cancellationToken);
+    }
+
     public void Delete(TKey key)
     {
         TEntity mockEntity = MockEntity(key);
         DbSet.Remove(mockEntity);
     }
-
-
-    public void DeleteMany(params TKey[] keys)
-        => DeleteMany((IEnumerable<TKey>)keys);
 
     public void DeleteMany(IEnumerable<TKey> keys)
     {
@@ -116,8 +146,16 @@ public abstract class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity
         DbSet.RemoveRange(mockEntities);
     }
 
+    public void Untrack(TKey key)
+    {
+        EntityEntry<TEntity>? entry = DbSet.Local.FindEntry(key)
+            ?? throw new ArgumentException($"There is no tracked entity with key = {key}.", nameof(key));
+        entry.State = EntityState.Detached;
+    }
+
 
     /// <returns>whether key was found in the database before being deleted</returns>
+    [Obsolete(message: $"Use the {nameof(DeleteAsync)} method instead.", error: true)]
     public async Task<bool> TryDeleteAsync(TKey key, CancellationToken cancellationToken = default)
     {
         if (!await ExistsAsync(key, cancellationToken))
@@ -128,13 +166,9 @@ public abstract class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity
         return true;
     }
 
-    public void Untrack(TKey key)
-    {
-        EntityEntry<TEntity>? entry = DbSet.Local.FindEntry(key)
-            ?? throw new ArgumentException($"There is no tracked entity with key = {key}.", nameof(key));
-        entry.State = EntityState.Detached;
-    }
-
+    [Obsolete(message: $"Use the {nameof(DeleteMany)} with an inline initialized collection instead. E.g.: [1, 2, 3]", error: true)]
+    public void DeleteMany(params TKey[] keys)
+        => DeleteMany((IEnumerable<TKey>)keys);
 
     // Protected methods
     protected TEntity MockEntity(TKey key)
