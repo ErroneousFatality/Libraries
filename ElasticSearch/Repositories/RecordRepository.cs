@@ -67,8 +67,8 @@ public abstract class RecordRepository<TRecord, TId> : RecordRepository, IRecord
 
     public async Task<TRecord?> GetAsync(TId id, CancellationToken cancellationToken = default)
     {
-        Id _id = CreateId(id);
-        GetResponse<TRecord> response = await Client.GetAsync<TRecord>(_id, cancellationToken);
+        Id recordId = CreateId(id);
+        GetResponse<TRecord> response = await Client.GetAsync<TRecord>(recordId, cancellationToken);
         response.Validate(Logger);
         return response.Source;
     }
@@ -79,11 +79,11 @@ public abstract class RecordRepository<TRecord, TId> : RecordRepository, IRecord
         {
             return ImmutableDictionary<TId, TRecord>.Empty;
         }
-        Ids _ids = CreateIds(ids);
+        Ids recordIds = CreateIds(ids);
         MultiGetResponse<TRecord> response = await Client.MultiGetAsync<TRecord>(
             new MultiGetRequest
             {
-                Ids = _ids
+                Ids = recordIds
             },
             cancellationToken
         );
@@ -120,8 +120,8 @@ public abstract class RecordRepository<TRecord, TId> : RecordRepository, IRecord
 
     public async Task DeleteAsync(TId id, CancellationToken cancellationToken = default)
     {
-        Id _id = CreateId(id);
-        DeleteResponse response = await Client.DeleteAsync<TRecord>(_id, cancellationToken);
+        Id recordId = CreateId(id);
+        DeleteResponse response = await Client.DeleteAsync<TRecord>(recordId, cancellationToken);
         response.Validate(Logger);
     }
 
@@ -135,17 +135,96 @@ public abstract class RecordRepository<TRecord, TId> : RecordRepository, IRecord
     // Protected methods
     protected static Id CreateId(TId id)
     {
-        string? str = id.ToString();
-        if (string.IsNullOrEmpty(str))
+        Id recordId = id switch
         {
-            throw new ArgumentNullException(nameof(id));
-        }
-        Id _id = new(str);
-        return _id;
+            // Long type
+            long l => new Id(l),
+            ulong ul when ul <= long.MaxValue => new Id((long)ul),
+            int i => new Id((long)i),
+            uint ui => new Id((long)ui),
+            short s => new Id((long)s),
+            ushort us => new Id((long)us),
+            sbyte sb => new Id((long)sb),
+            byte b => new Id((long)b),
+
+            // String type
+            string str => string.IsNullOrEmpty(str)
+                ? throw new ArgumentException("The text search record id is a null or empty string.", nameof(id))
+                : new Id(str),
+
+            Guid guid => guid == Guid.Empty
+                ? throw new ArgumentException("The text search record id is an empty GUID.", nameof(id))
+                : new Id(guid.ToString("N")),
+
+            _ => id?.ToString() switch
+            {
+                null or "" => throw new ArgumentException("The text search record id is an object whose string representation is a null or empty string.", nameof(id)),
+                string objString => new Id(objString)
+            }
+        };
+        return recordId;
     }
 
     protected static Ids CreateIds(IEnumerable<TId> ids)
-        => new Ids(ids.Select(CreateId));
+    {
+        Type type = typeof(TId);
+        Func<TId, Id> createId =
+            // Long type
+            type == typeof(long) ? id 
+                => new Id((long)(object)id)
+            : type == typeof(int) ? id 
+                => new Id((long)(int)(object)id)
+            : type == typeof(uint) ? id 
+                => new Id((long)(uint)(object)id)
+            : type == typeof(short) ? id 
+                => new Id((long)(short)(object)id)
+            : type == typeof(ushort) ? id 
+                => new Id((long)(ushort)(object)id)
+            : type == typeof(sbyte) ? id 
+                => new Id((long)(sbyte)(object)id)
+            : type == typeof(byte) ? id 
+                => new Id((long)(byte)(object)id)
+            // Long or string type
+            : type == typeof(ulong) ? id 
+                => {
+                    ulong ul = (ulong)(object)id;
+                    return ul <= long.MaxValue
+                        ? new Id((long)ul)
+                        : new Id(ul.ToString());
+                }
+            // String type
+            : type == typeof(string) ? id 
+                => {
+                    string? str = (string?)(object)id;
+                    if (string.IsNullOrEmpty(str))
+                    {
+                        throw new ArgumentException("The text search record id is a null or empty string.", nameof(ids));
+                    }
+                    return new Id(str);
+                }
+            : type == typeof(Guid) ? id 
+                => {
+                    Guid guid = (Guid)(object)id;
+                    if (guid == Guid.Empty)
+                    {
+                        throw new ArgumentException("The text search record id is an empty GUID.", nameof(ids));
+                    }
+                    string guidString = guid.ToString("N");
+                    return new Id(guidString);
+                }
+            : id 
+            => {
+                string? objString = id?.ToString();
+                if (string.IsNullOrEmpty(objString))
+                {
+                    throw new ArgumentException("The text search record id is an object whose string representation is a null or empty string.", nameof(ids));
+                }
+                return new Id(objString);
+            };
+        IEnumerable<Id> idEnumerable = ids.Select(createId);
+        Ids recordIds = new(idEnumerable);
+        return recordIds;
+    }
 
     protected async Task<IEnumerable<TRecord>> GetManyAsync(
         Action<SearchRequestDescriptor<TRecord>> configureSearch,

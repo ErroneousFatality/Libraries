@@ -31,51 +31,58 @@ public abstract class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity
     }
 
 
-    public async Task<ImmutableArray<TEntity>> GetManyAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
+    public async Task<ImmutableArray<TEntity>> GetManyAsync<TKeyCollection>(TKeyCollection keys, CancellationToken cancellationToken = default)
+        where TKeyCollection: IReadOnlyCollection<TKey>
     {
-        if (!keys.Any())
-        {
-            return [];
-        }
+        if (keys.Count == 0) { return []; }
         ImmutableArray<TEntity> entities = await DbSet
             .WhereAny(keys, key => key.ToEntityHasKeyPredicate())
-            .ToImmutableArrayAsync(cancellationToken);
+            .ToImmutableArrayAsync(keys.Count, cancellationToken);
         return entities;
     }
-        
 
-    public async Task<ImmutableArray<TEntity>> GetManyAsync(IEnumerable<TKey> keys, int chunkSize, CancellationToken cancellationToken = default)
+    public async Task<ImmutableArray<TEntity>> GetManyAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
+        => keys is ImmutableArray<TKey> immutableArray ? await GetManyAsync(immutableArray, cancellationToken)
+            : keys is IReadOnlyCollection<TKey> collection ? await GetManyAsync(collection, cancellationToken)
+                : await GetManyAsync(keys.ToImmutableArray(), cancellationToken);
+
+
+    public async Task<ImmutableArray<TEntity>> GetManyAsync<TKeyCollection>(TKeyCollection keys, int chunkSize, CancellationToken cancellationToken = default)
+        where TKeyCollection : IReadOnlyCollection<TKey>
     {
-        if (!keys.Any())
-        {
-            return [];
-        }
+        if (keys.Count == 0) { return []; }
         ImmutableArray<TEntity> entities = await DbSet.WhereAnyAsync(keys, chunkSize, key => key.ToEntityHasKeyPredicate(), cancellationToken);
         return entities;
     }
 
+    public async Task<ImmutableArray<TEntity>> GetManyAsync(IEnumerable<TKey> keys, int chunkSize, CancellationToken cancellationToken = default)
+        => keys is ImmutableArray<TKey> immutableArray ? await GetManyAsync(immutableArray, chunkSize, cancellationToken)
+            : keys is IReadOnlyCollection<TKey> collection ? await GetManyAsync(collection, chunkSize, cancellationToken)
+                : await GetManyAsync(keys.ToImmutableArray(), chunkSize, cancellationToken);
 
-    public async Task<ImmutableArray<TKey>> GetKeysAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
+
+
+    public async Task<ImmutableArray<TKey>> GetKeysAsync<TKeyCollection>(TKeyCollection keys, CancellationToken cancellationToken = default)
+        where TKeyCollection: IReadOnlyCollection<TKey>
     {
-        if (!keys.Any())
-        {
-            return [];
-        }
+        if (keys.Count == 0) { return []; }
         ImmutableArray<TKey> _keys = await DbSet
             .WhereAny(keys, key => key.ToEntityHasKeyPredicate())
             .Select(TKey.Selector)
-            .ToImmutableArrayAsync(cancellationToken);
+            .ToImmutableArrayAsync(keys.Count, cancellationToken);
         return _keys;
     }
 
+    public async Task<ImmutableArray<TKey>> GetKeysAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
+        => keys is ImmutableArray<TKey> immutableArray ? await GetKeysAsync(immutableArray, cancellationToken)
+            : keys is IReadOnlyCollection<TKey> collection ? await GetKeysAsync(collection, cancellationToken)
+                : await GetKeysAsync(keys.ToImmutableArray(), cancellationToken);
 
 
-    public async Task<ImmutableArray<TKey>> GetKeysAsync(IEnumerable<TKey> keys, int chunkSize, CancellationToken cancellationToken = default)
+    public async Task<ImmutableArray<TKey>> GetKeysAsync<TKeyCollection>(TKeyCollection keys, int chunkSize, CancellationToken cancellationToken = default)
+        where TKeyCollection: IReadOnlyCollection<TKey>
     {
-        if (!keys.Any())
-        {
-            return [];
-        }
+        if (keys.Count == 0) { return []; }
         ImmutableArray<TKey> _keys = await DbSet.WhereAnyAsync(keys, chunkSize,
                 key => key.ToEntityHasKeyPredicate(),
                 query => query.Select(TKey.Selector),
@@ -83,6 +90,11 @@ public abstract class CompositeKeyRepository<TEntity, TKey> : Repository<TEntity
             );
         return _keys;
     }
+
+    public async Task<ImmutableArray<TKey>> GetKeysAsync(IEnumerable<TKey> keys, int chunkSize, CancellationToken cancellationToken = default)
+        => keys is ImmutableArray<TKey> immutableArray ? await GetKeysAsync(immutableArray, chunkSize, cancellationToken)
+            : keys is IReadOnlyCollection<TKey> collection ? await GetKeysAsync(collection, chunkSize, cancellationToken)
+                : await GetKeysAsync(keys.ToImmutableArray(), chunkSize, cancellationToken);
 
     public void Delete(TKey key)
     {

@@ -9,22 +9,29 @@ namespace AndrejKrizan.ElasticSearch.Configuration;
 
 public static class IServiceCollectionExtensions
 {
-    public static IServiceCollection AddElasticSearch<IUnitOfWork, UnitOfWork>(this IServiceCollection services,
-        ElasticSearchSettings settings,
-        Func<ElasticsearchClientSettings, ElasticsearchClientSettings> configure
-    )
-        where IUnitOfWork : class
-        where UnitOfWork : ElasticSearchUnitOfWork, IUnitOfWork
+    extension(IServiceCollection services)
     {
-        ElasticsearchClientSettings clientSettings = new ElasticsearchClientSettings(new Uri(settings.Uri))
-            .Authentication(new BasicAuthentication(settings.Username, settings.Password))
-            .ThrowExceptions();
-        clientSettings = configure(clientSettings);
+        public IServiceCollection AddElasticSearch(
+            ElasticSearchSettings settings,
+            Func<ElasticsearchClientSettings, ElasticsearchClientSettings> configure
+        )
+        {
+            ElasticsearchClientSettings clientSettings = new ElasticsearchClientSettings(new Uri(settings.Uri))
+                .Authentication(new BasicAuthentication(settings.Username, settings.Password))
+                .ThrowExceptions();
+            clientSettings = configure(clientSettings);
+            ElasticsearchClient client = new(clientSettings);
+            return services.AddSingleton(client);
+        }
 
-        ElasticsearchClient client = new(clientSettings);
-
-        return services
-            .AddSingleton(client)
-            .AddScoped<UnitOfWork>().AddTransient<IUnitOfWork, UnitOfWork>(services => services.GetRequiredService<UnitOfWork>());
+        public  IServiceCollection AddElasticSearch<IUnitOfWork, UnitOfWork>(
+            ElasticSearchSettings settings,
+            Func<ElasticsearchClientSettings, ElasticsearchClientSettings> configure
+        )
+            where IUnitOfWork : class
+            where UnitOfWork : ElasticSearchUnitOfWork, IUnitOfWork
+            => services
+                .AddElasticSearch(settings, configure)
+                .AddScoped<UnitOfWork>().AddTransient<IUnitOfWork, UnitOfWork>(services => services.GetRequiredService<UnitOfWork>());
     }
 }

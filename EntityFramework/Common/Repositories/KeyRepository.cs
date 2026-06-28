@@ -9,6 +9,7 @@ using AndrejKrizan.EntityFramework.Common.Queries;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AndrejKrizan.EntityFramework.Common.Repositories;
 
@@ -34,24 +35,23 @@ public abstract class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRe
     public async Task<TEntity?> GetAsync(TKey key, CancellationToken cancellationToken = default)
         => await DbSet.FindAsync([key], cancellationToken);
 
-    public async Task<ImmutableArray<TEntity>> GetManyAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
+
+    public async Task<ImmutableArray<TEntity>> GetManyAsync<TCollection>(TCollection keys, CancellationToken cancellationToken = default)
+        where TCollection: IReadOnlyCollection<TKey>
     {
-        if (!keys.Any())
-        {
-            return [];
-        }
+        if (keys.Count == 0) { return []; }
 
         MethodCallExpression _keysContainKey;
-        if (keys is ImmutableArray<TKey> _keys)
+        if (keys is ImmutableArray<TKey> immutableKeys)
         {
             MethodInfo contains = typeof(ImmutableArray<TKey>)
                 .GetMethods(BindingFlags.Public | BindingFlags.Instance)
                 .Single(method
-                    => method.Name == nameof(ImmutableArray<TKey>.Contains)
+                    => method.Name == nameof(ImmutableArray<>.Contains)
                     && method.GetParameters().Length == 1
                 );
             _keysContainKey = Expression.Call(
-                instance: Expression.Constant(_keys),
+                instance: Expression.Constant(immutableKeys),
                 method: contains,
                 arguments: [KeyProperty.Expression]
             );
@@ -75,22 +75,32 @@ public abstract class KeyRepository<TEntity, TKey> : Repository<TEntity>, IKeyRe
 
         ImmutableArray<TEntity> entities = await DbSet
             .Where(keysContainKey)
-            .ToImmutableArrayAsync(cancellationToken);
+            .ToImmutableArrayAsync(keys.Count, cancellationToken);
         return entities;
     }
 
-    public async Task<ImmutableArray<TKey>> GetKeysAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
+    public async Task<ImmutableArray<TEntity>> GetManyAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
+        => keys is ImmutableArray<TKey> immutableArray ? await GetManyAsync(immutableArray, cancellationToken)
+            : keys is IReadOnlyCollection<TKey> collection ? await GetManyAsync(collection, cancellationToken)
+                : await GetManyAsync(keys.ToImmutableArray(), cancellationToken);
+
+
+    public async Task<ImmutableArray<TKey>> GetKeysAsync<TCollection>(TCollection keys, CancellationToken cancellationToken = default)
+        where TCollection: IReadOnlyCollection<TKey>
     {
-        if (!keys.Any())
-        {
-            return [];
-        }
+        if (keys.Count == 0) { return []; }
         ImmutableArray<TKey> _keys = await DbSet
             .Select(KeyProperty.Lambda)
             .Where(key => keys.Contains(key))
-            .ToImmutableArrayAsync(cancellationToken);
+            .ToImmutableArrayAsync(keys.Count, cancellationToken);
         return _keys;
     }
+
+    public async Task<ImmutableArray<TKey>> GetKeysAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default)
+        => keys is ImmutableArray<TKey> immutableArray ? await GetKeysAsync(immutableArray, cancellationToken)
+                : keys is IReadOnlyCollection<TKey> collection ? await GetKeysAsync(collection, cancellationToken)
+                    : await GetKeysAsync(keys.ToImmutableArray(), cancellationToken);
+
 
     public void Delete(TKey key)
     {

@@ -32,8 +32,8 @@ public static class IEnumerableExtensions
                 negativeBuffer.Add(item);
             }
         }
-        ImmutableArray<T> positives = positiveBuffer.GetImmutableArray();
-        ImmutableArray<T> negatives = negativeBuffer.GetImmutableArray();
+        ImmutableArray<T> positives = positiveBuffer.DrainToImmutable();
+        ImmutableArray<T> negatives = negativeBuffer.DrainToImmutable();
         return (positives, negatives);
     }
 
@@ -195,7 +195,7 @@ public static class IEnumerableExtensions
         Func<IReadOnlySet<T>, Exception> errorFunc, IEqualityComparer<T> equalityComparer
     )
     {
-        IReadOnlySet<T> duplicates = source.GetDuplicateSet(equalityComparer);
+        HashSet<T> duplicates = source.GetDuplicateSet(equalityComparer);
         if (duplicates.Count > 0)
         {
             Exception error = errorFunc(duplicates);

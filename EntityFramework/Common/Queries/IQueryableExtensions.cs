@@ -158,7 +158,7 @@ public static class IQueryableExtensions
             {
                 builder.Add(item);
             }
-            ImmutableArray<T> immutableArray = builder.ToImmutable();
+            ImmutableArray<T> immutableArray = builder.DrainToImmutable();
             return immutableArray;
         }
         #endregion
@@ -258,20 +258,48 @@ public static class IQueryableExtensions
 
 
         #region WhereAnyAsync
+        public async Task<ImmutableArray<T>> WhereAnyAsync<TData, TDataCollection>(
+            TDataCollection dataSource, int chunkSize, Func<TData, Expression<Func<T, bool>>> predicateBuilder, 
+            CancellationToken cancellationToken = default
+        )
+            where TDataCollection : IReadOnlyCollection<TData>
+        {
+            List<T> resultsBuilder = new(capacity: dataSource.Count);
+            foreach (TData[] dataChunk in dataSource.Chunk(chunkSize))
+            {
+                ImmutableArray<T> resultChunk = await source
+                    .WhereAny(dataChunk, predicateBuilder)
+                    .ToImmutableArrayAsync(dataChunk.Length, cancellationToken);
+                resultsBuilder.AddRange(resultChunk);
+            }
+            ImmutableArray<T> results = resultsBuilder.Distinct().ToImmutableArray();
+            return results;
+        }
+
         public async Task<ImmutableArray<T>> WhereAnyAsync<TData>(
             IEnumerable<TData> dataSource, int chunkSize, Func<TData, Expression<Func<T, bool>>> predicateBuilder, 
             CancellationToken cancellationToken = default
         )
+            => dataSource is ImmutableArray<TData> immutableArray ? await source.WhereAnyAsync(immutableArray, chunkSize, predicateBuilder, cancellationToken)
+                : dataSource is IReadOnlyCollection<TData> collection ? await source.WhereAnyAsync(collection, chunkSize, predicateBuilder, cancellationToken)
+                    : await source.WhereAnyAsync(dataSource.ToImmutableArray(), chunkSize, predicateBuilder, cancellationToken);
+
+
+        public async Task<ImmutableArray<TResult>> WhereAnyAsync<TData, TDataCollection, TResult>(
+            TDataCollection dataSource, int chunkSize, Func<TData, Expression<Func<T, bool>>> predicateBuilder,
+            Func<IQueryable<T>, IQueryable<TResult>> additionalOperations,
+            CancellationToken cancellationToken = default
+        )
+            where TDataCollection: IReadOnlyCollection<TData>
         {
-            List<T> resultBuffer = new(dataSource.Count());
+            List<TResult> resultBuffer = new(dataSource.Count);
             foreach (TData[] dataChunk in dataSource.Chunk(chunkSize))
             {
-                List<T> resultChunk = await source
-                    .WhereAny(dataChunk, predicateBuilder)
-                    .ToListAsync(cancellationToken);
+                IQueryable<TResult> resultQuery = additionalOperations(source.WhereAny(dataChunk, predicateBuilder));
+                ImmutableArray<TResult> resultChunk = await resultQuery.ToImmutableArrayAsync(dataChunk.Length, cancellationToken);
                 resultBuffer.AddRange(resultChunk);
             }
-            ImmutableArray<T> results = resultBuffer.Distinct().ToImmutableArray();
+            ImmutableArray<TResult> results = resultBuffer.Distinct().ToImmutableArray();
             return results;
         }
 
@@ -280,17 +308,10 @@ public static class IQueryableExtensions
             Func<IQueryable<T>, IQueryable<TResult>> additionalOperations,
             CancellationToken cancellationToken = default
         )
-        {
-            List<TResult> resultBuffer = new(dataSource.Count());
-            foreach (TData[] dataChunk in dataSource.Chunk(chunkSize))
-            {
-                IQueryable<TResult> resultQuery = additionalOperations(source.WhereAny(dataChunk, predicateBuilder));
-                List<TResult> resultChunk = await resultQuery.ToListAsync(cancellationToken);
-                resultBuffer.AddRange(resultChunk);
-            }
-            ImmutableArray<TResult> results = resultBuffer.Distinct().ToImmutableArray();
-            return results;
-        }
+            => dataSource is ImmutableArray<TData> immutableArray ? await source.WhereAnyAsync(immutableArray, chunkSize, predicateBuilder, additionalOperations, cancellationToken)
+                : dataSource is IReadOnlyCollection<TData> collection ? await source.WhereAnyAsync(collection, chunkSize, predicateBuilder, additionalOperations, cancellationToken)
+                    : await source.WhereAnyAsync(dataSource.ToImmutableArray(), chunkSize, predicateBuilder, additionalOperations, cancellationToken);
+
         #endregion
     }
 

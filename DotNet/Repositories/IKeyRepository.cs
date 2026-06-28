@@ -6,9 +6,17 @@ public interface IKeyRepository<TEntity, TKey> : IRepository<TEntity>
 {
     Task<bool> ExistsAsync(TKey key, CancellationToken cancellationToken = default);
 
+
     Task<TEntity?> GetAsync(TKey key, CancellationToken cancellationToken = default);
+
+    Task<ImmutableArray<TEntity>> GetManyAsync<TKeyCollection>(TKeyCollection keys, CancellationToken cancellationToken = default)
+        where TKeyCollection: IReadOnlyCollection<TKey>;
     Task<ImmutableArray<TEntity>> GetManyAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default);
+
+    Task<ImmutableArray<TKey>> GetKeysAsync<TKeyCollection>(TKeyCollection keys, CancellationToken cancellationToken = default)
+        where TKeyCollection : IReadOnlyCollection<TKey>;
     Task<ImmutableArray<TKey>> GetKeysAsync(IEnumerable<TKey> keys, CancellationToken cancellationToken = default);
+
 
     void Delete(TKey key);
     /// <returns>whether key was found in the database before being deleted</returns>
