@@ -28,6 +28,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AndrejKrizan.SqlClient", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AndrejKrizan.ElasticSearch", "ElasticSearch\AndrejKrizan.ElasticSearch.csproj", "{3DE3905F-9D13-4362-90DB-9836710840B6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AndrejKrizan.Hosting", "Hosting\AndrejKrizan.Hosting.csproj", "{F1B086F3-26F0-4936-8712-4EAE7C85A119}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -70,6 +72,10 @@ Global
 		{3DE3905F-9D13-4362-90DB-9836710840B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DE3905F-9D13-4362-90DB-9836710840B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DE3905F-9D13-4362-90DB-9836710840B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1B086F3-26F0-4936-8712-4EAE7C85A119}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1B086F3-26F0-4936-8712-4EAE7C85A119}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1B086F3-26F0-4936-8712-4EAE7C85A119}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1B086F3-26F0-4936-8712-4EAE7C85A119}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
